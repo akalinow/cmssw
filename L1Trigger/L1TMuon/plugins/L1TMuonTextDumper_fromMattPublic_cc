@@ -1,0 +1,595 @@
+//////////////////////////////////////////////////////////////
+// Upgraded Encdap Muon Track Finding Algorithm		    //
+//							    //
+// Info: A human-readable version of the firmware based     //
+//       track finding algorithm which will be implemented  //
+//       in the upgraded endcaps of CMS. DT and RPC inputs  //
+//	 are not considered in this algorithm.      	    //
+//  							    //
+// Author: M. Carver (UF)				    //
+//////////////////////////////////////////////////////////////
+
+// --> We should rename this class <-- 
+// --> I deleted a bunch of stuff from this too. <--
+
+#include "L1Trigger/L1TMuon/plugins/L1TMuonTextDumper.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h"
+#include "L1Trigger/CSCTrackFinder/test/src/RefTrack.h"
+#include "L1Trigger/CSCTrackFinder/test/src/TFTrack.h"
+#include "L1Trigger/CSCTrackFinder/test/src/Track.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#include "PrimitiveConverter.h"
+#include "BXAnalyzer.h"
+#include "ZoneCreation.h"
+#include "PatternRecognition.h"
+#include "SortSector.h"
+#include "Matching.h"
+#include "Deltas.h"
+#include "BestTracks.h"
+
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
+#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/L1CSCTrackFinder/interface/L1Track.h"
+#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
+#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
+#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
+
+
+using namespace L1TMuon;
+
+
+L1TMuonTextDumper::L1TMuonTextDumper(const PSet& p) {
+  if( (_dogen = p.getUntrackedParameter<bool>("doGen",false)) ) {
+    _geninput = p.getUntrackedParameter<edm::InputTag>("genSrc");
+  }
+  _tpinputs = p.getParameter<std::vector<edm::InputTag> >("primitiveSrcs");
+  _convTrkInputs = 
+    p.getParameter<std::vector<edm::InputTag> >("converterSrcs");
+    
+    LUTparam = p.getParameter<edm::ParameterSet>("lutParam");
+    
+    //produces<L1TMuon::InternalTrackCollection> ("DataITC").setBranchAlias("DataITC");
+}
+
+
+// This runs every event.
+//void L1TMuonTextDumper::produce(edm::Event& ev, const edm::EventSetup& es) 
+void L1TMuonTextDumper::analyze(const edm::Event& ev, const edm::EventSetup& es) 
+{
+
+  std::cout<<"1start\n";       
+ 		
+  std::cout<<"Start TextDumper Producer::::: event = "<< ev.id().event()<<"\n\n";//accessing the event number
+  
+  int FRSet[5][12][9] = {{{0,1,0,0,1,0,0,0,0},{0,1,0,0,1,0,0,0,0},{0,1,0,0,1,0,0,0,0},{0,1,0,0,1,0,0,0,0},{0,1,0,0,1,0,0,0,0},{0,1,0,0,1,0,0,0,0},{0,1,0,0,1,0,0,0,0},{0,1,0,0,1,0,0,0,0},{0,1,0,0,1,0,0,0,0},{0,1,0,0,1,0,0,0,0},{0,1,0,0,1,0,0,0,0},{0,1,0,0,1,0,0,0,0}},
+  			 {{1,0,1,1,0,1,0,0,0},{1,0,1,1,0,1,0,0,0},{1,0,1,1,0,1,0,0,0},{1,0,1,1,0,1,0,0,0},{1,0,1,1,0,1,0,0,0},{1,0,1,1,0,1,0,0,0},{1,0,1,1,0,1,0,0,0},{1,0,1,1,0,1,0,0,0},{1,0,1,1,0,1,0,0,0},{1,0,1,1,0,1,0,0,0},{1,0,1,1,0,1,0,0,0},{1,0,1,1,0,1,0,0,0}},
+			 {{1,0,1,0,1,0,1,0,1},{0,1,0,0,1,0,1,0,1},{1,0,1,0,1,0,1,0,1},{0,1,0,0,1,0,1,0,1},{1,0,1,0,1,0,1,0,1},{0,1,0,0,1,0,1,0,1},{1,0,1,0,1,0,1,0,1},{0,1,0,0,1,0,1,0,1},{1,0,1,0,1,0,1,0,1},{0,1,0,0,1,0,1,0,1},{1,0,1,0,1,0,1,0,1},{0,1,0,0,1,0,1,0,1}},
+			 {{0,1,0,1,0,1,0,1,0},{1,0,1,1,0,1,0,1,0},{0,1,0,1,0,1,0,1,0},{1,0,1,1,0,1,0,1,0},{0,1,0,1,0,1,0,1,0},{1,0,1,1,0,1,0,1,0},{0,1,0,1,0,1,0,1,0},{1,0,1,1,0,1,0,1,0},{0,1,0,1,0,1,0,1,0},{1,0,1,1,0,1,0,1,0},{0,1,0,1,0,1,0,1,0},{1,0,1,1,0,1,0,1,0}},
+			 {{0,1,0,1,0,1,0,1,0},{1,0,1,1,0,1,0,1,0},{0,1,0,1,0,1,0,1,0},{1,0,1,1,0,1,0,1,0},{0,1,0,1,0,1,0,1,0},{1,0,1,1,0,1,0,1,0},{0,1,0,1,0,1,0,1,0},{1,0,1,1,0,1,0,1,0},{0,1,0,1,0,1,0,1,0},{1,0,1,1,0,1,0,1,0},{0,1,0,1,0,1,0,1,0},{1,0,1,1,0,1,0,1,0}}};
+  
+  
+  //an array which acts as a map between station and cscId to FR bit
+
+  
+  
+  //////////////////////////////////////////////
+  ////////// Get Generated Muons ///////////////
+  //////////////////////////////////////////////
+ 
+  // We will put the generated muons into this vectory thing.
+  edm::Handle<std::vector<reco::GenParticle>> GenMuons;
+
+  // Use this to iterate over GenMuons.
+  std::vector<reco::GenParticle>::const_iterator GI;
+
+  // This grabs the vector and puts it into the above GenMuon business.
+  // edmDumpEventContent will list all of the info in the root file.
+  // Some are the same type but differentiated by label.
+  // We use the label to grab the correct info.
+  ev.getByLabel("genParticles",GenMuons);
+
+  reco::GenParticle GeneratorMuon;
+  
+  float GenKin[3] = {-9999,-9999,-9999};
+
+  for(GI=GenMuons->begin();GI!=GenMuons->end();GI++)
+  {
+  	if(fabs(GI->pdgId()) == 13){
+	const reco::GenParticle GenMuon = *GI;
+	GeneratorMuon = GenMuon;
+
+        //--> Gather the info needed to fill the ntuple <--
+	double pt = GenMuon.pt(), eta = GenMuon.eta(), phi = GenMuon.phi(), mass = GenMuon.mass();
+	std::cout<<"gen_pt = "<<pt<<", gen_eta = "<<eta<<" and gen_phi = "<<phi<<std::endl;
+	
+	GenKin[0] = pt;
+	GenKin[1] = eta;
+	GenKin[2] = phi;
+	
+	gentotal->Fill(pt);
+	if(pt >= 20)
+		Counter->Fill(0);
+      
+        // --> Fill the ntuple. Must be filled with floats. <--
+        // --> We declare the ntuple in beginJob. <--
+        Float_t x[] = {(float) pt, (float) eta, (float) phi, (float) mass};
+       // ntuple->Fill(&x[0]);
+	thentuple->Fill(&x[0]);
+//	int charge = GenMuon.charge();
+}
+  }
+  
+  std::vector<std::vector<TriggerPrimitiveRef>> CSCStubs;//, CSCStubs2; //effectively a 2D array of variable length indexed by
+  							             //[track number][stub number]. Could make the second index 
+							 	     //fixed at a size of four but would need to initialize with 
+							  	     //null values in that case. We'll use this store the stubs 
+							  	     //that the CSCTF tracks are made from.
+						          	     //
+  							  	     //
+
+///////////////////////////////////////////
+////////////// Print all TP's //////////////////////
+////////////////////////////////////////////
+
+std::vector<TriggerPrimitiveRef> AllTp;
+//AllTp.clear();
+  auto tpsrc = _tpinputs.cbegin();
+  auto tpend = _tpinputs.cend();
+  for( ; tpsrc != tpend; ++tpsrc){
+     edm::Handle<TriggerPrimitiveCollection> tps;
+     ev.getByLabel(*tpsrc,tps);
+     auto tp = tps->cbegin();
+     auto tpend = tps->cend();
+
+     for ( ; tp != tpend; ++tp){
+	if(tp->subsystem() == 1){
+		tp->print(std::cout);
+		TriggerPrimitiveRef tpref(tps,tp - tps -> cbegin());
+		AllTp.push_back(tpref);
+	}
+     }
+  }
+
+
+   //////////////////////////////////////////////
+  //////////// Get CSC Tracks //////////////////
+  ///////////////////////////////////////////////
+  
+  
+  edm::ESHandle<CSCGeometry> cscGeometry;
+  //const MuonGeometryRecord& geom = es.get<MuonGeometryRecord>();
+ // geom.get(cscGeometry);
+  
+  es.get<MuonGeometryRecord>().get(cscGeometry);
+  
+  
+ 
+  float TFKin[4] = {-9999,-9999,-9999,0};
+  float CLCTs[4] = {-9999,-9999,-9999,-9999};
+  float CSCids[4] = {-9999,-9999,-9999,-9999};
+  float trial[4] = {-9999,-9999,-9999,-9999};
+  int TEta[4] = {-9999,-9999,-99,-9999};
+  
+  // dump tracks made from track converters
+  auto cvtksrc = _convTrkInputs.cbegin();
+  auto cvtkend = _convTrkInputs.cend();
+  for( ; cvtksrc != cvtkend; ++cvtksrc ) {
+    edm::Handle<InternalTrackCollection> trks;
+    ev.getByLabel(*cvtksrc,trks);
+    auto trk = trks->cbegin();
+    auto trend = trks->cend();
+	
+	int Tnumber = 0;
+    
+    for( ; trk != trend; ++trk ) {
+      if(trk->type_idx() == 2){///The track is a CSC track
+      
+      		Counter->Fill(1);
+		
+		
+		
+		if(Tnumber)
+			continue;
+			
+		Counter->Fill(Tnumber + 3);
+			
+      		
+      		trk->print(std::cout);
+      		
+		int mode = 0;//mode word which tells us which stations are present in the track
+		std::vector<TriggerPrimitiveRef> tmp;
+		TriggerPrimitiveStationMap stubs = trk->getStubs();
+		for(int i=8;i<12;i++){
+			if(stubs[i].size()){//if this condition is satisfied then there is a hit in this station. i=8 means station 1 ..... i=12 means station 4
+				
+
+				std::cout<<"\n\n";
+				stubs[i][0]->print(std::cout);
+				std::cout<<"\n\n";
+
+				stubsize->Fill(stubs[i].size());
+				std::cout<<"subs size = "<<stubs[i].size()<<"\n";
+				std::cout<<"station -- "<<stubs[i][0]->detId<CSCDetId>().station()<<"\n\n";
+				int station = stubs[i][0]->detId<CSCDetId>().station();
+				int Phib = stubs[i][0]->getPattern();
+				std::cout<<"Phibend = "<<Phib<<"\n";
+				if(station == 1 && ((stubs[i][0]->detId<CSCDetId>().chamber())%6 > 2))
+						station = 0;//really station1 subsector1 and station = 1 is really station1 subsector2
+						
+				if(GeneratorMuon.eta() < 1.8 && station == 4)
+					ME4Phi->Fill(stubs[i][0]->getCMSGlobalPhi());
+				
+				int sectindex = (stubs[i][0]->detId<CSCDetId>().endcap() - 1)*6 + stubs[i][0]->detId<CSCDetId>().triggerSector() - 1;
+				int ChamberFR = FRSet[station][sectindex][stubs[i][0]->Id()-1];
+				
+				std::cout<<"station = "<<station<<"\n";
+				CLCTs[stubs[i][0]->detId<CSCDetId>().station()-1] = Phib;
+				CSCids[stubs[i][0]->detId<CSCDetId>().station()-1] = stubs[i][0]->Id();
+				//trial[stubs[i][0]->detId<CSCDetId>().station()-1] = ChamberFR;
+
+				TEta[stubs[i][0]->detId<CSCDetId>().station() - 1] = (fabs(stubs[i][0]->getCMSGlobalEta()) + 0.9)/(0.0125);
+				std::cout<<"TEta["<<stubs[i][0]->detId<CSCDetId>().station() - 1<<"] = "<<TEta[stubs[i][0]->detId<CSCDetId>().station() - 1]<<"\n\n";
+				
+				int ring = stubs[i][0]->detId<CSCDetId>().ring();
+				std::cout<<"ring = "<<ring<<"\n";
+				const CSCChamber* layer = cscGeometry->chamber(stubs[i][0]->detId<CSCDetId>());
+				//const CSCLayer* layer2 = cscGeometry->layer(stubs[i][0]->detId<CSCDetId>());
+				std::cout<<"fuckfuck "<<layer->id()<<"\n";//
+				
+				LocalPoint llc(0.,0.,0.);
+				
+				GlobalPoint glc = layer->toGlobal(llc);
+				//GlobalPoint gcc = layer2->toGlobal(llc);
+				
+				std::cout<<"Z chamber = "<<glc.z()<<"\n";
+				//std::cout<<"Z layer = "<<gcc.z()<<"\n";
+				
+				std::cout<<"ChamberFR = "<<ChamberFR<<"\nId = "<<stubs[i][0]->Id()<<"\n";
+				std::cout<<"New FR = "<<FR(glc.z())<<"\n";
+				
+				if(ChamberFR != FR(glc.z()))
+					std::cout<<"FUCKED UP\n\n";
+				
+			
+				trial[i-8] =  FR(glc.z());
+				if((i < 9) && (ring == 3)){
+					
+					chamberfr2->Fill(stubs[i][0]->detId<CSCDetId>().chamber(),glc.z());
+					
+				
+				}
+				//const GlobalPoint gpwire = layer->centerOfWireGroup(stubs[i][0]->getCSCData().keywire);
+				//std::cout<<"z = "<<gpwire.z()<<"\n";
+				//std::cout<<"ring2 = "<<layer->id().ring()<<"\n";
+				
+				
+				/*
+				GeometryTranslator GT;
+				double z = GT.getCSCSpecificPoint(*stubs[i][0]).z();
+			 	std::cout<<"Z = "<<z<<"!!!\n";
+				*/
+				
+				StubDEta->Fill(stubs[i][0]->getCMSGlobalEta() - GeneratorMuon.eta());
+				//if(GeneratorMuon.eta() < 2.0)
+				StubDphivPt->Fill(GeneratorMuon.pt(),fabs(stubs[i][0]->getCMSGlobalPhi() - GeneratorMuon.phi()));
+				
+				std::cout<<"diff = "<<stubs[i][0]->getCMSGlobalPhi() - GeneratorMuon.phi()<<"\n";
+				std::cout<<"stub eta = "<<stubs[i][0]->getCMSGlobalEta()<<" and stub phi = "<<stubs[i][0]->getCMSGlobalPhi()<<"\n";
+				
+				switch(stubs[i][0]->detId<CSCDetId>().station()){
+					case 1: mode |= 1;break; ///setting the mode word. Imagine a four bit(binary) number 0000. If station 1 only is present then the mode word woudl be 0001.
+					case 2: mode |= 2;break;////if stations 1,2,3 and 4 are present the mode word would be 1111. Stations 2 and 3 correspond to 0110.
+					case 3: mode |= 4;break;
+					case 4: mode |= 8;break;
+					default: mode |= 0;
+				}	
+				tmp.push_back(stubs[i][0]);//pushing stubs into a vector containing all the hits in a track. Second index because sometimes there are 2 stubs in the same station but we'll just take the first one
+				
+			}
+			std::cout<<"MODE = "<<mode<<"\n";
+		}
+		CSCStubs.push_back(tmp);//pushing the vector of stubs 'tmp' into the vector of tracks
+		
+		const RegionalCandBaseRef ref = trk->parent();//getting the reference to the L1 track
+		double pt = ptscale[ref->pt_packed()];//accessing the CSCTF track pt
+		std::cout<<"pt = "<<pt<<"\n";
+		if(pt >= 20){
+			Counter->Fill(2);
+			Turnon->Fill(GeneratorMuon.pt());
+		}
+			
+		double phi = (2.5*(ref->phi_packed()))*(3.14159265359/180) + 0.0218;//accessing the CSCTF track phi
+		if(phi > 3.14159265359)
+			phi -= 6.28318530718;
+		double eta = (ref->eta_packed()&0x1F)*(.05) + .925;//accessing the CSCTF track eta
+		if((ref->eta_packed()&0x20)>>5==1) 
+			eta *= -1;
+		std::cout<<"track phi = "<<phi<<" and track eta = "<<eta<<"\n\n";
+		
+		TFKin[0] = pt;
+		TFKin[1] = eta;
+		TFKin[2] = phi;
+		TFKin[3] = mode;
+		
+		Tnumber++;
+      
+      }
+    }
+  }
+  
+
+ float sfr = 0;
+ 
+ if(trial[0])
+ 	sfr += 1;
+
+ if(trial[1])
+ 	sfr += 2;
+
+if(trial[2])
+ 	sfr += 4;
+
+if(trial[3])
+ 	sfr += 8;
+
+  //std::cout<<"
+  ConvertedHit tmp;tmp.SetNull();
+  ConvertedHit stubs[4] = {tmp,tmp,tmp,tmp};//, stubs2[4] = {tmp,tmp,tmp,tmp};
+ // int sectx = (AllTp[0]->detId<CSCDetId>().endcap() - 1)*6 + AllTp[0]->detId<CSCDetId>().triggerSector() - 1;
+  //std::vector<ConvertedHit> allhits = PrimConv(AllTp,sectx);
+  int dths[3] = {999,999,999}, dets[3] = {999,999,999};
+  
+  //std::cout<<"tmp phi value is "<<stubs[0].Phi()<<"\n";
+  
+  float Dphi[6] = {-9999,-9999,-9999,-9999,-9999,-9999},Dtheta[6] = {-9999,-9999,-9999,-9999,-9999,-9999},Deta[6] = {-9999,-9999,-9999,-9999,-9999,-9999};
+  
+  if(CSCStubs.size()){//if this condition is met then the CSCTF found a track and we have collected it
+  
+  
+  	int sectindex = (CSCStubs[0][0]->detId<CSCDetId>().endcap() - 1)*6 + CSCStubs[0][0]->detId<CSCDetId>().triggerSector() - 1;
+	std::cout<<"sector = "<<CSCStubs[0][0]->detId<CSCDetId>().triggerSector()<<", endcap = "<<CSCStubs[0][0]->detId<CSCDetId>().endcap()<<" and sectindex = "<<sectindex<<"\n";
+  	std::vector<ConvertedHit> ConvHits = PrimConv(CSCStubs[0],sectindex);//Feeding the function PrimConv(defined int /plugins/PrimitiveConverter.h) the vector of stubs to produce a vector of ConvertedHits
+  	std::cout<<"ConvHits.size() = "<<ConvHits.size()<<"\n";	
+	
+	std::vector<ConvertedHit> ConvHits1 = PrimConv(AllTp, sectindex);
+	//allhits = PrimConv(AllTp,sectindex);
+	
+	for(std::vector<ConvertedHit>::iterator it = ConvHits.begin();it != ConvHits.end();it++){//ConvertedHit class is defined in /plugins/EmulatorClasses.h
+		int phi = it->Phi(), theta = it->Theta(), station = it->Station();//accessing the integer phi and eta values of the individual stubs. Use these to calculate delta phi between stations.
+		std::cout<<"phi = "<<phi<<", theta = "<<theta<<" and station = "<<station<<std::endl;
+		stubs[station-1] = *it;
+
+	}
+	
+	for(std::vector<ConvertedHit>::iterator it1 = ConvHits1.begin();it1 != ConvHits1.end();it1++){
+		std::cout<<"phi1 = "<<it1->Phi()<<" and theta1 = "<<it1->Theta()<<"\n";
+		for(std::vector<ConvertedHit>::iterator it2 = it1 + 1;it2!=ConvHits1.end();it2++){
+			
+			float dth = it2->Theta() - it1->Theta();
+			float det = (fabs(it2->TP()->getCMSGlobalEta()) + 0.9)/(0.0125) - (fabs(it1->TP()->getCMSGlobalEta()) + 0.9)/(0.0125);
+			
+			
+			//for(int a=0;a<3;a++){
+				//if(it2->Station() == a+2 && it1->Station()
+			
+			//}
+			
+			
+			if(it2->Station() == 2 && it1->Station() == 1){
+			
+				if(fabs(dth) < fabs(dths[0])) dths[0] = dth;
+				if(fabs(det) < fabs(dets[0])) dets[0] = det;
+			}
+			if(it2->Station() == 3 && it1->Station() == 2){
+			
+				if(fabs(dth) < fabs(dths[1])) dths[1] = dth;
+				if(fabs(det) < fabs(dets[1])) dets[1] = det;
+			}
+			if(it2->Station() == 4 && it1->Station() == 3){
+			
+				if(fabs(dth) < fabs(dths[2])) dths[2] = dth;
+				if(fabs(det) < fabs(dets[2])) dets[2] = det;
+			}
+		}
+	}
+	
+  }
+ int mcompar = 0;
+ for(int s=0;s<4;s++){
+ 
+ 	bool valid = false;
+ 	
+	if(stubs[s].Phi() >= 0)
+		valid = true;
+ 
+ 	if(valid){
+	
+		switch(s){
+		
+			case 0:mcompar |= 1;break;
+			case 1:mcompar |= 2;break;
+			case 2:mcompar |= 4;break;
+			case 3:mcompar |= 8;break;
+			default:mcompar |= 0;
+		
+		}
+	}
+ }
+ 
+ if((fabs(mcompar - TFKin[3]) > 0.5) && (TFKin[3] > -1))
+ 	std::cout<<"didn't work\n";
+	
+
+
+
+ 
+ //std::cout<<"mcompar = "<<mcompar<<" and TFKin[3] = "<<TFKin[3]<<"\n";
+ 
+ //std::cout<<"allhits.size() = "<<allhits.size()<<"\n";
+if(stubs[0].Phi() >= 0 && stubs[1].Phi() >= 0){
+	Dphi[0] = stubs[1].Phi() - stubs[0].Phi();
+	Dtheta[0] = stubs[1].Theta() - stubs[0].Theta();
+	Deta[0] = TEta[1] - TEta[0];
+	
+	if(fabs(dths[0]) < fabs(Dtheta[0])) Dtheta[0] = dths[0];
+	if(fabs(dets[0]) < fabs(Deta[0])) Deta[0] = dets[0];
+
+}
+	
+if(stubs[0].Phi() >= 0 && stubs[2].Phi() >= 0){
+	Dphi[1] = stubs[2].Phi() - stubs[0].Phi();
+	Dtheta[1] = stubs[2].Theta() - stubs[0].Theta();
+	Deta[1] = TEta[2] - TEta[0];}
+	
+if(stubs[0].Phi() >= 0 && stubs[3].Phi() >= 0){
+	Dphi[2] = stubs[3].Phi() - stubs[0].Phi();
+	Dtheta[2] = stubs[3].Theta() - stubs[0].Theta();
+	Deta[2] = TEta[3] - TEta[0];}
+	
+if(stubs[1].Phi() >= 0 && stubs[2].Phi() >= 0){
+	Dphi[3] = stubs[2].Phi() - stubs[1].Phi();
+	Dtheta[3] = stubs[2].Theta() - stubs[1].Theta();
+	Deta[3] = TEta[2] - TEta[1];
+	if(fabs(dths[1]) < fabs(Dtheta[3])) Dtheta[3] = dths[1];
+	if(fabs(dets[1]) < fabs(Deta[3])) Deta[3] = dets[1];
+	
+	}
+	
+if(stubs[1].Phi() >= 0 && stubs[3].Phi() >= 0){
+	Dphi[4] = stubs[3].Phi() - stubs[1].Phi();
+	Dtheta[4] = stubs[3].Theta() - stubs[1].Theta();
+	Deta[4] = TEta[3] - TEta[1];}
+	
+if(stubs[2].Phi() >= 0 && stubs[3].Phi() >= 0){
+	Dphi[5] = stubs[3].Phi() - stubs[2].Phi();
+	Dtheta[5] = stubs[3].Theta() - stubs[2].Theta();
+	Deta[5] = TEta[3] - TEta[2];
+	
+	if(fabs(dths[2]) < fabs(Dtheta[5])) Dtheta[5] = dths[2];
+	if(fabs(dets[2]) < fabs(Deta[5])) Deta[5] = dets[2];
+	}
+
+int mo = TFKin[3];
+
+if((mo & 1) == 1){
+
+
+	std::cout<<"CLCT1 = "<<CLCTs[0]<<"\n\n";
+	
+	if(CLCTs[0] < -100)
+		std::cout<<"CLCT1 is wrong\n\n";
+
+}
+
+if(Dtheta[0] < -40 && Dtheta[0] > -9999){
+	std::cout<<"BIG DTHETA\n";
+	
+	for(int r = 0;r!=4;r++){
+	std::cout<<"quality "<<stubs[r].Quality()<<" pattern "<<stubs[r].Pattern()<<"\n";}
+	
+}
+
+if((mo & 3) == 3){
+
+	if(Dphi[0] < -2000)
+		std::cout<<"Dphi[0] --- "<<Dphi[0]<<" is wrong!!\n\n";
+		
+	std::cout<<"Dphi[0] = "<<Dphi[0]<<"\n\n";
+
+	float dp = stubs[1].Phi() - stubs[0].Phi();
+	
+	
+	std::cout<<"dp is "<<dp<<"\n\n";
+	
+}
+std::cout<<"here\n";
+if(fabs(Dtheta[0]) > 5 && fabs(Dtheta[0]) < 100) std::cout<<"HICCUP THETA12\n";
+if(fabs(Dtheta[3]) > 5 && fabs(Dtheta[3]) < 100) std::cout<<"HICCUP THETA23\n";
+if(fabs(Dtheta[5]) > 5 && fabs(Dtheta[5]) < 100) std::cout<<"HICCUP THETA34\n";
+std::cout<<"there\n";
+if(fabs(Deta[0]) > 10 && fabs(Deta[0]) < 100) std::cout<<"HICCUP ETA12\n";
+if(fabs(Deta[3]) > 10 && fabs(Deta[3]) < 100) std::cout<<"HICCUP ETA23\n";
+if(fabs(Deta[5]) > 10 && fabs(Deta[5]) < 100) std::cout<<"HICCUP ETA34\n";
+std::cout<<"everywhere\n";
+
+
+   float y[38] = {GenKin[0], GenKin[1], GenKin[2], TFKin[0], TFKin[1], TFKin[2], TFKin[3], Dphi[0], Dphi[1], Dphi[2], Dphi[3], Dphi[4], Dphi[5], Dtheta[0], Dtheta[1], Dtheta[2], Dtheta[3], Dtheta[4], Dtheta[5], Deta[0], Deta[1], Deta[2], Deta[3], Deta[4], Deta[5], CLCTs[0], CLCTs[1], CLCTs[2], CLCTs[3], CSCids[0], CSCids[1], CSCids[2], CSCids[3], trial[0], trial[1], trial[2],trial[3],sfr};
+   
+
+   
+   FullNtuple->Fill(y);
+
+  
+  //////////////////////////////////////////////
+  ///////// Get Trigger Primitives /////////////  Retrieve TriggerPrimitives from the event record, not needed at the moment
+  //////////////////////////////////////////////
+  /*
+  auto tpsrc = _tpinputs.cbegin();
+  auto tpend = _tpinputs.cend();
+  for( ; tpsrc != tpend; ++tpsrc ) {
+    edm::Handle<TriggerPrimitiveCollection> tps;
+    ev.getByLabel(*tpsrc,tps);
+    auto tp = tps->cbegin();
+    auto tpend = tps->cend();
+
+    for( ; tp != tpend; ++tp ) {
+      if(tp->subsystem() == 1)
+      {
+		//TriggerPrimitiveRef tpref(tps,tp - tps -> cbegin());
+		
+		//std::cout<<"\ntrigger prim found station:"<<tp->detId<CSCDetId>().station()<<"\n\n";
+		
+      }
+ 
+     }    
+   }
+  */
+}
+
+//Gets run once at the beginning.
+void L1TMuonTextDumper::beginJob()
+{
+	// ---> Declare the ntuple. <---
+	// ---> histofile is of type TFileService which behaves like <---
+        // ---> a directory. Python saves the directory into a .root at the end. <---
+       // ntuple = histofile->make<TNtuple>("ntuple", "ntuple", "pt:eta:phi:mass");
+	fout = new TFile("fuck.root","RECREATE");
+	thentuple = new TNtuple("thentuple","My Ntuple","pt:eta:phi:mass");
+	FullNtuple = new TNtuple("FullNtuple","+Z Ntuple","GenPt:GenEta:GenPhi:TrackPt:TrackEta:TrackPhi:Mode:dPhi12:dPhi13:dPhi14:dPhi23:dPhi24:dPhi34:dTheta12:dTheta13:dTheta14:dTheta23:dTheta24:dTheta34:dEta12:dEta13:dEta14:dEta23:dEta24:dEta34:CLCT1:CLCT2:CLCT3:CLCT4:cscid1:cscid2:cscid3:cscid4:fr1:fr2:fr3:fr4:SFR");
+	
+
+	
+	TFileDirectory dir = histofile->mkdir("Sanity Checks");
+	stubsize = dir.make<TH1F>("stubsize","# of stubs per station",5,0,5);
+	StubDEta = dir.make<TH1F>("StubDEta","#eta_{stub} - #eta_{true}",200,-1,1);
+	StubDphivPt = dir.make<TH2F>("SubDphivPt","(#phi_{stub} - #phi_{true}) vs Pt_{true}",150,0,150,150,0,1.5); 
+	Counter = dir.make<TH1F>("Counter","Counter",8,0,8);
+	Turnon = dir.make<TH1F>("Turnon","GenPt if CSCTFPT > 20 GeV",50,0,100);
+	gentotal = dir.make<TH1F>("gentotal","GenPt Dist",50,0,100);
+	ME4Phi = dir.make<TH1F>("ME4Phi","Phi Dist of ME4/2",70,-3.5,3.5);
+	chamberfr = dir.make<TH2F>("chamberfr","Z vs chamber for St 1 Ring 3",36,0,36,1100,0,1100);chamberfr->SetOption("COLZ");
+	chamberfr2 = dir.make<TH2F>("chamberfr2","Z vs chamber for St 1 Ring 3",36,0,36,1100,0,1100);chamberfr2->SetOption("COLZ");
+}
+
+// Gets run once at the end.
+void L1TMuonTextDumper::endJob()
+{
+	fout->cd();
+	FullNtuple->Write();
+}
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(L1TMuonTextDumper);
