@@ -156,6 +156,7 @@ namespace L1TMuon {
     const int getStrip() const;
     const int getWire() const;
     const int getPattern() const;
+    const DetId rawId() const {return _id;};
     const int Id() const;
     
     const unsigned getGlobalSector() const { return _globalsector; } 
