@@ -2,6 +2,7 @@
   <lib name="1"/>  
   <use name="DataFormats/L1TMuon"/>   
   <use name="root"/> 
+  <use name="xerces-c"/>
 </export>
 
 <use name="DataFormats/L1TMuon"/>
@@ -25,5 +26,7 @@
 <use name="L1Trigger/CSCTrackFinder"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/ParticleFlowReco"/>
+
+<use name="L1Trigger/RPCTrigger"/>
 
 <flags ADD_SUBDIR="1"/>
