@@ -74,7 +74,6 @@ void OMTFProducer::endJob(){
     myWriter->initialiseXMLDocument(fName);
     const std::map<Key,GoldenPattern*> & myGPmap = myOMTF->getPatterns();
     for(auto itGP: myGPmap){
-      //if(itGP.first.thePtCode==9 && itGP.first.theCharge==1) std::cout<<*itGP.second<<std::endl;     
       std::cout<<*itGP.second<<std::endl;     
       myWriter->writeGPData(*itGP.second);
     }
@@ -83,7 +82,7 @@ void OMTFProducer::endJob(){
     ///Write merged GPs.//////////////////////////////////
     ///2x merging
     int charge = -1;
-    int iPtMin = 6;
+    int iPtMin = 4;
     Key aKey(1, iPtMin, charge);    
 
     fName = "OMTF";
@@ -143,6 +142,7 @@ void OMTFProducer::endJob(){
     }
     ++aKey.thePtCode;
 
+
     myWriter->writeGPData(*aGP1,*aGP2, *aGP3, *aGP4);
     }   
     ///
@@ -201,7 +201,7 @@ void OMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup){
     
     const OMTFinput *myInput = myInputMaker->buildInputForProcessor(filteredDigis,iProcessor);
        
-    ///Input data with phi ranges shifted for each processor, so it fits 10 bits range
+    ///Input data with phi ranges shifted for each processor, so it fits 11 bits range
     const OMTFinput myShiftedInput =  myOMTF->shiftInput(iProcessor,*myInput);	
      
     ///Results for each GP in each logic region of given processor

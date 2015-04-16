@@ -17,9 +17,11 @@ OMTFResult::OMTFResult(){
 void OMTFResult::addResult(unsigned int iRefLayer,
 			   unsigned int iLayer,
 			   unsigned int val,
-			   int iRefPhi){
+			   int iRefPhi, 
+			   int iRefEta){
 
   refPhi1D[iRefLayer] = iRefPhi;
+  refEta1D[iRefLayer] = iRefEta;
   results[iLayer][iRefLayer] = val;
 
 }
@@ -31,6 +33,7 @@ void OMTFResult::clear(){
   hits1D.assign(OMTFConfiguration::nRefLayers,0);
   results.assign(OMTFConfiguration::nLayers,results1D);
   refPhi1D.assign(OMTFConfiguration::nRefLayers,1024);
+  refEta1D.assign(OMTFConfiguration::nRefLayers,1024);
   hitsBits.assign(OMTFConfiguration::nRefLayers,0);  
 }
 ////////////////////////////////////////////

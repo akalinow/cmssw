@@ -12,11 +12,12 @@
 
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
-std::tuple<unsigned int,unsigned int, int, int, unsigned int> OMTFSorter::sortSingleResult(const OMTFResult & aResult){
+std::tuple<unsigned int,unsigned int, int, int, unsigned int, int> OMTFSorter::sortSingleResult(const OMTFResult & aResult){
 
   OMTFResult::vector1D pdfValsVec = aResult.getSummaryVals();
   OMTFResult::vector1D nHitsVec = aResult.getSummaryHits();
   OMTFResult::vector1D refPhiVec = aResult.getRefPhis();
+  OMTFResult::vector1D refEtaVec = aResult.getRefEtas();
   OMTFResult::vector1D hitsVec = aResult.getHitsWord();
 
   assert(pdfValsVec.size()==nHitsVec.size());
@@ -25,14 +26,16 @@ std::tuple<unsigned int,unsigned int, int, int, unsigned int> OMTFSorter::sortSi
   unsigned int pdfValMax = 0;
   unsigned int hitsWord = 0;
   int refPhi = 1024;
+  int refEta = -10;
   int refLayer = -1;
 
-  std::tuple<unsigned int,unsigned int, int, int, unsigned int>  sortedResult;
+  std::tuple<unsigned int,unsigned int, int, int, unsigned int, int>  sortedResult;
   std::get<0>(sortedResult) = nHitsMax;
   std::get<1>(sortedResult) = pdfValMax;
   std::get<2>(sortedResult) = refPhi;
   std::get<3>(sortedResult) = refLayer;
   std::get<4>(sortedResult) = hitsWord;
+  std::get<5>(sortedResult) = refEta;
 
   ///Find a result with biggest number of hits
   for(auto itHits: nHitsVec){
@@ -46,6 +49,7 @@ std::tuple<unsigned int,unsigned int, int, int, unsigned int> OMTFSorter::sortSi
       if(pdfValsVec[ipdfVal]>pdfValMax){
 	pdfValMax = pdfValsVec[ipdfVal]; 
 	refPhi = refPhiVec[ipdfVal]; 
+	refEta = refEtaVec[ipdfVal]; 
 	refLayer = ipdfVal;
 	hitsWord = hitsVec[ipdfVal]; 
       }
@@ -57,6 +61,7 @@ std::tuple<unsigned int,unsigned int, int, int, unsigned int> OMTFSorter::sortSi
   std::get<2>(sortedResult) = refPhi;
   std::get<3>(sortedResult) = refLayer;
   std::get<4>(sortedResult) = hitsWord;
+  std::get<5>(sortedResult) = refEta;
   return sortedResult;
 }
 ///////////////////////////////////////////////////////
@@ -68,11 +73,12 @@ InternalObj OMTFSorter::sortRefHitResults(const OMTFProcessor::resultsMap & aRes
   unsigned int nHitsMax = 0;  
   unsigned int hitsWord = 0;
   int refPhi = 9999;
+  int refEta = -10;
   int refLayer = -1;
   Key bestKey;
   for(auto itKey: aResultsMap){   
     if(charge!=0 && itKey.first.theCharge!=charge) continue; //charge==0 means ignore charge
-    std::tuple<unsigned int,unsigned int, int, int, unsigned int > val = sortSingleResult(itKey.second);
+    std::tuple<unsigned int,unsigned int, int, int, unsigned int, int > val = sortSingleResult(itKey.second);
     ///Accept only candidates with >2 hits
     if(std::get<0>(val)<3) continue;
     ///
@@ -80,6 +86,7 @@ InternalObj OMTFSorter::sortRefHitResults(const OMTFProcessor::resultsMap & aRes
       nHitsMax = std::get<0>(val);
       pdfValMax = std::get<1>(val);
       refPhi = std::get<2>(val);
+      refEta = std::get<5>(val);
       refLayer = std::get<3>(val);
       hitsWord = std::get<4>(val);
       bestKey = itKey.first;
@@ -87,6 +94,7 @@ InternalObj OMTFSorter::sortRefHitResults(const OMTFProcessor::resultsMap & aRes
     else if(std::get<0>(val)==nHitsMax && std::get<1>(val)>pdfValMax){
       pdfValMax = std::get<1>(val);
       refPhi = std::get<2>(val);
+      refEta = std::get<5>(val);
       refLayer = std::get<3>(val);
       hitsWord = std::get<4>(val);
       bestKey = itKey.first;
@@ -95,72 +103,20 @@ InternalObj OMTFSorter::sortRefHitResults(const OMTFProcessor::resultsMap & aRes
 	    itKey.first.thePtCode<bestKey.thePtCode){
       pdfValMax = std::get<1>(val);
       refPhi = std::get<2>(val);
+      refEta = std::get<5>(val);
       refLayer = std::get<3>(val);
       hitsWord = std::get<4>(val);
       bestKey = itKey.first;
     }
   }  
 
-  InternalObj candidate(bestKey.thePtCode, bestKey.theEtaCode, refPhi,
+  InternalObj candidate(bestKey.thePtCode, refEta, refPhi,
 			pdfValMax, 0, nHitsMax,
 			bestKey.theCharge, refLayer);
 
   candidate.hits   = hitsWord;
 
-  /////TEST AVERAGE PT///////
-  /*
-  pdfValMax = 0;
-  for(auto itKey: aResultsMap){
-    if(itKey.first.thePtCode>candidate.pt) continue;
-    std::tuple<unsigned int,unsigned int, int, int > val = sortSingleResult(itKey.second);
-    if(std::get<0>(val)==nHitsMax && std::get<1>(val)!=candidate.disc &&  std::get<1>(val)>pdfValMax){
-      pdfValMax = std::get<1>(val);
-      refPhi = std::get<2>(val);
-      refLayer = std::get<3>(val);
-      bestKey = itKey.first;
-    }
-  }
-  InternalObj candidatePrevious;
-  candidatePrevious.pt =  bestKey.thePtCode;
-  candidatePrevious.eta = bestKey.theEtaCode; 
-  candidatePrevious.phi = refPhi;
-  candidatePrevious.charge = bestKey.theCharge;
-  candidatePrevious.q   = nHitsMax;
-  candidatePrevious.disc = pdfValMax;
-  candidatePrevious.refLayer = refLayer;
-
-  pdfValMax = 0;
-  for(auto itKey: aResultsMap){   
-    if(itKey.first.thePtCode<candidate.pt) continue;
-    std::tuple<unsigned int,unsigned int, int, int > val = sortSingleResult(itKey.second);
-    if(std::get<0>(val)==nHitsMax && std::get<1>(val)!=candidate.disc && std::get<1>(val)>pdfValMax){
-      pdfValMax = std::get<1>(val);
-      refPhi = std::get<2>(val);
-      refLayer = std::get<3>(val);
-      bestKey = itKey.first;
-    }
-  }
-  InternalObj candidateNext;
-  candidateNext.pt =  bestKey.thePtCode;
-  candidateNext.eta = bestKey.theEtaCode; 
-  candidateNext.phi = refPhi;
-  candidateNext.charge = bestKey.theCharge;
-  candidateNext.q   = nHitsMax;
-  candidateNext.disc = pdfValMax;
-  candidateNext.refLayer = refLayer;
-
-  if(candidate.pt){
-    float weightedPtCode = candidatePrevious.pt*candidatePrevious.disc + 
-                           candidate.pt*candidate.disc + 
-                           candidateNext.pt*candidateNext.disc;
-    weightedPtCode/= candidatePrevious.disc + candidate.disc + candidateNext.disc;
-    candidate.pt = (int)weightedPtCode;
-  } 
-*/
-  ////////////////////////////// 
-
   return candidate;
-
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
@@ -243,13 +199,14 @@ L1MuRegionalCand OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resu
 
   L1MuRegionalCand candidate;
   candidate.setPhiValue(myCand.phi);
+  candidate.setEtaValue(myCand.eta);
   candidate.setPtPacked(myCand.pt);
   //candidate.setQualityPacked(3);//FIX ME
   //candidate.setBx(1000*myCand.disc+100*myCand.refLayer+myCand.q);//FIX ME
 
-  candidate.setBx(1E6*myCand.disc + myCand.hits);//FIX ME
+  candidate.setBx(100*myCand.hits+myCand.q);//FIX ME
   //candidate.setEtaPacked(10*myCand.refLayer+myCand.q);
-  candidate.setEtaPacked(myCand.q);
+  //candidate.setEtaPacked(myCand.q);
 
   candidate.setChargeValue(myCand.charge);
 
@@ -268,6 +225,7 @@ void OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & pr
   for(auto myCand: mySortedCands){
     L1MuRegionalCand candidate;
     candidate.setPhiValue(myCand.phi);
+    candidate.setEtaValue(myCand.eta);
     candidate.setPtPacked(myCand.pt);
     //candidate.setQualityPacked(3);//FIX ME
     //candidate.setBx(1000*myCand.disc+100*myCand.refLayer+myCand.q);//FIX ME

@@ -168,22 +168,22 @@ const OMTFinput * OMTFinputMaker::buildInputForProcessor(const L1TMuon::TriggerP
     if(!acceptDigi(digiIt.rawId(), iProcessor)) continue;
     if(!filterDigiQuality(digiIt)) continue;
 
-    myStr<<"Digi accepted"<<std::endl;
-
     unsigned int hwNumber = OMTFConfiguration::getLayerNumber(digiIt.rawId());
 
     if(OMTFConfiguration::hwToLogicLayer.find(hwNumber)==OMTFConfiguration::hwToLogicLayer.end()) continue;
     unsigned int iLayer = OMTFConfiguration::hwToLogicLayer[hwNumber];   
     int iPhi =  digiIt.getCMSGlobalPhi()/(2.0*M_PI)*nGlobalPhi;
+    int iEta =  digiIt.getCMSGlobalEta()/4.0*1000;
+
     unsigned int iInput= getInputNumber(digiIt.rawId(), iProcessor);
-    if(digiIt.subsystem()!=L1TMuon::TriggerPrimitive::kRPC) myInput->addLayerHit(iLayer,iInput,iPhi);
+    if(digiIt.subsystem()!=L1TMuon::TriggerPrimitive::kRPC) myInput->addLayerHit(iLayer,iInput,iPhi,iEta);
     switch (digiIt.subsystem()) {
     case L1TMuon::TriggerPrimitive::kDT: {
-      myInput->addLayerHit(iLayer+1,iInput,digiIt.getDTData().bendingAngle);
+      myInput->addLayerHit(iLayer+1,iInput,digiIt.getDTData().bendingAngle,iEta);
       break;
     }
     case L1TMuon::TriggerPrimitive::kCSC: {
-      //myInput->addLayerHit(iLayer+1,iInput,digiIt.getCSCData().pattern);
+      //myInput->addLayerHit(iLayer+1,iInput,digiIt.getCSCData().pattern,iEta);
       break;
     }
     case L1TMuon::TriggerPrimitive::kRPC: {
@@ -211,6 +211,7 @@ const OMTFinput * OMTFinputMaker::buildInputForProcessor(const L1TMuon::TriggerP
     RPCDetId detid(std::get<0>(halfDigiIt));
     L1TMuon::TriggerPrimitive aRpcPrimitiveBeg(detid,std::get<1>(halfDigiIt)->getStrip(), 0, 0);
     L1TMuon::TriggerPrimitive aRpcPrimitiveEnd(detid,std::get<2>(halfDigiIt)->getStrip(), 0, 0);
+    
     ///Decluster PRC digis. Consecutive set of fires strips has a ccordinate
     ///equal to begin+end, which is the mean expresses in half RPC strips granularity.
     float phi1 = geom->calculateGlobalPhi(aRpcPrimitiveBeg);
@@ -220,12 +221,13 @@ const OMTFinput * OMTFinputMaker::buildInputForProcessor(const L1TMuon::TriggerP
     ///instead -pi
     if(phi1*phi2<0 && fabs(phi1)>M_PI/2.0) phi = (M_PI-phi)*(1 - 2*std::signbit(phi));
     int iPhi =  phi/(2.0*M_PI)*nGlobalPhi;
+    int iEta =  std::get<1>(halfDigiIt)->getCMSGlobalEta()/4.0*1000;
 
     unsigned int hwNumber = OMTFConfiguration::getLayerNumber(std::get<0>(halfDigiIt));
     unsigned int iLayer = OMTFConfiguration::hwToLogicLayer[hwNumber];
     unsigned int iInput= getInputNumber(std::get<0>(halfDigiIt), iProcessor);
 
-    myInput->addLayerHit(iLayer,iInput,iPhi);
+    myInput->addLayerHit(iLayer,iInput,iPhi,iEta);
     myStr<<detid
 	 <<"halfDigi: "<<std::get<1>(halfDigiIt)->getStrip()<<" "
 	 <<std::get<2>(halfDigiIt)->getStrip()

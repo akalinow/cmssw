@@ -20,7 +20,7 @@ class OMTFinput{
   ///iInput marks input number (max 14 per layer)
   bool addLayerHit(unsigned int iLayer,
 		   unsigned int iInput,
-		   int iPhi);
+		   int iPhi, int iEta);
 
   ///Reset vectors with data.
   void clear();
@@ -32,7 +32,7 @@ class OMTFinput{
   ///Apply shift to all data
   void shiftMyPhi(int phiShift);
 
-  const OMTFinput::vector1D & getLayerData(unsigned int iLayer) const;
+  const OMTFinput::vector1D & getLayerData(unsigned int iLayer, bool giveEta=false) const;
 
   std::bitset<128> getRefHits(unsigned int iProcessor) const;
 
@@ -40,11 +40,18 @@ class OMTFinput{
 
  private:
 
-  ///Measurements in logic layers
+  ///Phi measurements in logic layers
   ///First index: layer number
   ///Second index: measurement number within layer
-  vector2D measurements; 
+  vector2D measurementsPhi;
 
+  ///Eta measurements in logic layers
+  ///First index: layer number
+  ///Second index: measurement number within layer
+  vector2D measurementsEta; 
+
+  ///RefHitsEta
+  mutable vector1D refHitsEta;
 
 };
 

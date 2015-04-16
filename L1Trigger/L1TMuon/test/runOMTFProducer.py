@@ -63,11 +63,11 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 process.source = cms.Source(
     'PoolSource',
-    #fileNames = cms.untracked.vstring('file:/home/akalinow/scratch/CMS/OverlapTrackFinder/Crab/SingleMuFullEtaTestSample/720_FullEta_v1/data/SingleMu_16_p_1_2_TWz.root')
-    fileNames = cms.untracked.vstring('file:/home/akalinow/scratch/CMS/OverlapTrackFinder/Crab/SingleMuFullEtaTestSample/720_FullEta_v1/data//SingleMu_20_p_2_2_axz.root')
+    fileNames = cms.untracked.vstring('file:/home/akalinow/scratch/CMS/OverlapTrackFinder/Crab/SingleMuFullEtaTestSample/720_FullEta_v1/data/SingleMu_16_p_1_2_TWz.root')
+    #fileNames = cms.untracked.vstring('file:/home/akalinow/scratch/CMS/OverlapTrackFinder/Crab/SingleMuFullEtaTestSample/720_FullEta_v1/data//SingleMu_20_p_2_2_axz.root')
     )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 
 ###PostLS1 geometry used
 process.load('Configuration.Geometry.GeometryExtendedPostLS1Reco_cff')
@@ -84,8 +84,8 @@ process.load('L1Trigger.L1TMuon.L1TMuonTriggerPrimitiveProducer_cfi')
 ###OMTF emulator configuration
 process.omtfEmulator = cms.EDProducer("OMTFProducer",
                                       TriggerPrimitiveSrc = cms.InputTag('L1TMuonTriggerPrimitives'),
-                                      dumpResultToXML = cms.bool(True),                                     
-                                      dumpGPToXML = cms.bool(False),                                     
+                                      dumpResultToXML = cms.bool(False),                                     
+                                      dumpGPToXML = cms.bool(True),                                     
                                       makeConnectionsMaps = cms.bool(False),                                      
                                       dropRPCPrimitives = cms.bool(False),                                    
                                       dropDTPrimitives = cms.bool(False),                                    

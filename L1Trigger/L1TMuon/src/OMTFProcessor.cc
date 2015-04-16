@@ -61,17 +61,17 @@ bool OMTFProcessor::configure(XMLConfigReader *aReader){
   aGP->setPdf(pdf3D);
   addGP(aGP);
 
-  aGP = new GoldenPattern(Key(0,5,1));
+  aGP = new GoldenPattern(Key(1,5,1));
   aGP->setMeanDistPhi(meanDistPhi2D);
   aGP->setPdf(pdf3D);
   addGP(aGP);
 
-  aGP = new GoldenPattern(Key(0,4,1));
+  aGP = new GoldenPattern(Key(1,4,1));
   aGP->setMeanDistPhi(meanDistPhi2D);
   aGP->setPdf(pdf3D);
   addGP(aGP);
 
-  aGP = new GoldenPattern(Key(0,4,-1));
+  aGP = new GoldenPattern(Key(1,4,-1));
   aGP->setMeanDistPhi(meanDistPhi2D);
   aGP->setPdf(pdf3D);
   addGP(aGP);
@@ -94,7 +94,7 @@ bool OMTFProcessor::addGP(GoldenPattern *aGP){
 ///////////////////////////////////////////////
 void  OMTFProcessor::averagePatterns(int charge){
 
-  Key aKey(1, 6, charge);
+  Key aKey(1, 4, charge);
 
   while(theGPs.find(aKey)!=theGPs.end()){
 
@@ -208,6 +208,7 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
       if(nTestedRefHits--==0) break;
       const RefHitDef & aRefHitDef = OMTFConfiguration::refHitsDefs[iProcessor][iRefHit];
       int phiRef = aInput.getLayerData(OMTFConfiguration::refToLogicNumber[aRefHitDef.iRefLayer])[aRefHitDef.iInput]; 
+      int etaRef = aInput.getLayerData(OMTFConfiguration::refToLogicNumber[aRefHitDef.iRefLayer],true)[aRefHitDef.iInput]; 
       unsigned int iRegion = aRefHitDef.iRegion;
       if(OMTFConfiguration::bendingLayers.count(iLayer)) phiRef = 0;
       const OMTFinput::vector1D restrictedLayerHits = restrictInput(iProcessor, iRegion, iLayer,layerHits);
@@ -215,7 +216,9 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
 	GoldenPattern::layerResult aLayerResult = itGP.second->process1Layer1RefLayer(aRefHitDef.iRefLayer,iLayer,
 										      phiRef,
 										      restrictedLayerHits);
-	myResults[OMTFConfiguration::nTestRefHits-nTestedRefHits-1][itGP.second->key()].addResult(aRefHitDef.iRefLayer,iLayer,aLayerResult.first,phiRef);	 
+	myResults[OMTFConfiguration::nTestRefHits-nTestedRefHits-1][itGP.second->key()].addResult(aRefHitDef.iRefLayer,iLayer,
+												  aLayerResult.first,
+												  phiRef,etaRef);	 
       }
     }
   }  

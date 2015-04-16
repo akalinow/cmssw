@@ -21,13 +21,15 @@ class OMTFResult{
 
   const OMTFResult::vector1D & getRefPhis() const {return refPhi1D;}
 
+  const OMTFResult::vector1D & getRefEtas() const {return refEta1D;}
+
   const OMTFResult::vector1D & getHitsWord() const { return hitsBits;}
 
 
   void addResult(unsigned int iRefLayer,
 		 unsigned int iLayer,
 		 unsigned int val,
-		 int iRefPhi);
+		 int iRefPhi, int iRefEta);
 
   void finalise();
 
@@ -46,6 +48,9 @@ class OMTFResult{
 
   ///Reference phi for each reference layer
   vector1D refPhi1D; 
+
+  ///Reference phi for each reference layer
+  vector1D refEta1D; 
 
   ///Sum of pdf weights for each reference layer
   vector1D results1D; 
