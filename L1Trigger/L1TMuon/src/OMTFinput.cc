@@ -49,6 +49,8 @@ bool OMTFinput::addLayerHit(unsigned int iLayer,
   assert(iLayer<OMTFConfiguration::nLayers);
   assert(iInput<14);
 
+  if(iPhi>=(int)OMTFConfiguration::nPhiBins) return true;
+
   if(measurementsPhi[iLayer][iInput]!=(int)OMTFConfiguration::nPhiBins) ++iInput;
   
   if(iInput>13) return false;
@@ -60,10 +62,26 @@ bool OMTFinput::addLayerHit(unsigned int iLayer,
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 void OMTFinput::readData(XMLConfigReader *aReader, 
-			 unsigned int iEvent){
+			 unsigned int iEvent,
+			 unsigned int iProcessor){
 
-  measurementsPhi = aReader->readEvent(iEvent);
+  measurementsPhi = aReader->readEvent(iEvent, iProcessor);
+  measurementsEta = aReader->readEvent(iEvent, iProcessor, true);
   
+}
+///////////////////////////////////////////////////
+///////////////////////////////////////////////////
+void OMTFinput::mergeData(OMTFinput *aInput){
+
+  for(unsigned int iLayer=0;iLayer<OMTFConfiguration::nLayers;++iLayer){
+    const OMTFinput::vector1D & aPhiVec = aInput->getLayerData(iLayer,false);
+    const OMTFinput::vector1D & aEtaVec = aInput->getLayerData(iLayer,true);
+    //const OMTFinput::vector1D aEtaVec(14);
+    if(!aPhiVec.size()) continue;
+    for(unsigned int iInput=0;iInput<14;++iInput){
+      addLayerHit(iLayer,iInput,aPhiVec[iInput],aEtaVec[iInput]);
+    }
+  }
 }
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////

@@ -1,5 +1,6 @@
-#ifndef OMTFProducer_H
-#define OMTFProducer_H
+
+#ifndef OMTFProducerMix_H
+#define OMTFProducerMix_H
 
 #include "xercesc/util/XercesDefs.hpp"
 
@@ -22,6 +23,7 @@ class OMTFSorter;
 class OMTFinput;
 
 class XMLConfigWriter;
+class XMLConfigReader;
 
 namespace XERCES_CPP_NAMESPACE{
   class DOMElement;
@@ -30,11 +32,11 @@ namespace XERCES_CPP_NAMESPACE{
 }
 
 
-class OMTFProducer : public edm::EDProducer {
+class OMTFProducerMix : public edm::EDProducer {
  public:
-  OMTFProducer(const edm::ParameterSet&);
+  OMTFProducerMix(const edm::ParameterSet&);
   
-  ~OMTFProducer();
+  ~OMTFProducerMix();
 
   virtual void beginJob();
 
@@ -50,8 +52,6 @@ class OMTFProducer : public edm::EDProducer {
 
   const L1TMuon::TriggerPrimitiveCollection filterDigis(const L1TMuon::TriggerPrimitiveCollection & vDigi);
 
-  bool dumpResultToXML, dumpGPToXML;
-
   ///OMTF objects
   OMTFConfiguration *myOMTFConfig;
   OMTFinputMaker *myInputMaker;
@@ -62,8 +62,10 @@ class OMTFProducer : public edm::EDProducer {
   xercesc::DOMElement *aTopElement;
   OMTFConfigMaker *myOMTFConfigMaker;
   XMLConfigWriter *myWriter; 
+  XMLConfigReader *myReader; 
   ///
-
+  unsigned int eventsToMix;
+  bool dumpResultToXML;
 };
 
 #endif

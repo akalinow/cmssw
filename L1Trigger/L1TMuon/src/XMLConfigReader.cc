@@ -44,6 +44,8 @@ XMLConfigReader::XMLConfigReader(){
   parser->setValidationScheme(XercesDOMParser::Val_Auto);
   parser->setDoNamespaces(false);
 
+  doc = 0;
+
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
@@ -129,13 +131,17 @@ GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement){
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
-std::vector<std::vector<int> > XMLConfigReader::readEvent(unsigned int iEvent){
-
-  parser->parse(eventsFile.c_str()); 
-  xercesc::DOMDocument* doc = parser->getDocument();
+std::vector<std::vector<int> > XMLConfigReader::readEvent(unsigned int iEvent,
+							  unsigned int iProcessor,
+							  bool readEta){
+  if(!doc){
+    parser->parse(eventsFile.c_str()); 
+    doc = parser->getDocument();
+  }
   assert(doc);
 
-  OMTFinput::vector1D input1D;
+
+  OMTFinput::vector1D input1D(14,OMTFConfiguration::nPhiBins);
   OMTFinput::vector2D input2D(OMTFConfiguration::nLayers);
 
   unsigned int nElem = doc->getElementsByTagName(_toDOMS("OMTF_Events"))->getLength();
@@ -145,10 +151,11 @@ std::vector<std::vector<int> > XMLConfigReader::readEvent(unsigned int iEvent){
   DOMElement* aOMTFElement = static_cast<DOMElement *>(aNode); 
   DOMElement* aEventElement = 0;
   DOMElement* aBxElement = 0;
+  DOMElement* aProcElement = 0;
   DOMElement* aLayerElement = 0;
   DOMElement* aHitElement = 0;
   unsigned int aLogicLayer = OMTFConfiguration::nLayers+1;
-  int val = 0;
+  int val = 0, input=0;
 
   nElem = aOMTFElement->getElementsByTagName(_toDOMS("Event"))->getLength();
    if(nElem<iEvent){
@@ -164,28 +171,41 @@ std::vector<std::vector<int> > XMLConfigReader::readEvent(unsigned int iEvent){
   assert(nBX>0);
   aNode = aEventElement->getElementsByTagName(_toDOMS("bx"))->item(0);
   aBxElement = static_cast<DOMElement *>(aNode); 
-  
-  unsigned int nLayersHit = aBxElement->getElementsByTagName(_toDOMS("Layer"))->getLength();    
+
+  unsigned int nProc = aEventElement->getElementsByTagName(_toDOMS("Processor"))->getLength();
+  unsigned int aProcID = 99;
+  assert(nProc>=iProcessor);
+  for(unsigned int aProc=0;aProc<nProc;++aProc){
+    aNode = aBxElement->getElementsByTagName(_toDOMS("Processor"))->item(aProc);
+    aProcElement = static_cast<DOMElement *>(aNode); 
+    aProcID = std::atoi(_toString(aProcElement->getAttribute(_toDOMS("iProcessor"))).c_str());
+    if(aProcID==iProcessor) break;
+  }
+  if(aProcID!=iProcessor) return input2D;
+     
+  unsigned int nLayersHit = aProcElement->getElementsByTagName(_toDOMS("Layer"))->getLength();    
   assert(nLayersHit<=OMTFConfiguration::nLayers);
   
-  input1D.clear();    
   input2D.assign(OMTFConfiguration::nLayers,input1D);
   
   for(unsigned int iLayer=0;iLayer<nLayersHit;++iLayer){
-    aNode = aBxElement->getElementsByTagName(_toDOMS("Layer"))->item(iLayer);
+    aNode = aProcElement->getElementsByTagName(_toDOMS("Layer"))->item(iLayer);
     aLayerElement = static_cast<DOMElement *>(aNode); 
     aLogicLayer = std::atoi(_toString(aLayerElement->getAttribute(_toDOMS("iLayer"))).c_str());
     nElem = aLayerElement->getElementsByTagName(_toDOMS("Hit"))->getLength();     
-    input1D.clear();
+    input1D.assign(14,OMTFConfiguration::nPhiBins);
     for(unsigned int iHit=0;iHit<nElem;++iHit){
       aNode = aLayerElement->getElementsByTagName(_toDOMS("Hit"))->item(iHit);
       aHitElement = static_cast<DOMElement *>(aNode); 
       val = std::atoi(_toString(aHitElement->getAttribute(_toDOMS("iPhi"))).c_str());
-      input1D.push_back(val);
+      if(readEta) val = std::atoi(_toString(aHitElement->getAttribute(_toDOMS("iEta"))).c_str());
+      input = std::atoi(_toString(aHitElement->getAttribute(_toDOMS("iInput"))).c_str());
+      input1D[input] = val;
     }
     input2D[aLogicLayer] = input1D;
   }
-  delete doc;
+
+  //delete doc;
   return input2D;
 }
 //////////////////////////////////////////////////

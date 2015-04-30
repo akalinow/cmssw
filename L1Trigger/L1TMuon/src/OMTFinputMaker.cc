@@ -162,11 +162,11 @@ const OMTFinput * OMTFinputMaker::buildInputForProcessor(const L1TMuon::TriggerP
 
   for (const auto &digiIt:vDigi) { 
 
-    digiIt.print(myStr);
-
     ///Check it the data fits into given processor input range
     if(!acceptDigi(digiIt.rawId(), iProcessor)) continue;
     if(!filterDigiQuality(digiIt)) continue;
+
+    digiIt.print(myStr);
 
     unsigned int hwNumber = OMTFConfiguration::getLayerNumber(digiIt.rawId());
 

@@ -31,14 +31,15 @@ class XMLConfigWriter{
 
   void finaliseXMLDocument(const std::string & fName);
 
-  xercesc::DOMElement * writeEventHeader(unsigned int eventId);
+  xercesc::DOMElement * writeEventHeader(unsigned int eventId,
+					 unsigned int mixedEventId = 0);
 
   xercesc::DOMElement * writeEventData(xercesc::DOMElement *aTopElement,
 				       unsigned int iProcessor,
 				       const OMTFinput & aInput);
 
   void writeCandidateData(xercesc::DOMElement *aTopElement,
-			  unsigned int iRegion,
+			  unsigned int iRefHit,
 			  const InternalObj & aCand);
 
   void writeResultsData(xercesc::DOMElement *aTopElement,

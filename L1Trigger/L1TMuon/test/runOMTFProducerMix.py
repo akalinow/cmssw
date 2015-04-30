@@ -67,7 +67,7 @@ process.source = cms.Source(
     #fileNames = cms.untracked.vstring('file:/home/akalinow/scratch/CMS/OverlapTrackFinder/Crab/SingleMuFullEtaTestSample/720_FullEta_v1/data//SingleMu_20_p_2_2_axz.root')
     )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(8))
 
 ###PostLS1 geometry used
 process.load('Configuration.Geometry.GeometryExtendedPostLS1Reco_cff')
@@ -82,13 +82,11 @@ path = os.environ['CMSSW_BASE']+"/src/L1Trigger/L1TMuon/data/"
 process.load('L1Trigger.L1TMuon.L1TMuonTriggerPrimitiveProducer_cfi')
 
 ###OMTF emulator configuration
-process.omtfEmulator = cms.EDProducer("OMTFProducer",
+process.omtfEmulator = cms.EDProducer("OMTFProducerMix",
                                       TriggerPrimitiveSrc = cms.InputTag('L1TMuonTriggerPrimitives'),
-                                      dumpResultToXML = cms.bool(True),
-                                      XMLDumpFileName = cms.string("TestEvents.xml"),                                     
-                                      dumpGPToXML = cms.bool(False),  
-                                      readEventsFromXML = cms.bool(False),
                                       eventsXMLFiles = cms.vstring("MixEvents_Ipt16_p.xml"),
+                                      eventsToMix = cms.uint32(2),
+                                      dumpResultToXML = cms.bool(True),
                                       dropRPCPrimitives = cms.bool(False),                                    
                                       dropDTPrimitives = cms.bool(False),                                    
                                       dropCSCPrimitives = cms.bool(False),   
@@ -103,12 +101,5 @@ process.L1TMuonSeq = cms.Sequence( process.L1TMuonTriggerPrimitives +
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 
-
-process.out = cms.OutputModule("PoolOutputModule", 
-   fileName = cms.untracked.string("OMTF_test.root"),
-                               )
-
-process.output_step = cms.EndPath(process.out)
-
 process.schedule = cms.Schedule(process.L1TMuonPath)
-process.schedule.extend([process.output_step])
+

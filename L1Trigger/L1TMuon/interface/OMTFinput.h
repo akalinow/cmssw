@@ -27,10 +27,15 @@ class OMTFinput{
 
   ///Read data from a XML file
   void readData(XMLConfigReader *aReader, 
-		unsigned int iEvent=0);
+		unsigned int iEvent=0,
+		unsigned int iProcessor=0);
 
   ///Apply shift to all data
   void shiftMyPhi(int phiShift);
+
+  ///Merge data of two input objects.
+  ///Method used in DiMuon studies.
+  void mergeData(OMTFinput *aInput);
 
   const OMTFinput::vector1D & getLayerData(unsigned int iLayer, bool giveEta=false) const;
 

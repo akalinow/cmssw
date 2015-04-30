@@ -30,14 +30,17 @@ OMTFProducer::OMTFProducer(const edm::ParameterSet& cfg):
   
   myInputMaker = new OMTFinputMaker();
   mySorter = new OMTFSorter();
+  myWriter = 0;
   
-  myWriter = new XMLConfigWriter();
-  std::string fName = "OMTF_Events";
-  myWriter->initialiseXMLDocument(fName);
-
   dumpResultToXML = theConfig.getParameter<bool>("dumpResultToXML");
   dumpGPToXML = theConfig.getParameter<bool>("dumpGPToXML");
-  makeConnectionsMaps = theConfig.getParameter<bool>("makeConnectionsMaps");
+  theConfig.getParameter<std::string>("XMLDumpFileName");
+  
+  if(dumpResultToXML || dumpGPToXML){
+    myWriter = new XMLConfigWriter();
+    std::string fName = "OMTF_Events";
+    myWriter->initialiseXMLDocument(fName);
+  }
 
   myOMTFConfig = 0;
 }
@@ -48,6 +51,11 @@ OMTFProducer::~OMTFProducer(){
   delete myOMTFConfig;
   delete myOMTFConfigMaker;
   delete myOMTF;
+
+  delete myInputMaker;
+  delete mySorter;
+
+  if (myWriter) delete myWriter;
 
 }
 /////////////////////////////////////////////////////
@@ -64,17 +72,17 @@ void OMTFProducer::beginJob(){
 /////////////////////////////////////////////////////  
 void OMTFProducer::endJob(){
 
-  if(dumpResultToXML && !dumpGPToXML && !makeConnectionsMaps){
-    std::string fName = "TestEvents.xml";
+  if(dumpResultToXML && !dumpGPToXML){
+    std::string fName = theConfig.getParameter<std::string>("XMLDumpFileName");
     myWriter->finaliseXMLDocument(fName);
   }
 
-  if(dumpGPToXML && !dumpResultToXML && !makeConnectionsMaps){
+  if(dumpGPToXML && !dumpResultToXML){
     std::string fName = "OMTF";
     myWriter->initialiseXMLDocument(fName);
     const std::map<Key,GoldenPattern*> & myGPmap = myOMTF->getPatterns();
     for(auto itGP: myGPmap){
-      std::cout<<*itGP.second<<std::endl;     
+      //std::cout<<*itGP.second<<std::endl;     
       myWriter->writeGPData(*itGP.second);
     }
     fName = "GPs.xml";
@@ -202,8 +210,8 @@ void OMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup){
     const OMTFinput *myInput = myInputMaker->buildInputForProcessor(filteredDigis,iProcessor);
        
     ///Input data with phi ranges shifted for each processor, so it fits 11 bits range
-    const OMTFinput myShiftedInput =  myOMTF->shiftInput(iProcessor,*myInput);	
-     
+    OMTFinput myShiftedInput =  myOMTF->shiftInput(iProcessor,*myInput);	
+
     ///Results for each GP in each logic region of given processor
     const std::vector<OMTFProcessor::resultsMap> & myResults = myOMTF->processInput(iProcessor,myShiftedInput);
 

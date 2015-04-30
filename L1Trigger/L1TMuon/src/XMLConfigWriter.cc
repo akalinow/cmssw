@@ -92,7 +92,8 @@ void XMLConfigWriter::finaliseXMLDocument(const std::string & fName){
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
-xercesc::DOMElement * XMLConfigWriter::writeEventHeader(unsigned int eventId){
+xercesc::DOMElement * XMLConfigWriter::writeEventHeader(unsigned int eventId,
+							unsigned int mixedEventId){
 
   unsigned int eventBx = eventId*2;
 
@@ -105,6 +106,11 @@ xercesc::DOMElement * XMLConfigWriter::writeEventHeader(unsigned int eventId){
   stringStr.str("");
   stringStr<<eventId;
   aEvent->setAttribute(_toDOMS("iEvent"), _toDOMS(stringStr.str()));
+
+  stringStr.str("");
+  stringStr<<mixedEventId;
+  aEvent->setAttribute(_toDOMS("iMixedEvent"), _toDOMS(stringStr.str()));
+
   aBx = theDoc->createElement(_toDOMS("bx"));
   stringStr.str("");
   stringStr<<eventBx;
@@ -130,24 +136,26 @@ xercesc::DOMElement * XMLConfigWriter::writeEventData(xercesc::DOMElement *aTopE
   
   xercesc::DOMElement *aLayer, *aHit; 
   for(unsigned int iLayer=0;iLayer<OMTFConfiguration::nLayers;++iLayer){
-    const OMTFinput::vector1D & layerData = aInput.getLayerData(iLayer);
+    const OMTFinput::vector1D & layerDataPhi = aInput.getLayerData(iLayer);
+    const OMTFinput::vector1D & layerDataEta = aInput.getLayerData(iLayer,true);
+
     aLayer = theDoc->createElement(_toDOMS("Layer"));
     stringStr.str("");
     stringStr<<iLayer;
     aLayer->setAttribute(_toDOMS("iLayer"), _toDOMS(stringStr.str()));
-    int iHit = 0;
-    for(auto hitIt:layerData){
+    for(unsigned int iHit=0;iHit<layerDataPhi.size();++iHit){
       aHit = theDoc->createElement(_toDOMS("Hit"));
       stringStr.str("");
       stringStr<<iHit;
-      aHit->setAttribute(_toDOMS("iHit"), _toDOMS(stringStr.str()));
+      aHit->setAttribute(_toDOMS("iInput"), _toDOMS(stringStr.str()));
       stringStr.str("");
-      stringStr<<hitIt;
+      stringStr<<layerDataPhi[iHit];
       aHit->setAttribute(_toDOMS("iPhi"), _toDOMS(stringStr.str()));
-      ++iHit;
-      if(hitIt>=(int)OMTFConfiguration::nPhiBins) continue;
+      stringStr.str("");
+      stringStr<<layerDataEta[iHit];
+      aHit->setAttribute(_toDOMS("iEta"), _toDOMS(stringStr.str()));
+      if(layerDataPhi[iHit]>=(int)OMTFConfiguration::nPhiBins) continue;
       aLayer->appendChild(aHit);
-
     }
     if(aLayer->getChildNodes()->getLength()) aProcessor->appendChild(aLayer);   
   }
@@ -159,17 +167,23 @@ xercesc::DOMElement * XMLConfigWriter::writeEventData(xercesc::DOMElement *aTopE
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 void  XMLConfigWriter::writeCandidateData(xercesc::DOMElement *aTopElement,
-					  unsigned int iRegion,
+					  unsigned int iRefHit,
 					  const InternalObj & aCand){
 
   xercesc::DOMElement* aResult = theDoc->createElement(_toDOMS("Candidate"));
   std::ostringstream stringStr;
   stringStr.str("");
-  stringStr<<iRegion;
-  aResult->setAttribute(_toDOMS("iRegion"),_toDOMS(stringStr.str()));
+  stringStr<<iRefHit;
+  aResult->setAttribute(_toDOMS("iRefHit"),_toDOMS(stringStr.str()));
   stringStr.str("");
   stringStr<<aCand.pt;
   aResult->setAttribute(_toDOMS("ptCode"),_toDOMS(stringStr.str()));
+  stringStr.str("");
+  stringStr<<aCand.phi;
+  aResult->setAttribute(_toDOMS("phiCode"),_toDOMS(stringStr.str()));
+  stringStr.str("");
+  stringStr<<aCand.eta;
+  aResult->setAttribute(_toDOMS("etaCode"),_toDOMS(stringStr.str()));
   stringStr.str("");
   stringStr<<aCand.charge;
   aResult->setAttribute(_toDOMS("charge"),_toDOMS(stringStr.str()));

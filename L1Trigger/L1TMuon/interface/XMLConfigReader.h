@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "xercesc/util/XercesDefs.hpp"
+#include "xercesc/dom/DOM.hpp"
 
 class GoldenPattern;
 class OMTFConfiguration;
@@ -34,8 +35,9 @@ class XMLConfigReader{
 
   void readConfig(OMTFConfiguration *aConfig);
 
-  //FIXME: output type should be taken from somewhere 
-  std::vector<std::vector<int> > readEvent(unsigned int iEvent=0);
+  std::vector<std::vector<int> > readEvent(unsigned int iEvent=0,
+					   unsigned int iProcessor=0,
+					   bool readEta = false);
 
  private:
 
@@ -45,9 +47,8 @@ class XMLConfigReader{
 
   GoldenPattern * buildGP(xercesc::DOMElement* aGPElement); 
   
-  
-
   xercesc::XercesDOMParser *parser;
+  xercesc::DOMDocument* doc;
 
 };
 
