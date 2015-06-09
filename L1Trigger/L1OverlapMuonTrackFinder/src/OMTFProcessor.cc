@@ -241,7 +241,7 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
     myStr<<"--------------------"<<std::endl;
   }
   //LogDebug("OMTF processor")<<myStr.str();
-  edm::LogInfo("OMTF processor")<<myStr.str();
+  //edm::LogInfo("OMTF processor")<<myStr.str();
   //#endif
   
   return myResults;

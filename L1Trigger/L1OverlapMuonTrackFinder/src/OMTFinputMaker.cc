@@ -174,9 +174,10 @@ const OMTFinput * OMTFinputMaker::buildInputForProcessor(const L1TMuon::TriggerP
     unsigned int iLayer = OMTFConfiguration::hwToLogicLayer[hwNumber];   
     int iPhi =  digiIt.getCMSGlobalPhi()/(2.0*M_PI)*nGlobalPhi;
     int iEta =  digiIt.getCMSGlobalEta()/2.61*240;
-
     unsigned int iInput= getInputNumber(digiIt.rawId(), iProcessor);
+
     if(digiIt.subsystem()!=L1TMuon::TriggerPrimitive::kRPC) myInput->addLayerHit(iLayer,iInput,iPhi,iEta);
+
     switch (digiIt.subsystem()) {
     case L1TMuon::TriggerPrimitive::kDT: {
       myInput->addLayerHit(iLayer+1,iInput,digiIt.getDTData().bendingAngle,iEta);
@@ -222,7 +223,6 @@ const OMTFinput * OMTFinputMaker::buildInputForProcessor(const L1TMuon::TriggerP
     if(phi1*phi2<0 && fabs(phi1)>M_PI/2.0) phi = (M_PI-phi)*(1 - 2*std::signbit(phi));
     int iPhi =  phi/(2.0*M_PI)*nGlobalPhi;
     int iEta =  std::get<1>(halfDigiIt)->getCMSGlobalEta()/2.61*240;
-
     unsigned int hwNumber = OMTFConfiguration::getLayerNumber(std::get<0>(halfDigiIt));
     unsigned int iLayer = OMTFConfiguration::hwToLogicLayer[hwNumber];
     unsigned int iInput= getInputNumber(std::get<0>(halfDigiIt), iProcessor);

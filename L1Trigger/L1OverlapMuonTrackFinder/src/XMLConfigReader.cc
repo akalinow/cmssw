@@ -390,8 +390,7 @@ void XMLConfigReader::readConfig(OMTFConfiguration *aConfig){
     }
     std::cout<<"------------"<<std::endl;
     */
-    OMTFConfiguration::refHitsDefs[iProcessor] = tmp;
-    
+    OMTFConfiguration::refHitsDefs[iProcessor] = tmp;    
     ///////////
 
     ///////////

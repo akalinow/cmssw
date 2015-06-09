@@ -74,7 +74,7 @@ InternalObj OMTFSorter::sortRefHitResults(const OMTFProcessor::resultsMap & aRes
   unsigned int nHitsMax = 0;  
   unsigned int hitsWord = 0;
   int refPhi = 9999;
-  int refEta = -10;
+  int refEta = 999;
   int refLayer = -1;
   Key bestKey;
   for(auto itKey: aResultsMap){   
@@ -127,7 +127,7 @@ InternalObj OMTFSorter::sortProcessorResults(const std::vector<OMTFProcessor::re
   std::vector<InternalObj> sortedCandidates;
   sortProcessorResults(procResults, sortedCandidates, charge);
 
-  InternalObj candidate = sortedCandidates.size()>0 ? sortedCandidates[0] : InternalObj(0,99,9999,0,0,0,0,-1);
+  InternalObj candidate = sortedCandidates.size()>0 ? sortedCandidates[0] : InternalObj(0,999,9999,0,0,0,0,-1);
 
   std::ostringstream myStr;
   myStr<<"Selected Candidate with charge: "<<charge<<" "<<candidate<<std::endl;
@@ -158,17 +158,18 @@ void OMTFSorter::sortProcessorResults(const std::vector<OMTFProcessor::resultsMa
     bool isGhost=false;
     for(std::vector<InternalObj>::iterator it2 = refHitCleanCands.begin();
 	it2 != refHitCleanCands.end(); ++it2){
-      //do not accept candidates with similar phi and same charge 
-      if(std::abs(it1->phi - it2->phi)<5/360.0*OMTFConfiguration::nPhiBins //veto window 5deg(=half of logic cone)=5/360*4096=57"logic strips"
-	 && it1->charge==it2->charge){
+      //do not accept candidates with similar phi and same charge
+      //veto window 5deg(=half of logic cone)=5/360*5760=80"logic strips"
+      if(it1->charge==it2->charge &&
+	 std::abs(it1->phi - it2->phi)<5/360.0*OMTFConfiguration::nPhiBins){
 	isGhost=true;
 	break;
-      }
+      }      
     }
     if(it1->q>0 && !isGhost) refHitCleanCands.push_back(*it1);
   }
   //return 3 candidates (adding empty ones if needed)
-  refHitCleanCands.resize( 3, InternalObj(0,99,9999,0,0,0,0,0) );
+  refHitCleanCands.resize( 3, InternalObj(0,999,9999,0,0,0,0,0) );
 
   std::ostringstream myStr;
   bool hasCandidates = false;
@@ -187,7 +188,6 @@ void OMTFSorter::sortProcessorResults(const std::vector<OMTFProcessor::resultsMa
   }
 
   if(hasCandidates) edm::LogInfo("OMTF Sorter")<<myStr.str();
-
 
   return;
 }
@@ -225,7 +225,7 @@ void OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & pr
     std::bitset<17> bits(myCand.hits);
     int ipt = myCand.pt+1;
     if(ipt>31) ipt=31;
-    candidate.setHwPt(RPCConst::ptFromIpt(ipt)/2.0);//uGMT has 0.5 GeV pt bins
+    candidate.setHwPt(RPCConst::ptFromIpt(ipt)/2.0);//uGMT has 0.5 GeV pt bins    
     candidate.setHwEta(myCand.eta);//eta scale set during input making in OMTFInputmaker
     candidate.setHwPhi(myCand.phi);
     candidate.setHwSign(myCand.charge+1*(myCand.charge<0));
