@@ -103,16 +103,19 @@ process.load('L1Trigger.L1EndcapMuonTrackFinder.L1TMuonTriggerPrimitiveProducer_
 ###OMTF emulator configuration
 process.omtfEmulator = cms.EDProducer("OMTFProducer",
                                       TriggerPrimitiveSrc = cms.InputTag('L1TMuonTriggerPrimitives'),
-                                      dumpResultToXML = cms.bool(False),                                     
-                                      dumpGPToXML = cms.bool(True),                                     
+                                      dumpResultToXML = cms.bool(False),
+                                      XMLDumpFileName = cms.string("TestEvents.xml"),     
+                                      dumpGPToXML = cms.bool(True),
+                                      readEventsFromXML = cms.bool(False),
+                                      eventsXMLFiles = cms.vstring("TestEvents.xml"),
                                       makeConnectionsMaps = cms.bool(False),                                      
                                       dropRPCPrimitives = cms.bool(False),                                    
                                       dropDTPrimitives = cms.bool(False),                                    
                                       dropCSCPrimitives = cms.bool(False),   
                                       omtf = cms.PSet(
         configXMLFile = cms.string(path+"hwToLogicLayer_721_5760.xml"),
-        #patternsXMLFiles = cms.vstring(path+"Patterns_ipt4_31_5760.xml"),
-        patternsXMLFiles = patternsXMLFiles        
+        patternsXMLFiles = cms.vstring(path+"Patterns_ipt4_31_5760.xml"),
+        #patternsXMLFiles = patternsXMLFiles        
         )
                                       )
 

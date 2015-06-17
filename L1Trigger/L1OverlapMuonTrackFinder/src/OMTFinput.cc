@@ -78,7 +78,14 @@ void OMTFinput::mergeData(OMTFinput *aInput){
     const OMTFinput::vector1D & aPhiVec = aInput->getLayerData(iLayer,false);
     const OMTFinput::vector1D & aEtaVec = aInput->getLayerData(iLayer,true);
     if(!aPhiVec.size()) continue;
+
+    OMTFinput::vector1D layerData = getLayerData(iLayer, false);
+    
     for(unsigned int iInput=0;iInput<14;++iInput){
+
+      //if(aPhiVec[iInput]==layerData[iInput] &&
+      // aPhiVec[iInput]!=(int)OMTFConfiguration::nPhiBins) std::cout<<"Same HIT!"<<std::endl;
+      
       addLayerHit(iLayer,iInput,aPhiVec[iInput],aEtaVec[iInput]);
     }
   }

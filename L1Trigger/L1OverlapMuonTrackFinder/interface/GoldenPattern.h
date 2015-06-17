@@ -24,7 +24,7 @@ Key(int iEta=99, unsigned int iPt=0, int iCharge= 0):
   }
    
   bool operator==(const Key& o) const {
-    return theEtaCode==o.theEtaCode && thePtCode==o.thePtCode && theCharge!=o.theCharge;
+    return theEtaCode==o.theEtaCode && thePtCode==o.thePtCode && theCharge==o.theCharge;
   }
   
   friend std::ostream & operator << (std::ostream &out, const Key & o) {

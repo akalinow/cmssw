@@ -89,11 +89,6 @@ void OMTFConfigMaker::makeConnetionsMap(unsigned int iProcessor,
     for(unsigned int iInput=0;iInput<refLayerHits.size();++iInput){	
       int phiRef = refLayerHits[iInput];
       unsigned int iRegion = OMTFConfiguration::getRegionNumber(iProcessor,iRefLayer,phiRef);
-      /*    
-      if(iRegion==2 && iProcessor==0 && iInput==2 && iRefLayer==0){
-	std::cout<<"input phi: "<<phiRef<<std::endl;
-      }
-      */
       if(iRegion>5) continue;
       fillInputRange(iProcessor,iRegion,aInput);
       fillInputRange(iProcessor,iRegion,iRefLayer,iInput);
