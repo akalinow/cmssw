@@ -69,14 +69,22 @@ process.source = cms.Source(
 ##Only for making the connections maps.
 process.source.fileNames =  cms.untracked.vstring()
 path = "/home/akalinow/scratch/CMS/OverlapTrackFinder/Crab/SingleMuFullEta/721_FullEta_v4/data/"
+<<<<<<< HEAD
 command = "ls "+path+"/SingleMu_16_*"
+=======
+command = "ls "+path+"/SingleMu_16*"
+>>>>>>> cddb7c73c24c49449e64f314ec102fb8f325985e
 fileList = commands.getoutput(command).split("\n")
 process.source.fileNames =  cms.untracked.vstring()
 for aFile in fileList:
     process.source.fileNames.append('file:'+aFile)
 
 
+<<<<<<< HEAD
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000000))
+=======
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+>>>>>>> cddb7c73c24c49449e64f314ec102fb8f325985e
 
 ###PostLS1 geometry used
 process.load('Configuration.Geometry.GeometryExtendedPostLS1Reco_cff')
@@ -102,7 +110,11 @@ process.omtfPatternMaker = cms.EDAnalyzer("OMTFPatternMaker",
                                       ptCode = cms.int32(16),
                                       charge = cms.int32(1),
                                       omtf = cms.PSet(
+<<<<<<< HEAD
         configXMLFile = cms.string("hwToLogicLayer_750.xml"),
+=======
+        configXMLFile = cms.string(path+"hwToLogicLayer_750.xml"),
+>>>>>>> cddb7c73c24c49449e64f314ec102fb8f325985e
         patternsXMLFiles = cms.vstring(path+"Patterns_ipt4_31_5760.xml"),
         )
                                       )

@@ -162,7 +162,7 @@ void OMTFSorter::sortProcessorResults(const std::vector<OMTFProcessor::resultsMa
       //veto window 5deg(=half of logic cone)=5/360*5760=80"logic strips"
       if(it1->charge==it2->charge &&
 	 std::abs(it1->phi - it2->phi)<5/360.0*OMTFConfiguration::nPhiBins){
-	//TEST isGhost=true;
+	isGhost=true;
 	break;
       }      
     }

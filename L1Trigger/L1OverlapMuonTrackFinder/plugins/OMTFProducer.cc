@@ -231,6 +231,7 @@ void OMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup){
 
       ////TEST
       phiValue =(myOTFCandidates[iCand].hwPhi()+ lowScaleEnd);
+      //phiValue = iProcessor;
       ////
       
       myOTFCandidates[iCand].setHwPhi(phiValue);
