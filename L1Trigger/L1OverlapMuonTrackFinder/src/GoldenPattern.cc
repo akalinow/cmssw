@@ -47,6 +47,15 @@ GoldenPattern::layerResult GoldenPattern::process1Layer1RefLayer(unsigned int iR
 }
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
+int GoldenPattern::propagateRefPhi(int phiRef, int etaRef, unsigned int iRefLayer){
+
+  unsigned int iLayer = 2; //MB2 
+  //if(etaRef>101) iLayer = 7;//RE2
+  return phiRef + meanDistPhi[iLayer][iRefLayer];
+  
+}
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
 void GoldenPattern::addCount(unsigned int iRefLayer,
 			     unsigned int iLayer,
 			     const int phiRefHit,

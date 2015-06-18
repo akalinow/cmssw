@@ -89,8 +89,6 @@ void OMTFProducerMix::endJob(){
 /////////////////////////////////////////////////////  
 void OMTFProducerMix::produce(edm::Event& iEvent, const edm::EventSetup& evSetup){
 
-  std::ostringstream myStr;
-
   myInputMaker->initialize(evSetup);
 
   edm::Handle<TriggerPrimitiveCollection> trigPrimitives;
@@ -103,14 +101,13 @@ void OMTFProducerMix::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
   ///Loop over events to be mixed with current EDM event
   for(unsigned int iEventMix=0;iEventMix<=2*eventsToMix;++iEventMix){
-
+    edm::LogInfo("OMTFOMTFProducerMix")<<"iMix: "<<iEventMix;
     if(dumpResultToXML) aTopElement = myWriter->writeEventHeader(iEvent.id().event(), iEventMix);
 
     ///Loop over all processors, each covering 60 deg in phi
     for(unsigned int iProcessor=0;iProcessor<6;++iProcessor){
     
-      myStr<<" iProcessor: "<<iProcessor;
-    
+      edm::LogInfo("OMTFOMTFProducerMix")<<" iProcessor: "<<iProcessor;
       const OMTFinput *myInput = myInputMaker->buildInputForProcessor(filteredDigis,iProcessor);
        
       ///Input data with phi ranges shifted for each processor, so it fits 11 bits range
@@ -133,18 +130,21 @@ void OMTFProducerMix::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
       
       ////Switch from internal processor n bit scale to global one
       int procOffset = OMTFConfiguration::globalPhiStart(iProcessor);
-      int lowScaleEnd = pow(2,OMTFConfiguration::nPhiBits-1);
-      
+      int lowScaleEnd = pow(2,OMTFConfiguration::nPhiBits-1);      
       if(procOffset<0) procOffset+=OMTFConfiguration::nPhiBins;
-      
+
       for(unsigned int iCand=0; iCand<myOTFCandidates.size(); ++iCand){
 	// shift phi from processor to global coordinates
-	int phiValue = (myOTFCandidates[iCand].hwPhi()+OMTFConfiguration::globalPhiStart(iProcessor)+lowScaleEnd);
+	int phiValue = (myOTFCandidates[iCand].hwPhi()+procOffset+lowScaleEnd);
+	if(phiValue>=(int)OMTFConfiguration::nPhiBins) phiValue-=OMTFConfiguration::nPhiBins;
+	///TEST phiValue/=10; //uGMT has 10x coarser scale than OMTF
 	myOTFCandidates[iCand].setHwPhi(phiValue);
 	myOTFCandidates[iCand].setHwSignValid(iEventMix);
 	// store candidate 
-	if(myOTFCandidates[iCand].hwPt()) myCands->push_back(myOTFCandidates[iCand]);       
+	if(myOTFCandidates[iCand].hwPt()) myCands->push_back(myOTFCandidates[iCand]);
       }
+
+      edm::LogInfo("OMTFOMTFProducerMix")<<" Number of candidates: "<<myOTFCandidates.size();
 
       ///Write to XML
       if(dumpResultToXML){
@@ -157,13 +157,10 @@ void OMTFProducerMix::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 	  }
 	}
       }
-      edm::LogInfo("OMTFOMTFProducerMix")<<myStr.str();
-      myStr.clear();
     }
   }
-  
-  myStr<<" Number of candidates: "<<myCands->size();
-  edm::LogInfo("OMTFOMTFProducerMix")<<myStr.str();
+
+  edm::LogInfo("OMTFOMTFProducerMix")<<" Number of candidates: "<<myCands->size();
 
   iEvent.put(myCands, "OMTF");  
 

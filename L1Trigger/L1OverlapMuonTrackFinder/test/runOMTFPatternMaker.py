@@ -65,7 +65,18 @@ process.source = cms.Source(
     fileNames = cms.untracked.vstring('file:/home/akalinow/scratch/CMS/OverlapTrackFinder/Crab/SingleMuFullEtaTestSample/720_FullEta_v1/data/SingleMu_16_p_1_2_TWz.root')
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+##Use all available events in a single job.
+##Only for making the connections maps.
+process.source.fileNames =  cms.untracked.vstring()
+path = "/home/akalinow/scratch/CMS/OverlapTrackFinder/Crab/SingleMuFullEta/721_FullEta_v4/data/"
+command = "ls "+path+"/SingleMu_16_*"
+fileList = commands.getoutput(command).split("\n")
+process.source.fileNames =  cms.untracked.vstring()
+for aFile in fileList:
+    process.source.fileNames.append('file:'+aFile)
+
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000000))
 
 ###PostLS1 geometry used
 process.load('Configuration.Geometry.GeometryExtendedPostLS1Reco_cff')
@@ -75,23 +86,23 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
-path = os.environ['CMSSW_BASE']+"/src/L1Trigger/L1TMuon/data/"
+path = os.environ['CMSSW_BASE']+"/src/L1Trigger/L1OverlapMuonTrackFinder/data/"
 
-process.load('L1Trigger.L1TMuon.L1TMuonTriggerPrimitiveProducer_cfi')
+process.load('L1Trigger.L1EndcapMuonTrackFinder.L1TMuonTriggerPrimitiveProducer_cfi')
 
 ###OMTF pattern maker configuration
 process.omtfPatternMaker = cms.EDAnalyzer("OMTFPatternMaker",
                                       TriggerPrimitiveSrc = cms.InputTag('L1TMuonTriggerPrimitives'),
                                       g4SimTrackSrc = cms.InputTag('g4SimHits'),
-                                      makeGoldenPatterns = cms.bool(True),                                     
-                                      makeConnectionsMaps = cms.bool(False),                                      
+                                      makeGoldenPatterns = cms.bool(False),                                     
+                                      makeConnectionsMaps = cms.bool(True),                                      
                                       dropRPCPrimitives = cms.bool(False),                                    
                                       dropDTPrimitives = cms.bool(False),                                    
                                       dropCSCPrimitives = cms.bool(False),   
                                       ptCode = cms.int32(16),
                                       charge = cms.int32(1),
                                       omtf = cms.PSet(
-        configXMLFile = cms.string(path+"hwToLogicLayer_721_5760.xml"),
+        configXMLFile = cms.string("hwToLogicLayer_750.xml"),
         patternsXMLFiles = cms.vstring(path+"Patterns_ipt4_31_5760.xml"),
         )
                                       )

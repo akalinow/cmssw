@@ -30,7 +30,7 @@ std::bitset<128> OMTFinput::getRefHits(unsigned int iProcessor) const{
   unsigned int iRefHit = 0;
   for(auto iRefHitDef:OMTFConfiguration::refHitsDefs[iProcessor]){
     int iPhi = getLayerData(OMTFConfiguration::refToLogicNumber[iRefHitDef.iRefLayer])[iRefHitDef.iInput];    
-    int iEta = getLayerData(OMTFConfiguration::refToLogicNumber[iRefHitDef.iRefLayer],true)[iRefHitDef.iInput];    
+    int iEta = getLayerData(OMTFConfiguration::refToLogicNumber[iRefHitDef.iRefLayer],true)[iRefHitDef.iInput];
     if(iPhi<(int)OMTFConfiguration::nPhiBins){
       refHits.set(iRefHit, iRefHitDef.fitsRange(iPhi));    
       refHitsEta[iRefHit] = iEta;
@@ -54,6 +54,7 @@ bool OMTFinput::addLayerHit(unsigned int iLayer,
   if(measurementsPhi[iLayer][iInput]!=(int)OMTFConfiguration::nPhiBins) ++iInput;
   
   if(iInput>13) return false;
+  
   measurementsPhi[iLayer][iInput] = iPhi;
   measurementsEta[iLayer][iInput] = iEta;
 
@@ -76,9 +77,15 @@ void OMTFinput::mergeData(OMTFinput *aInput){
   for(unsigned int iLayer=0;iLayer<OMTFConfiguration::nLayers;++iLayer){
     const OMTFinput::vector1D & aPhiVec = aInput->getLayerData(iLayer,false);
     const OMTFinput::vector1D & aEtaVec = aInput->getLayerData(iLayer,true);
-    //const OMTFinput::vector1D aEtaVec(14);
     if(!aPhiVec.size()) continue;
+
+    OMTFinput::vector1D layerData = getLayerData(iLayer, false);
+    
     for(unsigned int iInput=0;iInput<14;++iInput){
+
+      //if(aPhiVec[iInput]==layerData[iInput] &&
+      // aPhiVec[iInput]!=(int)OMTFConfiguration::nPhiBins) std::cout<<"Same HIT!"<<std::endl;
+      
       addLayerHit(iLayer,iInput,aPhiVec[iInput],aEtaVec[iInput]);
     }
   }

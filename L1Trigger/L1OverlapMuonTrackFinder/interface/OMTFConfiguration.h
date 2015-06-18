@@ -73,6 +73,14 @@ class OMTFConfiguration{
   static std::set<int> bendingLayers;
   static std::vector<int> refToLogicNumber;
 
+  ///Starting and final sectors connected to
+  ///processors.
+  ///Index: processor number
+  static std::vector<unsigned int> barrelMin;
+  static std::vector<unsigned int> barrelMax;
+  static std::vector<unsigned int> endcap10DegMin;
+  static std::vector<unsigned int> endcap10DegMax;
+    
   ///Starting iPhi for each processor and each referecne layer    
   ///Global phi scale is used
   ///First index: processor number

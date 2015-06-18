@@ -207,7 +207,7 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
       if(!refHitsBits[iRefHit]) continue;
       if(nTestedRefHits--==0) break;
       const RefHitDef & aRefHitDef = OMTFConfiguration::refHitsDefs[iProcessor][iRefHit];
-      int phiRef = aInput.getLayerData(OMTFConfiguration::refToLogicNumber[aRefHitDef.iRefLayer])[aRefHitDef.iInput]; 
+      int phiRef = aInput.getLayerData(OMTFConfiguration::refToLogicNumber[aRefHitDef.iRefLayer])[aRefHitDef.iInput];
       int etaRef = aInput.getLayerData(OMTFConfiguration::refToLogicNumber[aRefHitDef.iRefLayer],true)[aRefHitDef.iInput]; 
       unsigned int iRegion = aRefHitDef.iRegion;
       if(OMTFConfiguration::bendingLayers.count(iLayer)) phiRef = 0;
@@ -216,9 +216,11 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
 	GoldenPattern::layerResult aLayerResult = itGP.second->process1Layer1RefLayer(aRefHitDef.iRefLayer,iLayer,
 										      phiRef,
 										      restrictedLayerHits);
+       
+	int phiRefSt2 = itGP.second->propagateRefPhi(phiRef, etaRef, aRefHitDef.iRefLayer);
 	myResults[OMTFConfiguration::nTestRefHits-nTestedRefHits-1][itGP.second->key()].addResult(aRefHitDef.iRefLayer,iLayer,
 												  aLayerResult.first,
-												  phiRef,etaRef);	 
+												  phiRefSt2,etaRef);	 
       }
     }
   }  
@@ -241,7 +243,7 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
     myStr<<"--------------------"<<std::endl;
   }
   //LogDebug("OMTF processor")<<myStr.str();
-  edm::LogInfo("OMTF processor")<<myStr.str();
+  //edm::LogInfo("OMTF processor")<<myStr.str();
   //#endif
   
   return myResults;

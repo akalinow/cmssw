@@ -543,7 +543,7 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
 	  }
 	for(unsigned int iInput=0;iInput<14;++iInput){
 	  unsigned int hitCount =  OMTFConfiguration::measurements4Dref[iProcessor][iRegion][iRefLayer][iInput];
-	  if(hitCount<maxHitCount*1E-2) continue;
+	  if(hitCount<maxHitCount*2E-2) continue;
 	  xercesc::DOMElement* aRefHitElement = theDoc->createElement(_toDOMS("RefHit"));
 	  stringStr.str("");
 	  stringStr<<iRefHit;
@@ -559,7 +559,6 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
 	  stringStr.str("");
 	  stringStr<<iInput;
 	  aRefHitElement->setAttribute(_toDOMS("iInput"), _toDOMS(stringStr.str()));
-
 	  unsigned int logicRegionSize = 10/360.0*OMTFConfiguration::nPhiBins;
 	  int lowScaleEnd = std::pow(2,OMTFConfiguration::nPhiBits-1);
 	  ///iPhiMin and iPhiMax are expressed in n bit scale -2**n, +2**2-1 used in each processor
@@ -576,8 +575,7 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
 	  stringStr.str("");
 	  stringStr<<iPhiMax;
 	  aRefHitElement->setAttribute(_toDOMS("iPhiMax"), _toDOMS(stringStr.str()));
-	  //if(iRefHit<OMTFConfiguration::nRefHits) aProcessorElement->appendChild(aRefHitElement);
-	  if(iRefHit<128) aProcessorElement->appendChild(aRefHitElement);
+	  if(iRefHit<OMTFConfiguration::nRefHits) aProcessorElement->appendChild(aRefHitElement);
 	  ++iRefHit;
 	}	      
       for(;iRegion==5 && iRefLayer==7 && iRefHit<OMTFConfiguration::nRefHits;++iRefHit){
@@ -612,8 +610,7 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
       }
 	}
       }
-      
-      ////
+      ////      
       for(unsigned int iRegion=0;iRegion<6;++iRegion){
 	xercesc::DOMElement* aRegionElement = theDoc->createElement(_toDOMS("LogicRegion"));
 	stringStr.str("");
@@ -626,7 +623,7 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
 	xercesc::DOMElement* aLayerElement = theDoc->createElement(_toDOMS("Layer"));
 	stringStr.str("");
 	//stringStr<<iLogicLayer;
-	//After layer removal inxed has to be realigned
+	//After layer removal index has to be realigned
 	stringStr<<iLayerNew;
 	++iLayerNew;
 	////////////////////////////////////////////////
@@ -646,7 +643,7 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
 	aRegionElement->appendChild(aLayerElement);
       }
       aProcessorElement->appendChild(aRegionElement);
-    }
+      }
     theTopElement->appendChild(aProcessorElement);
   }
 }

@@ -24,7 +24,7 @@ Key(int iEta=99, unsigned int iPt=0, int iCharge= 0):
   }
    
   bool operator==(const Key& o) const {
-    return theEtaCode==o.theEtaCode && thePtCode==o.thePtCode && theCharge!=o.theCharge;
+    return theEtaCode==o.theEtaCode && thePtCode==o.thePtCode && theCharge==o.theCharge;
   }
   
   friend std::ostream & operator << (std::ostream &out, const Key & o) {
@@ -91,6 +91,11 @@ class GoldenPattern {
   ///Normalise event counts in mean dist phi, and pdf vectors to get
   ///the real values of meand dist phi and probability
   void normalise();
+
+  ///Propagate phi from given reference layer to MB2 or ME2
+  ///ME2 is used if eta of reference hit is larger than 1.1
+  ///expressed in ingerer uGMT scale: 1.1/2.61*240 = 101
+  int propagateRefPhi(int phiRef, int etaRef, unsigned int iRefLayer);
 
   ///Check if the GP has any counts in any of referecne layers;
   bool hasCounts();

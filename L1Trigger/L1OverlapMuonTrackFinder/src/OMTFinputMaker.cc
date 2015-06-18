@@ -41,12 +41,10 @@ OMTFinputMaker::~OMTFinputMaker(){
 ///////////////////////////////////////
 bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
 				 unsigned int iProcessor){
-  
-  int barrelChamberMin = iProcessor*2 + 1;
-  int barrelChamberMax = (iProcessor*2 + 2 +1);
 
-  int endcapChamberMin = iProcessor*6 + 1;
-  int endcapChamberMax = (iProcessor*6 + 6 +1);
+  unsigned int aMin = OMTFConfiguration::barrelMin[iProcessor];
+  unsigned int aMax = OMTFConfiguration::barrelMax[iProcessor];
+  unsigned int aSector = 99;
 
   ///Clean up digis. Remove unconnected detectors
   DetId detId(rawId);
@@ -62,36 +60,40 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
        ) return false;    
     if(aId.region()==1 &&  aId.ring()<3) return false;
     ////////////////
-    if(aId.region()==0 && barrelChamberMax==13 && aId.sector()==1) return true;
-    if(aId.region()==0 && (aId.sector()<barrelChamberMin || aId.sector()>barrelChamberMax)) return false;    
-    if(aId.region()!=0 && 
-       ((aId.sector()-1)*6+aId.subsector()<endcapChamberMin || 
-	(aId.sector()-1)*6+aId.subsector()>endcapChamberMax)) return false;  
-    if(aId.region()<0 && barrelChamberMax==37 && (aId.sector()-1)*6+aId.subsector()==1) return true;      
+    if(aId.region()==0) aSector = aId.sector();
+    if(aId.region()!=0){
+      aSector = (aId.sector()-1)*6+aId.subsector();
+      aMin = OMTFConfiguration::endcap10DegMin[iProcessor];
+      aMax = OMTFConfiguration::endcap10DegMax[iProcessor];
+    }      
   }
     break;
   case MuonSubdetId::DT: {
     DTChamberId dt(rawId);
     if(dt.wheel()<2) return false;
-    if(barrelChamberMax==13 && dt.sector()==1) return true;
-    if(dt.sector()<barrelChamberMin || dt.sector()>barrelChamberMax) return false;
-   	
+    aSector =  dt.sector();   	
     break;
   }
   case MuonSubdetId::CSC: {
     CSCDetId csc(rawId);    
-
+    
     if(csc.station()==2 && csc.ring()==1) return false;
     if(csc.station()==3 && csc.ring()==1) return false;
     if(csc.station()==4) return false;
 
-    if(endcapChamberMax==37 && csc.chamber()==1) return true;
-    if(csc.chamber()<endcapChamberMin || csc.chamber()>endcapChamberMax) return false;
+    aSector =  csc.chamber();   	
+    
+    aMin = OMTFConfiguration::endcap10DegMin[iProcessor];
+    aMax = OMTFConfiguration::endcap10DegMax[iProcessor];
     ///////////////////
     break;
   }
   }
-  return true;
+  
+  if(aMax>aMin && aSector>=aMin && aSector<=aMax) return true;
+  if(aMax<aMin && (aSector>=aMin || aSector<=aMax)) return true;
+
+  return false;
 }
 ///////////////////////////////////////
 ///////////////////////////////////////
@@ -114,35 +116,52 @@ unsigned int OMTFinputMaker::getInputNumber(unsigned int rawId,
 					    unsigned int iProcessor){
 
   unsigned int iInput = 99;
-
-  int barrelChamberMin = iProcessor*2 + 1;
-  int endcapChamberMin = iProcessor*6 + 1;
+  unsigned int aSector = 99;
+  int aMin = OMTFConfiguration::barrelMin[iProcessor];
 
   DetId detId(rawId);
   if (detId.det() != DetId::Muon) 
     edm::LogError("Critical OMTFinputMaker") << "PROBLEM: hit in unknown Det, detID: "<<detId.det()<<std::endl;
   switch (detId.subdetId()) {
   case MuonSubdetId::RPC: {
-    RPCDetId rpc(rawId);        
-    if(rpc.region()==0) iInput = (rpc.sector()- barrelChamberMin)*2;
-    if(rpc.region()!=0) iInput = ((rpc.sector()-1)*6+rpc.subsector()-endcapChamberMin)*2;
-    if(iProcessor==5 && rpc.region()==0 && rpc.sector()==1) iInput = 4;
-    if(iProcessor==5 && rpc.region()!=0 && (rpc.sector()-1)*6+rpc.subsector()==1) iInput = 12;
+    RPCDetId rpc(rawId);   
+    if(rpc.region()==0){
+      aSector = rpc.sector();
+      ///on the 0-2pi border we need to add 1 30 deg sector
+      ///to get the correct index
+      if(iProcessor==5 && aSector<3) aMin = 0;
+    }
+    if(rpc.region()!=0){
+      aSector = (rpc.sector()-1)*6+rpc.subsector();
+      aMin = OMTFConfiguration::endcap10DegMin[iProcessor];
+      ///on the 0-2pi border we need to add 4 10 deg sectors
+      ///to get the correct index
+      if(iProcessor==5 && aSector<5) aMin = -3;
+    }
     break;
   }
   case MuonSubdetId::DT: {
-    DTChamberId dt(rawId);
-    iInput = (dt.sector()-barrelChamberMin)*2;
-    if(iProcessor==5 && dt.sector()==1) iInput = 4;
+    DTChamberId dt(rawId);    
+    aSector = dt.sector();
+    ///on the 0-2pi border we need to add 1 30 deg sector
+    ///to get the correct index
+    if(iProcessor==5 && aSector<3) aMin = 0;
     break;
   }
-  case MuonSubdetId::CSC: {
-    CSCDetId csc(rawId);
-    iInput = (csc.chamber()-endcapChamberMin)*2;
-    if(iProcessor==5 && csc.chamber()==1) iInput = 12;
+  case MuonSubdetId::CSC: {   
+    CSCDetId csc(rawId);       
+    aSector = csc.chamber();
+    aMin = OMTFConfiguration::endcap10DegMin[iProcessor];
+    ///on the 0-2pi border we need to add 4 10deg sectors
+    ///to get the correct index
+    if(iProcessor==5 && aSector<5) aMin = -3;
     break;
   }
   }
+
+  ///Assume 2 hits per chamber
+  iInput = (aSector - aMin)*2;
+
   return iInput;
 }
 ////////////////////////////////////////////
@@ -166,17 +185,18 @@ const OMTFinput * OMTFinputMaker::buildInputForProcessor(const L1TMuon::TriggerP
     if(!acceptDigi(digiIt.rawId(), iProcessor)) continue;
     if(!filterDigiQuality(digiIt)) continue;
 
-    //digiIt.print(myStr);
+    digiIt.print(myStr);
 
     unsigned int hwNumber = OMTFConfiguration::getLayerNumber(digiIt.rawId());
 
     if(OMTFConfiguration::hwToLogicLayer.find(hwNumber)==OMTFConfiguration::hwToLogicLayer.end()) continue;
     unsigned int iLayer = OMTFConfiguration::hwToLogicLayer[hwNumber];   
-    int iPhi =  digiIt.getCMSGlobalPhi()/(2.0*M_PI)*nGlobalPhi;
+    int iPhi =  digiIt.getCMSGlobalPhi()/(2.0*M_PI)*nGlobalPhi;    
     int iEta =  digiIt.getCMSGlobalEta()/2.61*240;
-
     unsigned int iInput= getInputNumber(digiIt.rawId(), iProcessor);
+
     if(digiIt.subsystem()!=L1TMuon::TriggerPrimitive::kRPC) myInput->addLayerHit(iLayer,iInput,iPhi,iEta);
+
     switch (digiIt.subsystem()) {
     case L1TMuon::TriggerPrimitive::kDT: {
       myInput->addLayerHit(iLayer+1,iInput,digiIt.getDTData().bendingAngle,iEta);
@@ -222,7 +242,6 @@ const OMTFinput * OMTFinputMaker::buildInputForProcessor(const L1TMuon::TriggerP
     if(phi1*phi2<0 && fabs(phi1)>M_PI/2.0) phi = (M_PI-phi)*(1 - 2*std::signbit(phi));
     int iPhi =  phi/(2.0*M_PI)*nGlobalPhi;
     int iEta =  std::get<1>(halfDigiIt)->getCMSGlobalEta()/2.61*240;
-
     unsigned int hwNumber = OMTFConfiguration::getLayerNumber(std::get<0>(halfDigiIt));
     unsigned int iLayer = OMTFConfiguration::hwToLogicLayer[hwNumber];
     unsigned int iInput= getInputNumber(std::get<0>(halfDigiIt), iProcessor);
@@ -238,7 +257,7 @@ const OMTFinput * OMTFinputMaker::buildInputForProcessor(const L1TMuon::TriggerP
 	 <<std::endl;
   }
 
-  //edm::LogInfo("OMTFInputMaker")<<myStr.str();
+  edm::LogInfo("OMTFInputMaker")<<myStr.str();
   
   return myInput;
 }

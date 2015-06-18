@@ -4,7 +4,9 @@
 
 std::ostream & operator<< (std::ostream &out, const InternalObj &o){
   out<<"InternalObj: ";
-  out <<" pt: "<<o.pt<<", eta: "<<o.eta/1000.0*4<<", phi: "<<o.phi
+  out <<" pt: "<<o.pt
+      <<", eta: "<<o.eta*2.61/240
+      <<", phi: "<<o.phi
       <<", charge: "<<o.charge
       <<", q: "<<o.q
       <<" hits: "<<std::bitset<18>(o.hits).to_string()

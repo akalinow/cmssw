@@ -93,12 +93,11 @@ void OMTFProducer::endJob(){
     ///2x merging
     int charge = -1;
     int iPtMin = 4;
-    Key aKey(1, iPtMin, charge);    
+    Key aKey(1, iPtMin, charge);
 
     fName = "OMTF";
     myWriter->initialiseXMLDocument(fName);
     while(myGPmap.find(aKey)!=myGPmap.end()){
-      
       GoldenPattern *aGP1 = myGPmap.find(aKey)->second;
       GoldenPattern *aGP2 = aGP1;
 
@@ -116,7 +115,6 @@ void OMTFProducer::endJob(){
       ++aKey.thePtCode;
       ++aKey.thePtCode;
       aKey.theCharge = -1;
-      
     }   
     fName = "GPs_2x.xml";
     myWriter->finaliseXMLDocument(fName);  
@@ -151,8 +149,6 @@ void OMTFProducer::endJob(){
       aGP4 = dummy;
     }
     ++aKey.thePtCode;
-
-
     myWriter->writeGPData(*aGP1,*aGP2, *aGP3, *aGP4);
     }   
     ///
@@ -179,7 +175,6 @@ void OMTFProducer::endJob(){
       aGP4 = dummy;
     }
     ++aKey.thePtCode;
-
     myWriter->writeGPData(*aGP1,*aGP2, *aGP3, *aGP4);
     } 
     fName = "GPs_4x.xml";
@@ -206,7 +201,7 @@ void OMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup){
 
   ///Loop over all processors, each covering 60 deg in phi
   for(unsigned int iProcessor=0;iProcessor<6;++iProcessor){
-    
+    if(iProcessor!=0) continue;
     myStr<<" iProcessor: "<<iProcessor;
     
     const OMTFinput *myInput = myInputMaker->buildInputForProcessor(filteredDigis,iProcessor);
@@ -229,10 +224,15 @@ void OMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup){
     //dumpResultToXML = false;
 
     for(unsigned int iCand=0; iCand<myOTFCandidates.size(); ++iCand){
-      // shift phi from processor to global coordinates
+      // shift phi from processor to global coordinates     
       int phiValue = (myOTFCandidates[iCand].hwPhi()+procOffset+lowScaleEnd);
       if(phiValue>=(int)OMTFConfiguration::nPhiBins) phiValue-=OMTFConfiguration::nPhiBins;
       phiValue/=10; //uGMT has 10x coarser scale than OMTF
+
+      ////TEST
+      phiValue =(myOTFCandidates[iCand].hwPhi()+ lowScaleEnd);
+      ////
+      
       myOTFCandidates[iCand].setHwPhi(phiValue);
       // store candidate 
       if(myOTFCandidates[iCand].hwPt()){
@@ -240,6 +240,7 @@ void OMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup){
 	myStr<<" Candidate pt code: "<<myOTFCandidates[iCand].hwPt();
       }
     }
+    
     ///Write to XML
     if(dumpResultToXML){
       xercesc::DOMElement * aProcElement = myWriter->writeEventData(aTopElement,iProcessor,myShiftedInput);

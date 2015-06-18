@@ -35,6 +35,12 @@ std::vector<std::vector<RefHitDef> >OMTFConfiguration::refHitsDefs;
 OMTFConfiguration::vector4D OMTFConfiguration::measurements4D;
 OMTFConfiguration::vector4D OMTFConfiguration::measurements4Dref;
 
+std::vector<unsigned int> OMTFConfiguration::barrelMin({2, 4, 6, 8, 10, 12});
+std::vector<unsigned int> OMTFConfiguration::barrelMax({4, 6, 8, 10, 12, 2});
+
+std::vector<unsigned int> OMTFConfiguration::endcap10DegMin({3, 9, 15, 21, 27, 33});
+std::vector<unsigned int> OMTFConfiguration::endcap10DegMax({9, 15, 21, 27, 33, 3});
+
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 RefHitDef::RefHitDef(unsigned int aInput, 
@@ -152,7 +158,6 @@ unsigned int OMTFConfiguration::getRegionNumber(unsigned int iProcessor,
 
   unsigned int logicRegionSize = 10/360.0*OMTFConfiguration::nPhiBins;
   
-
   unsigned int iRegion = 0;
   int iPhiStart = OMTFConfiguration::processorPhiVsRefLayer[iProcessor][iRefLayer];
   
@@ -163,9 +168,6 @@ unsigned int OMTFConfiguration::getRegionNumber(unsigned int iProcessor,
   }
 
   if(iRegion>5) iRegion = 99;
-
-  if(iRegion>4 || iRegion==0) iRegion = 99;////TEST
-
   return iRegion;
 }
 ///////////////////////////////////////////////
