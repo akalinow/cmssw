@@ -9,7 +9,8 @@
   <class name="L1TMuon::TriggerPrimitive::DTData" ClassVersion="10">
    <version ClassVersion="10" checksum="2509427716"/>
   </class>
-  <class name="L1TMuon::TriggerPrimitive" ClassVersion="11">
+  <class name="L1TMuon::TriggerPrimitive" ClassVersion="12">
+   <version ClassVersion="12" checksum="189673280"/>
    <version ClassVersion="11" checksum="3982964189"/>
   </class>
   <class name="edm::Wrapper<L1TMuon::TriggerPrimitive>"/>
