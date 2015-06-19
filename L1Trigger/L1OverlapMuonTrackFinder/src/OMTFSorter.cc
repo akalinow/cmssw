@@ -162,7 +162,7 @@ void OMTFSorter::sortProcessorResults(const std::vector<OMTFProcessor::resultsMa
       //veto window 5deg(=half of logic cone)=5/360*5760=80"logic strips"
       if(it1->charge==it2->charge &&
 	 std::abs(it1->phi - it2->phi)<5/360.0*OMTFConfiguration::nPhiBins){
-	isGhost=true;
+	//isGhost=true;
 	break;
       }      
     }
@@ -206,7 +206,7 @@ l1t::L1TRegionalMuonCandidate OMTFSorter::sortProcessor(const std::vector<OMTFPr
   candidate.setHwQual(myCand.hits);
   ///Temporary assignement
   candidate.setHwTrackAddress(myCand.refLayer);
-  candidate.setLink(myCand.disc);
+  //candidate.setLink(myCand.disc);
   /////////////
   return candidate;
 }
@@ -233,7 +233,7 @@ void OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & pr
     candidate.setHwTrackAddress(myCand.hits);
     ///Temporary assignement
     candidate.setHwQual(myCand.refLayer);
-    candidate.setLink(myCand.disc);
+    //candidate.setLink(myCand.disc);
     /////////////
     sortedCands.push_back(candidate);
   }

@@ -201,7 +201,6 @@ void OMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup){
 
   ///Loop over all processors, each covering 60 deg in phi
   for(unsigned int iProcessor=0;iProcessor<6;++iProcessor){
-    if(iProcessor!=0) continue;
     myStr<<" iProcessor: "<<iProcessor;
     
     const OMTFinput *myInput = myInputMaker->buildInputForProcessor(filteredDigis,iProcessor);
@@ -218,10 +217,10 @@ void OMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup){
 
     ////Switch from internal processor n bit scale to global one
     int procOffset = OMTFConfiguration::globalPhiStart(iProcessor);
-    int lowScaleEnd = pow(2,OMTFConfiguration::nPhiBits-1);
     if(procOffset<0) procOffset+=(int)OMTFConfiguration::nPhiBins;
-
-    //dumpResultToXML = false;
+    ///Set local 0 at iProcessor x 15 deg
+    procOffset-=(15+iProcessor*60)/360.0*OMTFConfiguration::nPhiBins;    
+    int lowScaleEnd = pow(2,OMTFConfiguration::nPhiBits-1);
 
     for(unsigned int iCand=0; iCand<myOTFCandidates.size(); ++iCand){
       // shift phi from processor to global coordinates     
@@ -230,11 +229,12 @@ void OMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup){
       phiValue/=10; //uGMT has 10x coarser scale than OMTF
 
       ////TEST
-      phiValue =(myOTFCandidates[iCand].hwPhi()+ lowScaleEnd);
+      //phiValue =(myOTFCandidates[iCand].hwPhi()+ lowScaleEnd);
       //phiValue = iProcessor;
       ////
       
       myOTFCandidates[iCand].setHwPhi(phiValue);
+      myOTFCandidates[iCand].setTFIdentifiers(iProcessor+1,l1t::tftype::omtf_pos);
       // store candidate 
       if(myOTFCandidates[iCand].hwPt()){
 	myCands->push_back(myOTFCandidates[iCand]);       
