@@ -32,7 +32,7 @@ OMTFPatternMaker::OMTFPatternMaker(const edm::ParameterSet& cfg):
   myInputMaker = new OMTFinputMaker();
   
   myWriter = new XMLConfigWriter();
-  std::string fName = "OMTF_Events";
+  std::string fName = "OMTF";
   myWriter->initialiseXMLDocument(fName);
 
   makeGoldenPatterns = theConfig.getParameter<bool>("makeGoldenPatterns");
