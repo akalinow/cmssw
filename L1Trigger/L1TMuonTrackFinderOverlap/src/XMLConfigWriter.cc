@@ -237,7 +237,7 @@ void XMLConfigWriter::writeResultsData(xercesc::DOMElement *aTopElement,
     aRefLayer->setAttribute(_toDOMS("iRefLayer"), _toDOMS(stringStr.str()));
     stringStr.str("");
     stringStr<<iRegion;
-    aRefLayer->setAttribute(_toDOMS("iRegion"), _toDOMS(stringStr.str()));
+    aRefLayer->setAttribute(_toDOMS("iRefHit"), _toDOMS(stringStr.str()));
     stringStr.str("");
     stringStr<<OMTFConfiguration::refToLogicNumber[iRefLayer];
     aRefLayer->setAttribute(_toDOMS("iLogicLayer"), _toDOMS(stringStr.str()));

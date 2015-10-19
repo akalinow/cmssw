@@ -86,6 +86,8 @@ bool OMTFProcessor::configure(XMLConfigReader *aReader){
 ///////////////////////////////////////////////
 bool OMTFProcessor::addGP(GoldenPattern *aGP){
 
+  if(aGP->key().thePtCode!=14 || aGP->key().theCharge!=-1) return true;//TEST
+
   if(theGPs.find(aGP->key())!=theGPs.end()){
     throw cms::Exception("Corrupted Golden Patterns data")
       <<"OMTFProcessor::addGP(...) "
@@ -224,7 +226,7 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
       const RefHitDef & aRefHitDef = OMTFConfiguration::refHitsDefs[iProcessor][iRefHit];
       int phiRef = aInput.getLayerData(OMTFConfiguration::refToLogicNumber[aRefHitDef.iRefLayer])[aRefHitDef.iInput];
       int etaRef = aInput.getLayerData(OMTFConfiguration::refToLogicNumber[aRefHitDef.iRefLayer],true)[aRefHitDef.iInput];
-      unsigned int iRegion = aRefHitDef.iRegion;
+      unsigned int iRegion = aRefHitDef.iRegion;      
       if(OMTFConfiguration::bendingLayers.count(iLayer)) phiRef = 0;
       const OMTFinput::vector1D restrictedLayerHits = restrictInput(iProcessor, iRegion, iLayer,layerHits);
       for(auto itGP: theGPs){
@@ -287,11 +289,11 @@ OMTFinput::vector1D OMTFProcessor::restrictInput(unsigned int iProcessor,
 
   OMTFinput::vector1D myHits = layerHits;
   unsigned int iStart = OMTFConfiguration::connections[iProcessor][iRegion][iLayer].first;
-  unsigned int iEnd = iStart + OMTFConfiguration::connections[iProcessor][iRegion][iLayer].second -1;
-
+  unsigned int iEnd = iStart + OMTFConfiguration::connections[iProcessor][iRegion][iLayer].second -1;  
   for(unsigned int iHit=0;iHit<14;++iHit){
-    if(iHit<iStart || iHit>iEnd) myHits[iHit] = OMTFConfiguration::nPhiBins;    
+    if(iHit<iStart || iHit>iEnd) myHits[iHit] = OMTFConfiguration::nPhiBins;
   }
+  
   return myHits;
 }
 ////////////////////////////////////////////
@@ -317,10 +319,10 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
     const OMTFinput::vector1D & layerHits = aInput.getLayerData(iLayer);
     if(!layerHits.size()) continue;
     ///Number of reference hits to be checked. 
-    ///Value read from XML configuration
+    ///Value read from XML configuration    
     for(unsigned int iRefHit=0;iRefHit<OMTFConfiguration::nRefHits;++iRefHit){
       if(!refHitsBits[iRefHit]) continue;
-      const RefHitDef & aRefHitDef = OMTFConfiguration::refHitsDefs[iProcessor][iRefHit];
+      const RefHitDef & aRefHitDef = OMTFConfiguration::refHitsDefs[iProcessor][iRefHit];      
       int phiRef = aInput.getLayerData(OMTFConfiguration::refToLogicNumber[aRefHitDef.iRefLayer])[aRefHitDef.iInput]; 
       unsigned int iRegion = aRefHitDef.iRegion;
       if(OMTFConfiguration::bendingLayers.count(iLayer)) phiRef = 0;

@@ -64,10 +64,11 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 process.source = cms.Source(
     'PoolSource',
     #fileNames = cms.untracked.vstring('file:/home/akalinow/scratch/CMS/OverlapTrackFinder/Crab/SingleMuFullEtaTestSample/720_FullEta_v1/data/SingleMu_16_p_1_2_TWz.root')
-    fileNames = cms.untracked.vstring('file:/home/akalinow/scratch/CMS/OverlapTrackFinder/Crab/JPsi_21kEvents.root')
+    fileNames = cms.untracked.vstring('file:/home/akalinow/scratch/CMS/OverlapTrackFinder/Crab/JPsi_21kEvents.root'),
+    eventsToProcess = cms.untracked.VEventRange('1:777','1:4223','1:4313')
     )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(60))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
 ###PostLS1 geometry used
 process.load('Configuration.Geometry.GeometryExtended2015_cff')
@@ -81,6 +82,8 @@ process.load('L1Trigger.L1TMuonTrackFinderEndCap.L1TMuonTriggerPrimitiveProducer
 
 ###OMTF emulator configuration
 process.load('L1Trigger.L1TMuonTrackFinderOverlap.OMTFProducer_cfi')
+process.omtfEmulator.dumpResultToXML = cms.bool(True)
+process.omtfEmulator.dumpDetailedResultToXML = cms.bool(True)
 
 process.L1TMuonSeq = cms.Sequence( process.L1TMuonTriggerPrimitives +
                                    process.omtfEmulator)
