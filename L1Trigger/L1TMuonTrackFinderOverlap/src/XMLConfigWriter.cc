@@ -66,7 +66,7 @@ void XMLConfigWriter::initialiseXMLDocument(const std::string & docName){
 
   std::ostringstream stringStr;
   stringStr.str("");
-  stringStr<<time(NULL);
+  stringStr<<"0x"<<std::hex<<time(NULL);
   theTopElement->setAttribute(_toDOMS("version"), _toDOMS(stringStr.str()));
 
 }
