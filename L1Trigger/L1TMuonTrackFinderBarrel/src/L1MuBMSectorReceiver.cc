@@ -36,8 +36,8 @@
 #include "L1Trigger/L1TMuonTrackFinderBarrel/src/L1MuBMTrackSegPhi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
-#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
-#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
+//#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
+//#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFMasks.h"
@@ -84,9 +84,9 @@ void L1MuBMSectorReceiver::run(int bx, const edm::Event& e, const edm::EventSetu
   receiveBBMXData(bx, e, c);
 
   // get track segments from CSC chamber trigger
-  if ( L1MuBMTFConfig::overlap() && m_sp.ovl() ) {
-    receiveCSCData(bx, e, c);
-  }
+  //if ( L1MuBMTFConfig::overlap() && m_sp.ovl() ) {
+    //receiveCSCData(bx, e, c);
+  //}
 
 }
 
@@ -119,7 +119,7 @@ void L1MuBMSectorReceiver::receiveBBMXData(int bx, const edm::Event& e, const ed
     int max_address = (station == 1) ? 2 : 12;
     for (int reladr =0; reladr < max_address; reladr++) {
       address++;
-      if ( m_sp.ovl() && (reladr/2)%2 != 0 ) continue;
+      //if ( m_sp.ovl() && (reladr/2)%2 != 0 ) continue;
       int wheel  = address2wheel(reladr);
       int sector = address2sector(reladr);
       if ( reladr%2 == 0 ) ts = dttrig->chPhiSegm1(wheel,station,sector,bx);
@@ -218,6 +218,7 @@ void L1MuBMSectorReceiver::receiveBBMXData(int bx, const edm::Event& e, const ed
 //
 // receive track segment data from CSC chamber trigger
 //
+/*
 void L1MuBMSectorReceiver::receiveCSCData(int bx, const edm::Event& e, const edm::EventSetup& c) {
 
   if ( (L1MuBMTFConfig::getCSCTrSInputTag()).label() == "none" ) return;
@@ -284,7 +285,7 @@ void L1MuBMSectorReceiver::receiveCSCData(int bx, const edm::Event& e, const edm
 
 }
 
-
+*/
 
 //
 // find the right sector for a given address

@@ -23,7 +23,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
-#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
+//#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
 
 
 #include "../src/L1MuBMTFConfig.h"
@@ -45,7 +45,7 @@ BMTrackFinder::BMTrackFinder(const edm::ParameterSet & pset) {
   usesResource("BMTrackFinder");
   consumes<L1MuDTChambPhContainer>(pset.getParameter<edm::InputTag>("DTDigi_Source"));
   consumes<L1MuDTChambThContainer>(pset.getParameter<edm::InputTag>("DTDigi_Source"));
-  consumes<CSCTriggerContainer<csctf::TrackStub>>(pset.getParameter<edm::InputTag>("CSCStub_Source"));
+//  consumes<CSCTriggerContainer<csctf::TrackStub>>(pset.getParameter<edm::InputTag>("CSCStub_Source"));
 
 }
 

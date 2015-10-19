@@ -30,6 +30,7 @@
 // Base Class Headers --
 //----------------------
 
+#include <map>
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -38,6 +39,7 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "L1Trigger/L1TMuonTrackFinderBarrel/interface/L1MuBMTrack.h"
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 
@@ -61,9 +63,6 @@ class L1MuBMTrackFinder {
   public:
 
     /// container for muon candidates
-    //typedef std::vector<L1MuRegionalCand>::const_iterator TFtracks_const_iter;
-    //typedef std::vector<L1MuRegionalCand>::iterator       TFtracks_iter;
-
     typedef l1t::RegionalMuonCandBxCollection::const_iterator TFtracks_const_iter;
     typedef l1t::RegionalMuonCandBxCollection::iterator       TFtracks_iter;
 
@@ -81,6 +80,8 @@ class L1MuBMTrackFinder {
 
     /// reset the barrel MTTF
     void reset();
+
+    inline int setAdd(int ust, int rel_add);
 
     /// get a pointer to a Sector Processor
     const L1MuBMSectorProcessor* sp(const L1MuBMSecProcId&) const;
@@ -111,7 +112,6 @@ class L1MuBMTrackFinder {
 
     std::vector<BMTrackCand>& getcache0() { return _cache0; }
 
-    //std::vector<L1MuRegionalCand>& getcache() { return _cache; } -->
     l1t::RegionalMuonCandBxCollection& getcache() { return _cache; }
 
   private:
@@ -122,7 +122,6 @@ class L1MuBMTrackFinder {
   private:
 
     std::vector<BMTrackCand>     _cache0;
-    //std::vector<L1MuRegionalCand>    _cache;
     l1t::RegionalMuonCandBxCollection _cache;
     L1MuBMSecProcMap*                m_spmap;        ///< Sector Processors
     std::vector<L1MuBMEtaProcessor*> m_epvec;        ///< Eta Processors
@@ -130,6 +129,16 @@ class L1MuBMTrackFinder {
     L1MuBMMuonSorter*                m_ms;           ///< BM Muon Sorter
 
     static L1MuBMTFConfig*           m_config;       ///< Track Finder configuration
+
+    std::map<int,int> eta_map ={
+    { -32,  -119},{ -31,  -115},{ -30,  -111},{ -29,  -107},{ -28,  -104},{ -27,  -100},{ -26,   -96},{ -25,   -92},{ -24,   -89},{ -23,   -85},
+    { -22,   -81},{ -21,   -77},{ -20,   -74},{ -19,   -70},{ -18,   -66},{ -17,   -62},{ -16,   -59},{ -15,   -55},{ -14,   -51},{ -13,   -47},
+    { -12,   -44},{ -11,   -40},{ -10,   -36},{  -9,   -32},{  -8,   -29},{  -7,   -25},{  -6,   -21},{  -5,   -17},{  -4,   -14},{  -3,   -10},
+    {  -2,    -6},{  -1,    -2},{   0,     1},{   1,     5},{   2,     9},{   3,    13},{   4,    16},{   5,    20},{   6,    24},{   7,    28},
+    {   8,    31},{   9,    35},{  10,    39},{  11,    43},{  12,    46},{  13,    50},{  14,    54},{  15,    58},{  16,    61},{  17,    65},
+    {  18,    69},{  19,    73},{  20,    76},{  21,    80},{  22,    84},{  23,    88},{  24,    91},{  25,    95},{  26,    99},{  27,   103},
+    {  28,   106},{  29,   110},{  30,   114},{  31,   118}};
+
 
 };
 

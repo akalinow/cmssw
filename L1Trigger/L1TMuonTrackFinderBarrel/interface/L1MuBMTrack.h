@@ -27,7 +27,6 @@
 // Base Class Headers --
 //----------------------
 
-//#include "/home/gflouris/BMTF/DebugEmulator/CMSSW_7_2_0/src/DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/MuonCandidateTrack.h"
 
@@ -81,7 +80,7 @@ class L1MuBMTrack : public l1t::RegionalMuonCand {
     inline unsigned int phi() const { return hwPhi(); }
 
     /// get eta-code (6 bits)
-    inline unsigned int eta() const { return hwEta(); }
+    inline int eta() const { return hwEta(); }
 
     /// get fine eta bit
     inline bool fineEtaBit() const { return hwHF();}
@@ -135,7 +134,7 @@ class L1MuBMTrack : public l1t::RegionalMuonCand {
     const L1MuBMTrackSegEta& getEndTSeta() const;
 
     /// enable muon candidate
-    inline void enable() { m_empty = false; setTFIdentifiers(this->spid().sector(),l1t::tftype::bmtf); };//setType(0);} Giannis
+    inline void enable() { m_empty = false; setTFIdentifiers(this->spid().sector(),l1t::tftype::bmtf); };
 
     /// disable muon candidate
     inline void disable() { m_empty = true; }
@@ -178,11 +177,6 @@ class L1MuBMTrack : public l1t::RegionalMuonCand {
 
     /// convert  pt value in GeV to pt code
     unsigned int triggerScale(float value, const edm::EventSetup& c) const;
-
-    /// Dummy - Giannis
-    //void setBx(int bx) {  }
-    //int bx() const { return  0; }
-
 
     /// assignment operator
     L1MuBMTrack& operator=(const L1MuBMTrack&);

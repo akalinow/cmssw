@@ -104,7 +104,7 @@ L1MuBMTrack::~L1MuBMTrack() {}
 //
 void L1MuBMTrack::reset() {
 
-  //L1MuRegionalCand::reset(); Giannis(?)
+  //L1MuRegionalCand::reset();
   m_empty   = true;
   m_tc      = UNDEF;
   m_addArray.reset();
@@ -119,12 +119,8 @@ void L1MuBMTrack::reset() {
 //
 void L1MuBMTrack::setEta(int eta) {
 
-  // eta is a signed integer [-32,31],
-  // representing 64 bins in an interval [-1.2,+1.2]
-  // first convert eta into an unsigned integer
-  L1MuSignedPacking<6> pEta;
-//  setEtaPacked(pEta.packedFromIdx(eta)); -->
-  setHwEta(pEta.packedFromIdx(eta));
+  // eta is a signed integer [-115,118],
+  setHwEta(eta);
 
 
 }
@@ -222,7 +218,7 @@ L1MuBMTrack& L1MuBMTrack::operator=(const L1MuBMTrack& track) {
 
   if ( this != &track ) {
     this->setBx(track.bx());
-    //this->setDataWord(track.getDataWord()); Giannis(?)
+    //this->setDataWord(track.getDataWord()); 
     m_spid      = track.m_spid;
     m_empty     = track.m_empty;
     m_name      = track.m_name;

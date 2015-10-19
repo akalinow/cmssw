@@ -23,8 +23,9 @@
 #include <fstream>
 #include <sstream>
 
-
 // user include files
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -37,11 +38,15 @@
 #include "L1Trigger/L1TMuon/interface/MicroGMTRankPtQualLUT.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTIsolationUnit.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTCancelOutUnit.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTLUTFactories.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/GMTInternalMuon.h"
+
+#include "CondFormats/L1TObjects/interface/L1TGMTParams.h"
+#include "CondFormats/DataRecord/interface/L1TGMTParamsRcd.h"
 
 #include "TMath.h"
 //
@@ -61,10 +66,10 @@ using namespace l1t;
         virtual void produce(edm::Event&, const edm::EventSetup&);
         virtual void endJob() ;
 
-        virtual void beginRun(edm::Run&, edm::EventSetup const&);
-        virtual void endRun(edm::Run&, edm::EventSetup const&);
-        virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-        virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+        virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+        virtual void endRun(edm::Run const&, edm::EventSetup const&);
+        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
         static bool compareMuons(const std::shared_ptr<MicroGMTConfiguration::InterMuon>& mu1,
                                 const std::shared_ptr<MicroGMTConfiguration::InterMuon>& mu2);
@@ -91,11 +96,12 @@ using namespace l1t;
                                    int bx) const;
 
         // ----------member data ---------------------------
+        std::unique_ptr<L1TGMTParams> microGMTParams;
         edm::InputTag m_barrelTfInputTag;
         edm::InputTag m_overlapTfInputTag;
         edm::InputTag m_endcapTfInputTag;
         edm::InputTag m_trigTowerTag;
-        MicroGMTRankPtQualLUT m_rankPtQualityLUT;
+        std::shared_ptr<MicroGMTRankPtQualLUT> m_rankPtQualityLUT;
         MicroGMTIsolationUnit m_isolationUnit;
         MicroGMTCancelOutUnit m_cancelOutUnit;
         std::ofstream m_debugOut;
@@ -119,7 +125,7 @@ using namespace l1t;
 //
 // constructors and destructor
 //
-L1TMicroGMTProducer::L1TMicroGMTProducer(const edm::ParameterSet& iConfig) : m_rankPtQualityLUT(iConfig), m_isolationUnit(iConfig), m_cancelOutUnit(iConfig), m_debugOut("test/debug/iso_debug.dat")
+L1TMicroGMTProducer::L1TMicroGMTProducer(const edm::ParameterSet& iConfig) : m_debugOut("test/debug/iso_debug.dat")
 {
   // edm::InputTag barrelTfInputTag = iConfig.getParameter<edm::InputTag>("barrelTFInput");
   // edm::InputTag overlapTfInputTag = iConfig.getParameter<edm::InputTag>("overlapTFInput");
@@ -143,8 +149,7 @@ L1TMicroGMTProducer::L1TMicroGMTProducer(const edm::ParameterSet& iConfig) : m_r
   produces<MuonBxCollection>("imdMuonsOMTFPos");
   produces<MuonBxCollection>("imdMuonsOMTFNeg");
 
-
-
+  microGMTParams = std::unique_ptr<L1TGMTParams>(new L1TGMTParams());
 }
 
 L1TMicroGMTProducer::~L1TMicroGMTProducer()
@@ -320,7 +325,7 @@ void
 L1TMicroGMTProducer::calculateRank(MicroGMTConfiguration::InterMuonList& muons) const
 {
   for (auto& mu1 : muons) {
-    int rank = m_rankPtQualityLUT.lookup(mu1->hwPt(), mu1->hwQual());
+    int rank = m_rankPtQualityLUT->lookup(mu1->hwPt(), mu1->hwQual());
     mu1->setHwRank(rank);
   }
 }
@@ -407,25 +412,38 @@ L1TMicroGMTProducer::endJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void
-L1TMicroGMTProducer::beginRun(edm::Run&, edm::EventSetup const&)
+L1TMicroGMTProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
 {
+  const L1TGMTParamsRcd& microGMTParamsRcd = iSetup.get<L1TGMTParamsRcd>();
+  edm::ESHandle<L1TGMTParams> microGMTParamsHandle;
+  microGMTParamsRcd.get(microGMTParamsHandle);
+
+  microGMTParams = std::unique_ptr<L1TGMTParams>(new L1TGMTParams(*microGMTParamsHandle.product()));
+  if (!microGMTParams) {
+    edm::LogError("L1TMicroGMTProducer") << "Could not retrieve parameters from Event Setup" << std::endl;
+  }
+
+  //microGMTParams->print(std::cout);
+  m_rankPtQualityLUT = l1t::MicroGMTRankPtQualLUTFactory::create(microGMTParams->sortRankLUTPath(), microGMTParams->fwVersion());
+  m_isolationUnit.initialise(microGMTParams.get());
+  m_cancelOutUnit.initialise(microGMTParams.get());
 }
 
 // ------------ method called when ending the processing of a run  ------------
 void
-L1TMicroGMTProducer::endRun(edm::Run&, edm::EventSetup const&)
+L1TMicroGMTProducer::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
 void
-L1TMicroGMTProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TMicroGMTProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void
-L1TMicroGMTProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TMicroGMTProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 

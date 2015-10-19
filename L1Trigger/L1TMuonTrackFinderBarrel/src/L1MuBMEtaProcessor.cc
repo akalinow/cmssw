@@ -363,7 +363,7 @@ void L1MuBMEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
     if ( !m_mask ) m_eta[i] = theQualPatternLUT->getCoarseEta(sp,adr);
     if ( m_eta[i] == 99 ) m_eta[i] = 32;
     if ( m_eta[i] > 31 ) m_eta[i] -= 64;
-    m_eta[i] += 32;
+    //m_eta[i] += 32;
 
     if ( m_foundPattern.empty() ) continue;
 
@@ -382,7 +382,7 @@ void L1MuBMEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
         m_eta[i]  = p.eta();  // improved eta
         if ( m_eta[i] == 99 ) m_eta[i] = 32;
         if ( m_eta[i] > 31 ) m_eta[i] -= 64;
-        m_eta[i] += 32;
+        //m_eta[i] += 32;
         m_pattern[i] = (*f_iter);
         break;
       }
@@ -405,13 +405,13 @@ void L1MuBMEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
       m_eta[idx1]  = theQualPatternLUT->getCoarseEta(i+1,adr1);
       if ( m_eta[idx1] == 99 ) m_eta[idx1] = 32;
       if ( m_eta[idx1] > 31 ) m_eta[idx1] -= 64;
-      m_eta[idx1] += 32;
+      //m_eta[idx1] += 32;
       m_pattern[idx1] = 0;
       m_fine[idx1] = false;
       m_eta[idx2]  = theQualPatternLUT->getCoarseEta(i+1,adr2);
       if ( m_eta[idx2] == 99 ) m_eta[idx2] = 32;
       if ( m_eta[idx2] > 31 ) m_eta[idx2] -= 64;
-      m_eta[idx2] += 32;
+      //m_eta[idx2] += 32;
       m_pattern[idx2] = 0;
       m_fine[idx2] = false;
     }

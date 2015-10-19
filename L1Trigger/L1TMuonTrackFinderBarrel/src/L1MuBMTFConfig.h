@@ -39,28 +39,26 @@ class L1MuBMTFConfig {
   public:
 
     /// constructor
-    L1MuBMTFConfig(const edm::ParameterSet & ps); 
-     
-    /// destructor 
+    L1MuBMTFConfig(const edm::ParameterSet & ps);
+
+    /// destructor
     virtual ~L1MuBMTFConfig();
 
     static edm::InputTag getBMDigiInputTag() { return m_BMDigiInputTag; }
-    static edm::InputTag getCSCTrSInputTag() { return m_CSCTrSInputTag; }
- 
+    //static edm::InputTag getCSCTrSInputTag() { return m_CSCTrSInputTag; }
+
     static bool Debug() { return m_debug; }
     static bool Debug(int level) { return (m_debug && m_dbgLevel >= level); }
- 
+
     static void setDebugLevel(int level) { m_dbgLevel = level; }
     static int  getDebugLevel() { return m_dbgLevel; }
-    
+
     static int  getBxMin() { return m_BxMin; }
     static int  getBxMax() { return m_BxMax; }
-    static bool overlap() { return m_overlap; }
-    static int getExtTSFilter() { return m_extTSFilter; } 
-    static bool getopenLUTs() { return m_openLUTs; } 
+    static int getExtTSFilter() { return m_extTSFilter; }
+    static bool getopenLUTs() { return m_openLUTs; }
     static bool getUseEX21() { return m_useEX21; }
     static bool getEtaTF() { return m_etaTF; }
-    static bool getEtaCanc() { return m_etacanc; }
     static bool getTSOutOfTimeFilter() { return m_TSOutOfTimeFilter; }
     static int  getTSOutOfTimeWindow() { return m_TSOutOfTimeWindow; }
     static int getNbitsExtPhi() { return m_NbitsExtPhi; }
@@ -68,47 +66,43 @@ class L1MuBMTFConfig {
     static int getNbitsPtaPhi() { return m_NbitsPtaPhi; }
     static int getNbitsPtaPhib() { return m_NbitsPtaPhib; }
     static int getNbitsPhiPhi() { return m_NbitsPhiPhi; }
-    static int getNbitsPhiPhib() { return m_NbitsPhiPhib; }        
+    static int getNbitsPhiPhib() { return m_NbitsPhiPhib; }
 
   private:
-  
+
     void setDefaults();
-  
+
   private:
 
     const edm::ParameterSet* m_ps;
 
     static edm::InputTag m_BMDigiInputTag;
-    static edm::InputTag m_CSCTrSInputTag;
+    //static edm::InputTag m_CSCTrSInputTag;
 
-    static bool   m_debug;             // debug flag 
+    static bool   m_debug;             // debug flag
     static int    m_dbgLevel;          // debug level
 
-    static bool   m_overlap;           // barrel-endcap overlap region
-       
     static int    m_BxMin;
     static int    m_BxMax;
 
     static int    m_extTSFilter;       // Extrapolation TS-Quality Filter
- 
+
     static bool   m_openLUTs;          // use open LUTs
 
     static bool   m_useEX21;           // perform EX21 extrapolation (cross-check EX12)
 
     static bool   m_etaTF;             // use eta track finder
 
-    static bool   m_etacanc;           // use etaFlag for CSC segment cancellation
-
     static bool   m_TSOutOfTimeFilter; // perform out-of-time TS cancellation
     static int    m_TSOutOfTimeWindow; // phi window size to be checked
-    
+
     static int    m_NbitsExtPhi;       // precision for extrapolation
-    static int    m_NbitsExtPhib;    
+    static int    m_NbitsExtPhib;
     static int    m_NbitsPtaPhi;       // precision for pt-assignment
-    static int    m_NbitsPtaPhib;    
+    static int    m_NbitsPtaPhib;
     static int    m_NbitsPhiPhi;       // precision for phi-assignment
     static int    m_NbitsPhiPhib;
-  
+
 };
 
 #endif

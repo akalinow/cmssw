@@ -14,7 +14,6 @@
 // This Class's Header --
 //-----------------------
 #include "DataFormats/L1TMuon/interface/BMTrackCand.h"
-//#include "DataFormats/L1TMuon/interface/L1TRegionalMuonCandidateFwd.h"
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
@@ -32,7 +31,6 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-//BMTrackCand::BMTrackCand() : L1MuRegionalCand(0,0) {
 BMTrackCand::BMTrackCand() : l1t::RegionalMuonCand() {
 
   wheel           = 0;
@@ -44,28 +42,6 @@ BMTrackCand::BMTrackCand() : l1t::RegionalMuonCand() {
   TrkAdd[3]       = 15;
   TClassCode      = 11;
 }
-
-//BMTrackCand::BMTrackCand( unsigned dataword, int bx, int uwh, int usc,
-//                       int utag, int adr1, int adr2, int adr3, int adr4, int utc ) :
-//                   L1MuRegionalCand(dataword, bx) {
-//BMTrackCand::BMTrackCand( unsigned dataword, int bx, int uwh, int usc,
-//                       int utag, int adr1, int adr2, int adr3, int adr4, int utc ) :
-//                   l1t::RegionalMuonCand() {
-
-//  wheel           = uwh;
-//  sector          = usc;
-//  TrkTagCode      = utag;
-//  TrkAdd[0]       = adr1&0x03;
-//  TrkAdd[1]       = adr2;
-//  TrkAdd[2]       = adr3;
-//  TrkAdd[3]       = adr4;
-//  TClassCode      = utc;
-
-//  setAdd(1);
-//  setAdd(2);
-///  setAdd(3);
-//  setAdd(4);
-//}
 
 
 
@@ -80,7 +56,6 @@ BMTrackCand::BMTrackCand( int pt, int phi, int eta, int charge, int quality, int
   setHwSignValid(1);
   setHwQual(quality);
   setBx(bx);
-  setHwTrackAddress(adr1*1000000 + adr2*10000 + adr3*100 + adr4 );
 
  setTFIdentifiers(usc,l1t::tftype::bmtf );
 
@@ -92,6 +67,15 @@ BMTrackCand::BMTrackCand( int pt, int phi, int eta, int charge, int quality, int
   TrkAdd[1]       = adr2;
   TrkAdd[2]       = adr3;
   TrkAdd[3]       = adr4;
+
+  setAdd(1);
+  setAdd(2);
+  setAdd(3);
+  setAdd(4);
+
+  setHwTrackAddress(TrkAdd[0]*1000000 + TrkAdd[1]*10000 + TrkAdd[2]*100 + TrkAdd[3] );
+
+
   TClassCode      = utc;
   setTC();
 }

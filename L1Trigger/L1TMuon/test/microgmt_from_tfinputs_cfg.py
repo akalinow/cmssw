@@ -11,7 +11,7 @@ VERBOSE = False
 SAMPLE = "zmumu"  # "relval"##"minbias"
 EDM_OUT = True
 # min bias: 23635 => 3477 passed L1TMuonFilter (~6.7%), zmumu ~84%
-NEVENTS = 50
+NEVENTS = 5
 if VERBOSE:
     process.MessageLogger = cms.Service("MessageLogger",
                                         suppressInfo=cms.untracked.vstring('AfterSource', 'PostModule'),
@@ -75,6 +75,9 @@ process.source = cms.Source(
 
 process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(NEVENTS))
 
+# print executed modules
+#process.Tracer = cms.Service("Tracer")
+
 # PostLS1 geometry used
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2015_cff')
@@ -106,36 +109,27 @@ process.bmtfEmulator = cms.EDProducer("BMTrackFinder",
 
                                       )
 
-process.MicroGMTCaloInputProducer = cms.EDProducer("l1t::MicroGMTCaloInputProducer",
+process.MicroGMTCaloInputProducer = cms.EDProducer("L1TMicroGMTCaloInputProducer",
                                                caloStage2Layer2Label=cms.InputTag("caloStage2Layer1Digis"),
 )
 # WORKAROUNDS FOR WRONG SCALES / MISSING COLLECTIONS:
-process.bmtfConverter = cms.EDProducer("l1t::BMTFConverter",)
+process.bmtfConverter = cms.EDProducer("L1TBMTFConverter",)
 
 # Adjust input tags if running on GEN-SIM-RAW (have to re-digi)
 if SAMPLE == "zmumu" or SAMPLE == "minbias":
     process.L1TMuonTriggerPrimitives.CSC.src = cms.InputTag('simCscTriggerPrimitiveDigis')
 
-process.load("L1Trigger.L1TMuon.microgmtemulator_cfi")
+process.load("L1Trigger.L1TMuon.l1tmicrogmtproducer_cfi")
 
 process.microGMTEmulator.overlapTFInput = cms.InputTag("omtfEmulator", "OMTF")
 process.microGMTEmulator.forwardTFInput = cms.InputTag("L1TMuonEndcapTrackFinder", "EMUTF")
 process.microGMTEmulator.barrelTFInput = cms.InputTag("bmtfConverter", "ConvBMTFMuons")
 process.microGMTEmulator.triggerTowerInput = cms.InputTag("MicroGMTCaloInputProducer", "TriggerTowerSums")
 
-# disable pre-loaded cancel-out lookup tables (they currently contain only 0)
-process.microGMTEmulator.OvlNegSingleMatchQualLUTSettings.filename = cms.string("")
-process.microGMTEmulator.OvlPosSingleMatchQualLUTSettings.filename = cms.string("")
-process.microGMTEmulator.FOPosMatchQualLUTSettings.filename = cms.string("")
-process.microGMTEmulator.FONegMatchQualLUTSettings.filename = cms.string("")
-process.microGMTEmulator.BrlSingleMatchQualLUTSettings.filename = cms.string("")
-process.microGMTEmulator.BOPosMatchQualLUTSettings.filename = cms.string("")
-process.microGMTEmulator.BONegMatchQualLUTSettings.filename = cms.string("")
-
 # output file
 process.TFileService = cms.Service("TFileService",
                                    fileName=cms.string(
-                                       '/afs/cern.ch/work/j/jlingema/private/l1ntuples_upgrade/l1ntuple_{sample}_n.root'.format(sample=SAMPLE))
+                                       '/afs/cern.ch/work/t/treis/private/l1ntuples_upgrade/l1ntuple_{sample}_n.root'.format(sample=SAMPLE))
                                    )
 
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
@@ -146,6 +140,37 @@ process = customise_csc_PostLS1(process)
 # upgrade calo stage 2
 process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_PPFromRaw_cff')
 
+# test L1TMicroGMTESProducer
+process.load('L1Trigger.L1TMuon.l1tmicrogmtparamsesproducer_cfi')
+# reset LUT paths to trigger CMSSW internal LUT generation
+#process.l1tGMTParamsESProducer.AbsIsoCheckMemLUTPath = cms.string('')
+#process.l1tGMTParamsESProducer.RelIsoCheckMemLUTPath = cms.string('')
+#process.l1tGMTParamsESProducer.IdxSelMemPhiLUTPath = cms.string('')
+#process.l1tGMTParamsESProducer.IdxSelMemEtaLUTPath = cms.string('')
+process.l1tGMTParamsESProducer.BrlSingleMatchQualLUTPath = cms.string('')
+process.l1tGMTParamsESProducer.FwdPosSingleMatchQualLUTPath = cms.string('')
+process.l1tGMTParamsESProducer.FwdNegSingleMatchQualLUTPath = cms.string('')
+process.l1tGMTParamsESProducer.OvlPosSingleMatchQualLUTPath = cms.string('')
+process.l1tGMTParamsESProducer.OvlNegSingleMatchQualLUTPath = cms.string('')
+process.l1tGMTParamsESProducer.BOPosMatchQualLUTPath = cms.string('')
+process.l1tGMTParamsESProducer.BONegMatchQualLUTPath = cms.string('')
+process.l1tGMTParamsESProducer.FOPosMatchQualLUTPath = cms.string('')
+process.l1tGMTParamsESProducer.FONegMatchQualLUTPath = cms.string('')
+#process.l1tGMTParamsESProducer.BPhiExtrapolationLUTPath = cms.string('')
+#process.l1tGMTParamsESProducer.OPhiExtrapolationLUTPath = cms.string('')
+#process.l1tGMTParamsESProducer.FPhiExtrapolationLUTPath = cms.string('')
+#process.l1tGMTParamsESProducer.BEtaExtrapolationLUTPath = cms.string('')
+#process.l1tGMTParamsESProducer.OEtaExtrapolationLUTPath = cms.string('')
+#process.l1tGMTParamsESProducer.FEtaExtrapolationLUTPath = cms.string('')
+#process.l1tGMTParamsESProducer.SortRankLUTPath = cms.string('')
+
+process.esTest = cms.EDAnalyzer("EventSetupRecordDataGetter",
+   toGet = cms.VPSet(
+      cms.PSet(record = cms.string('L1TGMTParamsRcd'),
+               data = cms.vstring('L1TGMTParams'))
+                    ),
+   verbose = cms.untracked.bool(True)
+)
 
 process.L1TMuonSeq = cms.Sequence(
     process.SimL1Emulator
@@ -156,6 +181,7 @@ process.L1TMuonSeq = cms.Sequence(
     + process.omtfEmulator
     + process.L1TMuonEndcapTrackFinder
     + process.L1TCaloStage2_PPFromRaw
+    + process.esTest
     + process.MicroGMTCaloInputProducer
     + process.microGMTEmulator
 )

@@ -51,16 +51,16 @@ L1MuBMTrackSegPhi::L1MuBMTrackSegPhi(int wheel_id, int sector_id, int station_id
                                      bool etaFlag) :
   m_location(wheel_id, sector_id, station_id),
   m_phi(phi), m_phib(phib), m_quality(quality), m_bx(bx), m_etaFlag(etaFlag) {
-
+/*
   if ( phi  < -2048 || phi  > 2047 ) {
-    //    cerr << "TrackSegPhi : phi out of range: " << phi << endl;
+        cerr << "TrackSegPhi : phi out of range: " << phi << endl;
   }
   if ( phib <  -512 || phib >  511 ) {
-    //    cerr << "TrackSegPhi : phib out of range: " << phib << endl;
+        cerr << "TrackSegPhi : phib out of range: " << phib << endl;
   }
   if ( quality > 7 ) {
-    //    cerr << "TrackSegPhi : quality out of range: " << quality << endl;
-  }
+        cerr << "TrackSegPhi : quality out of range: " << quality << endl;
+  }*/
 
 }
 
@@ -71,17 +71,17 @@ L1MuBMTrackSegPhi::L1MuBMTrackSegPhi(const L1MuBMTrackSegLoc& id,
                                      bool etaFlag) :
   m_location(id), m_phi(phi), m_phib(phib),
   m_quality(quality), m_tag(tag), m_bx(bx), m_etaFlag(etaFlag) {
-
+/*
   if ( phi  < -2048 || phi  > 2047 ) {
-    //    cerr << "TrackSegPhi : phi out of range: " << phi << endl;
+        cerr << "TrackSegPhi : phi out of range: " << phi << endl;
   }
   if ( phib <  -512 || phib >  511 ) {
-    //    cerr << "TrackSegPhi : phib out of range: " << phib << endl;
+        cerr << "TrackSegPhi : phib out of range: " << phib << endl;
   }
   if ( quality > 7 ) {
-    //    cerr << "TrackSegPhi : quality out of range: " << quality << endl;
+        cerr << "TrackSegPhi : quality out of range: " << quality << endl;
   }
-
+*/
 }
 
 

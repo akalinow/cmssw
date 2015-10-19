@@ -60,12 +60,12 @@ L1MuBMTFConfig::~L1MuBMTFConfig() {}
 void L1MuBMTFConfig::setDefaults() {
 
   m_BMDigiInputTag = m_ps->getParameter<edm::InputTag>("DTDigi_Source");
-  m_CSCTrSInputTag = m_ps->getParameter<edm::InputTag>("CSCStub_Source");
+  //m_CSCTrSInputTag = m_ps->getParameter<edm::InputTag>("CSCStub_Source");
 
   m_debug = true;
   m_dbgLevel = m_ps->getUntrackedParameter<int>("Debug",0);
 
-  m_overlap = m_ps->getUntrackedParameter<bool>("Overlap",true);
+  //m_overlap = m_ps->getUntrackedParameter<bool>("Overlap",true);
 
   // set min and max bunch crossing
   m_BxMin = m_ps->getUntrackedParameter<int>("BX_min",-9);
@@ -84,7 +84,7 @@ void L1MuBMTFConfig::setDefaults() {
   m_etaTF = m_ps->getUntrackedParameter<bool>("EtaTrackFinder",true);
 
   // set switch for etaFlag cancellation of CSC segments
-  m_etacanc = m_ps->getUntrackedParameter<bool>("CSC_Eta_Cancellation",false);
+  //m_etacanc = m_ps->getUntrackedParameter<bool>("CSC_Eta_Cancellation",false);
 
   // set Filter for Out-of-time Track Segments
   m_TSOutOfTimeFilter = m_ps->getUntrackedParameter<bool>("OutOfTime_Filter",false);
@@ -109,17 +109,10 @@ void L1MuBMTFConfig::setDefaults() {
   if ( Debug(1) ) cout << endl;
 
   if ( Debug(1) ) cout << "L1 barrel Track Finder : BM Digi Source:  " <<  m_BMDigiInputTag << endl;
-  if ( Debug(1) ) cout << "L1 barrel Track Finder : CSC Stub Source: " <<  m_CSCTrSInputTag << endl;
+  //if ( Debug(1) ) cout << "L1 barrel Track Finder : CSC Stub Source: " <<  m_CSCTrSInputTag << endl;
   if ( Debug(1) ) cout << endl;
 
   if ( Debug(1) ) cout << "L1 barrel Track Finder : debug level: " << m_dbgLevel << endl;
-
-  if ( Debug(1) && m_overlap ) {
-    cout << "L1 barrel Track Finder : barrel-endcap overlap region : on" << endl;
-  }
-  if ( Debug(1) && !m_overlap ) {
-    cout << "L1 barrel Track Finder : barrel-endcap overlap region : off" << endl;
-  }
 
   if ( Debug(1) ) cout << "L1 barrel Track Finder : minimal bunch-crossing : " << m_BxMin << endl;
   if ( Debug(1) ) cout << "L1 barrel Track Finder : maximal bunch-crossing : " << m_BxMax << endl;
@@ -147,12 +140,12 @@ void L1MuBMTFConfig::setDefaults() {
     cout << "L1 barrel Track Finder : Eta Track Finder : off" << endl;
   }
 
-  if ( Debug(1) && m_etacanc ) {
-    cout << "L1 barrel Track Finder : CSC etaFlag cancellation : on" << endl;
-  }
-  if ( Debug(1) && !m_etacanc ) {
-    cout << "L1 barrel Track Finder : CSC etaFlag cancellation : off" << endl;
-  }
+  //if ( Debug(1) && m_etacanc ) {
+  //  cout << "L1 barrel Track Finder : CSC etaFlag cancellation : on" << endl;
+  //}
+  //if ( Debug(1) && !m_etacanc ) {
+  //  cout << "L1 barrel Track Finder : CSC etaFlag cancellation : off" << endl;
+  //}
 
   if ( Debug(1) && m_TSOutOfTimeFilter ) {
     cout << "L1 barrel Track Finder : out-of-time TS filter : on" << endl;
@@ -175,18 +168,17 @@ void L1MuBMTFConfig::setDefaults() {
 // static data members
 
 edm::InputTag L1MuBMTFConfig::m_BMDigiInputTag = edm::InputTag();
-edm::InputTag L1MuBMTFConfig::m_CSCTrSInputTag = edm::InputTag();
+//edm::InputTag L1MuBMTFConfig::m_CSCTrSInputTag = edm::InputTag();
 
 bool L1MuBMTFConfig::m_debug = false;
 int  L1MuBMTFConfig::m_dbgLevel = -1;
-bool L1MuBMTFConfig::m_overlap = true;
 int  L1MuBMTFConfig::m_BxMin = -9;
 int  L1MuBMTFConfig::m_BxMax =  7;
 int  L1MuBMTFConfig::m_extTSFilter  = 1;
 bool L1MuBMTFConfig::m_openLUTs  = false;
 bool L1MuBMTFConfig::m_useEX21 = false;
 bool L1MuBMTFConfig::m_etaTF = true;
-bool L1MuBMTFConfig::m_etacanc = false;
+//bool L1MuBMTFConfig::m_etacanc = false;
 bool L1MuBMTFConfig::m_TSOutOfTimeFilter = false;
 int  L1MuBMTFConfig::m_TSOutOfTimeWindow = 1;
 int  L1MuBMTFConfig::m_NbitsExtPhi  = 8;

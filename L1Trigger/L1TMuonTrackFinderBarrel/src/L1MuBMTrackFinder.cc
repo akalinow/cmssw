@@ -23,6 +23,7 @@
 //---------------
 
 #include <iostream>
+#include <string>
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -211,11 +212,17 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
       for ( int number = 0; number < 2; number++ ) {
         const L1MuBMTrack* cand = (*it_sp).second->tracK(number);
 
-        if ( cand && !cand->empty() )  _cache0.push_back(BMTrackCand(cand->pt(),cand->phi(),cand->eta(),cand->charge(),cand->quality(),
-                                                                         cand->bx(),cand->spid().wheel(),cand->spid().sector(),number,
-                                                                        cand->address(1),cand->address(2),cand->address(3),cand->address(4),cand->tc()));
+        if ( cand && !cand->empty() ) {
+		int eta_value = -1000;
+	        if(cand->eta()>-33 || cand->eta()<32 )
+	                eta_value = eta_map[cand->eta()];
+
+		 _cache0.push_back(BMTrackCand(cand->pt(),cand->phi(),eta_value,cand->charge(),cand->quality(),
+                                               cand->bx(),cand->spid().wheel(),cand->spid().sector(),number,
+                                               cand->address(1),cand->address(2),cand->address(3),cand->address(4),cand->tc()));
 
       }
+     }
       it_sp++;
     }
 
@@ -241,17 +248,28 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
       vector<const L1MuBMTrack*>::const_iterator iter;
       for ( iter = mttf_cont.begin(); iter != mttf_cont.end(); iter++ ) {
 
-        if ( *iter ){ _cache.push_back((*iter)->bx(), l1t::RegionalMuonCand( (*iter)->hwPt(),
-                                                               (*iter)->hwPhi(),
-                                                               (*iter)->hwEta(),
-                                                               (*iter)->hwSign(),
-                                                               (*iter)->hwSignValid(),
-                                                               (*iter)->hwQual(),
-							       (*iter)->spid().sector(),
-							       l1t::tftype::bmtf
-                                                                           ) );
+        l1t::RegionalMuonCand rmc;
+        rmc.setHwPt((*iter)->hwPt());
+        int abs_add_1 = setAdd(1,(*iter)->address(1));
+        int abs_add_2 = setAdd(2,(*iter)->address(2));
+        int abs_add_3 = setAdd(3,(*iter)->address(3));
+        int abs_add_4 = setAdd(4,(*iter)->address(4));
 
-       }
+        int track_add = abs_add_1*1000000 + abs_add_2*10000 + abs_add_3*100 + abs_add_4;
+        rmc.setHwTrackAddress(track_add);
+
+        rmc.setHwPhi((*iter)->hwPhi());
+	if((*iter)->hwEta()>-33 || (*iter)->hwEta()<32 )
+	        rmc.setHwEta(eta_map[(*iter)->hwEta()]);
+	else 
+		rmc.setHwEta(-1000);
+        //cout<<(*iter)->hwEta()<<"    "<<eta_map[(*iter)->hwEta()]<<endl;
+        rmc.setHwSign((*iter)->hwSign());
+        rmc.setHwSignValid((*iter)->hwSignValid());
+        rmc.setHwQual((*iter)->hwQual());
+        rmc.setTFIdentifiers((*iter)->spid().sector(),l1t::tftype::bmtf);
+
+        if ( *iter ){ _cache.push_back((*iter)->bx(), rmc);}
      }
     }
   }
@@ -335,6 +353,42 @@ void L1MuBMTrackFinder::clear() {
 //
 int L1MuBMTrackFinder::numberOfTracks(int bx) {
   return _cache.size(0);
+}
+
+
+//
+// Convert Relative to Absolute Track Addresses
+//
+
+int  L1MuBMTrackFinder::setAdd(int ust, int rel_add) {
+  unsigned int uadd = rel_add;
+
+  switch (uadd) {
+    case  0:  { rel_add =   8; break; }
+    case  1:  { rel_add =   9; break; }
+    case  2:  { rel_add =   0; break; }
+    case  3:  { rel_add =   1; break; }
+    case  4:  { rel_add =  10; break; }
+    case  5:  { rel_add =  11; break; }
+    case  6:  { rel_add =   2; break; }
+    case  7:  { rel_add =   3; break; }
+    case  8:  { rel_add =  12; break; }
+    case  9:  { rel_add =  13; break; }
+    case 10:  { rel_add =   4; break; }
+    case 11:  { rel_add =   5; break; }
+    case 15:  { rel_add =  15; break; }
+    default:  { rel_add =  15; break; }
+  }
+
+  if (ust!=1) return rel_add;
+
+  switch (uadd) {
+    case  0:  { rel_add =  2; break; }
+    case  1:  { rel_add =  1; break; }
+    case 15:  { rel_add =  3; break; }
+    default:  { rel_add =  3; break; }
+  }
+  return rel_add;
 }
 
 
