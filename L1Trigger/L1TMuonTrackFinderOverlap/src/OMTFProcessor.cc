@@ -86,8 +86,6 @@ bool OMTFProcessor::configure(XMLConfigReader *aReader){
 ///////////////////////////////////////////////
 bool OMTFProcessor::addGP(GoldenPattern *aGP){
 
-  if(aGP->key().thePtCode!=14 || aGP->key().theCharge!=-1) return true;//TEST
-
   if(theGPs.find(aGP->key())!=theGPs.end()){
     throw cms::Exception("Corrupted Golden Patterns data")
       <<"OMTFProcessor::addGP(...) "
