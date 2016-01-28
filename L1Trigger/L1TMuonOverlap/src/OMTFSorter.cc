@@ -217,12 +217,7 @@ l1t::RegionalMuonCand OMTFSorter::sortProcessor(const std::vector<OMTFProcessor:
 ///////////////////////////////////////////////////////
 bool OMTFSorter::checkHitPatternValidity(unsigned int hits){
 
-  return true;
-
-  //This is a place holder.
-  ///Code goint into the official github should have this uncommented.
   ///FIXME: read the list from configuration so this can be controlled at runtime.
-  /*
   std::vector<unsigned int> badPatterns = {99840, 34304, 3075, 36928, 12300, 98816, 98944, 33408, 66688, 66176, 7171, 20528, 33856, 35840, 4156, 34880};
 
   for(auto aHitPattern: badPatterns){
@@ -230,7 +225,6 @@ bool OMTFSorter::checkHitPatternValidity(unsigned int hits){
   }
 
   return true; 
-  */
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
@@ -246,7 +240,7 @@ void OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & pr
     l1t::RegionalMuonCand candidate;
     std::bitset<17> bits(myCand.hits);
     candidate.setHwPt(myCand.pt);
-    candidate.setHwEta(myCand.eta);//eta scale set during input making in OMTFInputmaker
+    candidate.setHwEta(myCand.eta);
     candidate.setHwPhi(myCand.phi);
     candidate.setHwSign(myCand.charge);
     ///Quality is set to number of leayers hit.

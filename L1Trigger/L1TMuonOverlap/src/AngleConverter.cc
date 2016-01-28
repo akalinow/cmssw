@@ -71,7 +71,6 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
 
   return phi;
 }
-
 ///////////////////////////////////////
 ///////////////////////////////////////
 int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const CSCDetId & csc, const CSCCorrelatedLCTDigi &digi) const
@@ -126,7 +125,7 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
 
 ///////////////////////////////////////
 ///////////////////////////////////////
-int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const RPCDetId & rollId, const RPCDigi &digi) const
+int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const RPCDetId & rollId, const unsigned int &digi) const
 {
   const double hsPhiPitch = 2*M_PI/OMTFConfiguration::nPhiBins; //
   const int dummy = OMTFConfiguration::nPhiBins;
@@ -135,8 +134,8 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
   const RPCRoll* roll = _georpc->roll(rollId);
   if (!roll) return dummy;
 
-  double phi15deg =  M_PI/3.*(processor-1)+M_PI/12.;                           // "0" is 15degree moved cyclicaly to each processor, note [0,2pi]
-  double stripPhi = (roll->toGlobal(roll->centreOfStrip(digi.strip()))).phi(); // note [-pi,pi]
+  double phi15deg =  M_PI/3.*(processor-1)+M_PI/12.;                    // "0" is 15degree moved cyclicaly to each processor, note [0,2pi]
+  double stripPhi = (roll->toGlobal(roll->centreOfStrip((int)digi))).phi(); // note [-pi,pi]
 
   // adjust [0,2pi] and [-pi,pi] to get deltaPhi difference properly
   switch (processor) {
@@ -147,11 +146,9 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
 
   // local angle in CSC halfStrip usnits
   int halfStrip = lround ( (stripPhi-phi15deg)/hsPhiPitch );
-
+    
   return halfStrip;
 }
-
-
 ///////////////////////////////////////
 ///////////////////////////////////////
 float AngleConverter::getGlobalPhi(unsigned int rawid, const RPCDigi & aDigi){
@@ -166,11 +163,11 @@ float AngleConverter::getGlobalPhi(unsigned int rawid, const RPCDigi & aDigi){
   const GlobalPoint gp = roll->toGlobal(lp);
   roll.release();
 
-  float phi = gp.phi()/(2.0*M_PI);
-  int iPhi = phi*OMTFConfiguration::nPhiBins;
-  return iPhi;
+  //float phi = gp.phi()/(2.0*M_PI);
+  //int iPhi = phi*OMTFConfiguration::nPhiBins;  
+  //return iPhi;
 
-  //return gp.phi();
+  return gp.phi();
 }
 ///////////////////////////////////////
 ///////////////////////////////////////
@@ -364,12 +361,11 @@ int AngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi 
 }
 ///////////////////////////////////////
 ///////////////////////////////////////
-int AngleConverter::getGlobalEta(unsigned int rawid, const RPCDigi &aDigi){
+int AngleConverter::getGlobalEta(unsigned int rawid, const unsigned int &strip){
 
   const RPCDetId id(rawid);
   std::unique_ptr<const RPCRoll>  roll(_georpc->roll(id));
-  const uint16_t strip = aDigi.strip();
-  const LocalPoint lp = roll->centreOfStrip(strip);
+  const LocalPoint lp = roll->centreOfStrip((int)strip);
   const GlobalPoint gp = roll->toGlobal(lp);
   roll.release();
 

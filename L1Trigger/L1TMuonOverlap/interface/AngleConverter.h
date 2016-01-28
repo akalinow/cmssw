@@ -35,7 +35,7 @@ class RPCDetId;
     /// in case of wrong phi returns OMTFConfiguration::nPhiBins
     int getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const L1MuDTChambPhDigi &digi) const;
     int getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const CSCDetId & csc, const CSCCorrelatedLCTDigi &digi) const;
-    int getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const RPCDetId & rollId, const RPCDigi &digi) const;
+    int getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const RPCDetId & rollId, const unsigned int &digi) const;
 
 
     ///Convert local phi coordinate to global digital OMTF scale.
@@ -57,7 +57,7 @@ class RPCDetId;
     int getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi &aDigi);
     
     ///Convert local eta coordinate to global digital microGMT scale.
-    int getGlobalEta(unsigned int rawid, const RPCDigi &aDigi);
+    int getGlobalEta(unsigned int rawid, const unsigned int &aDigi);
 
   private:
 

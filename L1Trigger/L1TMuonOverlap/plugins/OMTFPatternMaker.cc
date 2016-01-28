@@ -74,7 +74,7 @@ void OMTFPatternMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSet
   myOMTF->configure(omtfParams);
 
   ///For making the patterns use extended pdf width in phi
-  ////Ugly hack to modify confoguration parameters at runtime.
+  ////Ugly hack to modify configuration parameters at runtime.
   OMTFConfiguration::nPdfAddrBits = 14;
 
   ///Clear existing GoldenPatterns
@@ -122,7 +122,6 @@ void OMTFPatternMaker::endJob(){
     fName = "GPs.xml";
     myWriter->finaliseXMLDocument(fName);        
   }
-
   if(makeConnectionsMaps && !makeGoldenPatterns){
     std::string fName = "Connections.xml";
     unsigned int iProcessor = 0;
@@ -172,7 +171,7 @@ void OMTFPatternMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
  
   ///Loop over all processors, each covering 60 deg in phi
   for(unsigned int iProcessor=0;iProcessor<6;++iProcessor){
-        
+
     ///Input data with phi ranges shifted for each processor, so it fits 11 bits range
     OMTFinput myInput = myInputMaker->buildInputForProcessor(dtPhDigis.product(),
 							     dtThDigis.product(),

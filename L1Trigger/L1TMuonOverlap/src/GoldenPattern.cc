@@ -80,7 +80,7 @@ void GoldenPattern::addCount(unsigned int iRefLayer,
   if(phiDistShift<0 ||
      phiDistShift>exp2(OMTFConfiguration::nPdfAddrBits)-1){
     return;
-  }  
+  }
 
   if((int)iLayer==OMTFConfiguration::refToLogicNumber[iRefLayer]) ++meanDistPhiCounts[iLayer][iRefLayer];
   ++pdfAllRef[iLayer][iRefLayer][phiDistShift];

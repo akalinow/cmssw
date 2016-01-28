@@ -178,7 +178,7 @@ unsigned int OMTFinputMaker::getInputNumber(unsigned int rawId,
   }
   case MuonSubdetId::DT: {
     DTChamberId dt(rawId);
-    aSector = dt.sector();
+    aSector = dt.sector();    
     ///on the 0-2pi border we need to add 1 30 deg sector
     ///to get the correct index
     if(iProcessor==5 && aSector<3) aMin = -1;
@@ -220,7 +220,7 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
 
   OMTFinput result;
   if(!dtPhDigis) return result;
-
+  
   for (const auto digiIt: *dtPhDigis->getContainer()) {
 
     DTChamberId detid(digiIt.whNum(),digiIt.stNum(),digiIt.scNum()+1);
@@ -243,7 +243,7 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
     int iEta =  myAngleConverter.getGlobalEta(detid.rawId(), digiIt, dtThDigis);
     unsigned int iInput= getInputNumber(detid.rawId(), iProcessor, type);    
     result.addLayerHit(iLayer,iInput,iPhi,iEta);
-    result.addLayerHit(iLayer+1,iInput,digiIt.phiB(),iEta);
+    result.addLayerHit(iLayer+1,iInput,digiIt.phiB(),iEta);    
   }
 
   return result;
@@ -313,26 +313,26 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
     std::vector<RPCDigi> digisCopy;
     std::copy_if(rollDigis.second.first, rollDigis.second.second, std::back_inserter(digisCopy), [](const RPCDigi & aDigi){return (aDigi.bx()==0);});
     std::sort(digisCopy.begin(),digisCopy.end(),rpcPrimitiveCmp);
-    typedef std::pair<RPCDigi & , RPCDigi & > Cluster;
+    typedef std::pair<unsigned int, unsigned int> Cluster;
     std::vector<Cluster> clusters;
     for(auto & digi: digisCopy) {
-      if(clusters.empty()) clusters.push_back(Cluster(digi,digi));
-      else if (digi.strip() - clusters.back().second.strip() == 1) clusters.back().second = digi;
-      else if (digi.strip() - clusters.back().second.strip() > 1) clusters.push_back(Cluster(digi,digi));
+      if(clusters.empty()) clusters.push_back(Cluster(digi.strip(),digi.strip()));
+      else if (digi.strip() - clusters.back().second == 1) clusters.back().second = digi.strip();
+      else if (digi.strip() - clusters.back().second  > 1) clusters.push_back(Cluster(digi.strip(),digi.strip()));
     }
 
     for (auto & cluster: clusters) {
       int iPhiHalfStrip1 = myAngleConverter.getProcessorPhi(iProcessor, type, roll, cluster.first);
-      int iPhiHalfStrip2 = myAngleConverter.getProcessorPhi(iProcessor, type, roll, cluster.second);     
+      int iPhiHalfStrip2 = myAngleConverter.getProcessorPhi(iProcessor, type, roll, cluster.second);
       int iPhi = (iPhiHalfStrip1+iPhiHalfStrip2)/2;
-      int iEta =  myAngleConverter.getGlobalEta(rawid, cluster.first);
+      int iEta =  myAngleConverter.getGlobalEta(rawid, cluster.first);      
       unsigned int hwNumber = OMTFConfiguration::getLayerNumber(rawid);
       unsigned int iLayer = OMTFConfiguration::hwToLogicLayer[hwNumber];
       unsigned int iInput= getInputNumber(rawid, iProcessor, type);
       result.addLayerHit(iLayer,iInput,iPhi,iEta);
 
       str<<" RPC halfDigi "
-           <<" begin: "<<cluster.first.strip()<<" end: "<<cluster.second.strip()
+           <<" begin: "<<cluster.first<<" end: "<<cluster.second
            <<" iPhi: "<<iPhi
            <<" iEta: "<<iEta
            <<" hwNumber: "<<hwNumber

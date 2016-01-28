@@ -114,7 +114,7 @@ bool OMTFProcessor::configure(const L1TMuonOverlapParams* omtfParams){
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 bool OMTFProcessor::addGP(GoldenPattern *aGP){
-
+  
   if(theGPs.find(aGP->key())!=theGPs.end()){
     throw cms::Exception("Corrupted Golden Patterns data")
       <<"OMTFProcessor::addGP(...) "
@@ -258,9 +258,11 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
       if(!refHitsBits[iRefHit]) continue;
       if(nTestedRefHits--==0) break;
       const RefHitDef & aRefHitDef = OMTFConfiguration::refHitsDefs[iProcessor][iRefHit];
+      
       int phiRef = aInput.getLayerData(OMTFConfiguration::refToLogicNumber[aRefHitDef.iRefLayer])[aRefHitDef.iInput];
       int etaRef = aInput.getLayerData(OMTFConfiguration::refToLogicNumber[aRefHitDef.iRefLayer],true)[aRefHitDef.iInput];
       unsigned int iRegion = aRefHitDef.iRegion;
+      
       if(OMTFConfiguration::bendingLayers.count(iLayer)) phiRef = 0;
       const OMTFinput::vector1D restrictedLayerHits = restrictInput(iProcessor, iRegion, iLayer,layerHits);
       for(auto itGP: theGPs){
@@ -309,7 +311,7 @@ OMTFinput::vector1D OMTFProcessor::restrictInput(unsigned int iProcessor,
 						 const OMTFinput::vector1D & layerHits){
 
   OMTFinput::vector1D myHits = layerHits;
- 
+  
   unsigned int iStart = OMTFConfiguration::connections[iProcessor][iRegion][iLayer].first;
   unsigned int iEnd = iStart + OMTFConfiguration::connections[iProcessor][iRegion][iLayer].second -1;
 
