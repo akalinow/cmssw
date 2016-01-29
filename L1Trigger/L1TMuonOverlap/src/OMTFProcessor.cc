@@ -75,7 +75,7 @@ bool OMTFProcessor::configure(const L1TMuonOverlapParams* omtfParams){
   for(unsigned int iGP=0;iGP<nGPs;++iGP){
     address = iGP;
     iEta = etaLUT->data(address);
-    iCharge = chargeLUT->data(address);
+    iCharge = chargeLUT->data(address)==0? -1:1;
     iPt = ptLUT->data(address);
     GoldenPattern::vector2D meanDistPhi2D(OMTFConfiguration::nLayers);
     GoldenPattern::vector1D pdf1D(exp2(OMTFConfiguration::nPdfAddrBits));
@@ -114,7 +114,7 @@ bool OMTFProcessor::configure(const L1TMuonOverlapParams* omtfParams){
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 bool OMTFProcessor::addGP(GoldenPattern *aGP){
-  
+
   if(theGPs.find(aGP->key())!=theGPs.end()){
     throw cms::Exception("Corrupted Golden Patterns data")
       <<"OMTFProcessor::addGP(...) "
@@ -300,7 +300,7 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
 			       const OMTFinput & aInput,
 			       const SimTrack* aSimMuon){
 
-  int theCharge = (abs(aSimMuon->type()) == 13) ? aSimMuon->type()/-13 : 0; 
+  int theCharge = abs(aSimMuon->type()) == 13 ? -1 : 1; 
   unsigned int  iPt =  RPCConst::iptFromPt(aSimMuon->momentum().pt());
   ///Stupid conersion. Have to go through PAC pt scale, as we later
   ///shift resulting pt code by +1

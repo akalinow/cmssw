@@ -124,7 +124,7 @@ process.omtfPatternMaker = cms.EDAnalyzer("OMTFPatternMaker",
                                           dropDTPrimitives = cms.bool(False),                                    
                                           dropCSCPrimitives = cms.bool(False),   
                                           ptCode = cms.int32(25),#this is old PAC pt scale.
-                                          charge = cms.int32(0),
+                                          charge = cms.int32(1),
                                           omtf = cms.PSet(
                                               configFromXML = cms.bool(False),   
                                               patternsXMLFiles = cms.VPSet(                                       
@@ -138,7 +138,7 @@ process.omtfPatternMaker = cms.EDAnalyzer("OMTFPatternMaker",
 process.MuonEtaFilter = cms.EDFilter("SimTrackEtaFilter",
                                 minNumber = cms.uint32(1),
                                 src = cms.InputTag("g4SimHits"),
-                                cut = cms.string("momentum.eta<0.86 && momentum.eta>0.83 &&  momentum.pt>1")
+                                cut = cms.string("momentum.eta<1.24 && momentum.eta>0.83 &&  momentum.pt>1")
                                 )
 
 process.L1TMuonSeq = cms.Sequence(process.MuonEtaFilter*process.esProd*process.omtfPatternMaker)

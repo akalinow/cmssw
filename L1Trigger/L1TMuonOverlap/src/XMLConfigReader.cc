@@ -81,7 +81,7 @@ void XMLConfigReader::readLUT(l1t::LUT *lut, const std::string & type){
   unsigned int in = 0;
   int out = 0;
   for(auto it: aGPs){
-    if(type=="iCharge") out = it->key().theCharge;
+    if(type=="iCharge") out = it->key().theCharge==-1 ? 0:1;
     if(type=="iEta") out = it->key().theEtaCode;
     if(type=="iPt") out = it->key().thePtCode;
     if(type=="meanDistPhi"){
