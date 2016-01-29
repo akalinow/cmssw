@@ -242,7 +242,7 @@ void OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & pr
     candidate.setHwPt(myCand.pt);
     candidate.setHwEta(myCand.eta);
     candidate.setHwPhi(myCand.phi);
-    candidate.setHwSign(myCand.charge);
+    candidate.setHwSign(myCand.charge<0 ? 1:0  );
     ///Quality is set to number of leayers hit.
     ///DT bending and position hit is counted as one.
     ///thus we subtract 1 for each DT station hit.
