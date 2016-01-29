@@ -5,9 +5,6 @@
 #include <stdint.h>
 #include <memory>
 
-#include "L1Trigger/L1TMuon/interface/GeometryTranslator.h"
-#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
-
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
@@ -32,11 +29,11 @@ class OMTFinputMaker {
 
   ///Method translating trigger digis into input matrix with global phi coordinates
   OMTFinput buildInputForProcessor(const L1MuDTChambPhContainer *dtPhDigis,
-					   const L1MuDTChambThContainer *dtThDigis,
-					   const CSCCorrelatedLCTDigiCollection *cscDigis,
-					   const RPCDigiCollection *rpcDigis,
-					   unsigned int iProcessor,
-					   l1t::tftype type=l1t::tftype::omtf_pos);
+				   const L1MuDTChambThContainer *dtThDigis,
+				   const CSCCorrelatedLCTDigiCollection *cscDigis,
+				   const RPCDigiCollection *rpcDigis,
+				   unsigned int iProcessor,
+				   l1t::tftype type=l1t::tftype::omtf_pos);
   
 
  private:

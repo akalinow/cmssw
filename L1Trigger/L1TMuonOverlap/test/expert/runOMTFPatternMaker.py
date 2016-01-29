@@ -101,7 +101,7 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 ####Event Setup Producer
-process.load('L1Trigger.L1TMuonOverlap.fakeMuonOverlapParams_cfi')
+process.load('L1Trigger.L1TMuonOverlap.fakeOmtfParams_cff')
 process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(
       cms.PSet(record = cms.string('L1TMuonOverlapParamsRcd'),
@@ -117,17 +117,18 @@ process.omtfPatternMaker = cms.EDAnalyzer("OMTFPatternMaker",
                                           srcCSC = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
                                           srcRPC = cms.InputTag('simMuonRPCDigis'),                                              
                                           g4SimTrackSrc = cms.InputTag('g4SimHits'),
-                                          makeGoldenPatterns = cms.bool(True),                                     
+                                          makeGoldenPatterns = cms.bool(True),
+                                          mergeXMLFiles = cms.bool(False),
                                           makeConnectionsMaps = cms.bool(False),                                      
                                           dropRPCPrimitives = cms.bool(False),                                    
                                           dropDTPrimitives = cms.bool(False),                                    
                                           dropCSCPrimitives = cms.bool(False),   
                                           ptCode = cms.int32(25),#this is old PAC pt scale.
-                                          charge = cms.int32(0),#can be 0(corresponds to q=1) or 1(q=0)
+                                          charge = cms.int32(0),
                                           omtf = cms.PSet(
                                               configFromXML = cms.bool(False),   
                                               patternsXMLFiles = cms.VPSet(                                       
-                                                  cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_ipt6_31.xml")),
+                                                  cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns.xml")),
                                               ),
                                               configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer.xml"),
                                           )
@@ -140,7 +141,7 @@ process.MuonEtaFilter = cms.EDFilter("SimTrackEtaFilter",
                                 cut = cms.string("momentum.eta<0.86 && momentum.eta>0.83 &&  momentum.pt>1")
                                 )
 
-process.L1TMuonSeq = cms.Sequence(process.MuonEtaFilter*process.omtfPatternMaker)
+process.L1TMuonSeq = cms.Sequence(process.MuonEtaFilter*process.esProd*process.omtfPatternMaker)
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 

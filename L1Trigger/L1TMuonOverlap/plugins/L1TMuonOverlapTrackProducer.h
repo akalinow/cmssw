@@ -65,9 +65,7 @@ class L1TMuonOverlapTrackProducer : public edm::EDProducer {
 			 l1t::RegionalMuonCandBxCollection & myOTFCandidates,
 			 l1t::tftype mtfType);
 
-  void writeMergedGPs();
-
-  bool dumpResultToXML, dumpDetailedResultToXML, dumpGPToXML;
+  bool dumpResultToXML, dumpDetailedResultToXML;
 
   ///OMTF objects
   OMTFConfiguration *myOMTFConfig;

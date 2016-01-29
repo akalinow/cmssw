@@ -34,10 +34,9 @@ L1TMuonOverlapTrackProducer::L1TMuonOverlapTrackProducer(const edm::ParameterSet
 
   dumpResultToXML = theConfig.getParameter<bool>("dumpResultToXML");
   dumpDetailedResultToXML = theConfig.getParameter<bool>("dumpDetailedResultToXML");
-  dumpGPToXML = theConfig.getParameter<bool>("dumpGPToXML");
   theConfig.getParameter<std::string>("XMLDumpFileName");
 
-  if(dumpResultToXML || dumpGPToXML){
+  if(dumpResultToXML){
     myWriter = new XMLConfigWriter();
     std::string fName = "OMTF";
     myWriter->initialiseXMLDocument(fName);
@@ -66,95 +65,10 @@ void L1TMuonOverlapTrackProducer::beginJob(){
 /////////////////////////////////////////////////////
 void L1TMuonOverlapTrackProducer::endJob(){
 
-  if(dumpResultToXML && !dumpGPToXML){
+  if(dumpResultToXML){
     std::string fName = theConfig.getParameter<std::string>("XMLDumpFileName");
     myWriter->finaliseXMLDocument(fName);
-  }
-
-  if(dumpGPToXML && !dumpResultToXML){
-
-    GoldenPattern *dummy = new GoldenPattern(Key(0,0,0));
-    dummy->reset();
-
-    std::string fName = "OMTF";
-    myWriter->initialiseXMLDocument(fName);
-    const std::map<Key,GoldenPattern*> & myGPmap = myOMTF->getPatterns();
-    for(auto itGP: myGPmap){
-      //if(itGP.second->key().thePtCode==6) std::cout<<*itGP.second<<std::endl;
-      myWriter->writeGPData(*itGP.second,*dummy, *dummy, *dummy);
-    }
-    fName = "GPs.xml";
-    myWriter->finaliseXMLDocument(fName);
-    ///Write GPs merged by 4 above iPt=71, and by 2 below//
-    //////////////////////////////////////////////////////
-    ///4x merging
-    fName = "OMTF";
-    myWriter->initialiseXMLDocument(fName);
-    myOMTF->averagePatterns(1);
-    myOMTF->averagePatterns(0);
-    writeMergedGPs();
-    fName = "GPs_4x.xml";
-    myWriter->finaliseXMLDocument(fName);
-  }
-}
-/////////////////////////////////////////////////////
-/////////////////////////////////////////////////////
-void L1TMuonOverlapTrackProducer::writeMergedGPs(){
-  
-  const std::map<Key,GoldenPattern*> & myGPmap = myOMTF->getPatterns();
-
-  GoldenPattern *dummy = new GoldenPattern(Key(0,0,0));
-  dummy->reset();
-
-  unsigned int iPtMin = 9;
-  Key aKey = Key(2, iPtMin,0);
-  while(myGPmap.find(aKey)!=myGPmap.end()){
-
-    GoldenPattern *aGP1 = myGPmap.find(aKey)->second;
-    GoldenPattern *aGP2 = dummy;
-    GoldenPattern *aGP3 = dummy;
-    GoldenPattern *aGP4 = dummy;
-
-    ++aKey.thePtCode;
-    while(myGPmap.find(aKey)==myGPmap.end() && aKey.thePtCode<=401) ++aKey.thePtCode;    
-    if(aKey.thePtCode<=401 && myGPmap.find(aKey)!=myGPmap.end()) aGP2 =  myGPmap.find(aKey)->second;
-
-    if(aKey.thePtCode>71){
-      ++aKey.thePtCode;
-      while(myGPmap.find(aKey)==myGPmap.end() && aKey.thePtCode<=401) ++aKey.thePtCode;    
-      if(aKey.thePtCode<=401 && myGPmap.find(aKey)!=myGPmap.end()) aGP3 =  myGPmap.find(aKey)->second;
-
-      ++aKey.thePtCode;
-      while(myGPmap.find(aKey)==myGPmap.end() && aKey.thePtCode<=401) ++aKey.thePtCode;    
-      if(aKey.thePtCode<=401 && myGPmap.find(aKey)!=myGPmap.end()) aGP4 =  myGPmap.find(aKey)->second;
-    }
-    ++aKey.thePtCode;
-    while(myGPmap.find(aKey)==myGPmap.end() && aKey.thePtCode<=401) ++aKey.thePtCode;    
-    myWriter->writeGPData(*aGP1,*aGP2, *aGP3, *aGP4);
-
-    ///Write the opposite charge.
-    Key aTmpKey = aGP1->key();
-    aTmpKey.theCharge = 1;
-    if(myGPmap.find(aTmpKey)!=myGPmap.end()) aGP1 =  myGPmap.find(aTmpKey)->second;
-    else aGP1 = dummy;
-
-    aTmpKey = aGP2->key();
-    aTmpKey.theCharge = 1;
-    if(myGPmap.find(aTmpKey)!=myGPmap.end()) aGP2 =  myGPmap.find(aTmpKey)->second;
-    else aGP2 = dummy;
-
-    aTmpKey = aGP3->key();
-    aTmpKey.theCharge = 1;
-    if(myGPmap.find(aTmpKey)!=myGPmap.end()) aGP3 =  myGPmap.find(aTmpKey)->second;
-    else aGP3 = dummy;
-
-    aTmpKey = aGP4->key();
-    aTmpKey.theCharge = 1;
-    if(myGPmap.find(aTmpKey)!=myGPmap.end()) aGP4 =  myGPmap.find(aTmpKey)->second;
-    else aGP4 = dummy;
-    
-    myWriter->writeGPData(*aGP1,*aGP2, *aGP3, *aGP4);
-    }
+  }  
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
@@ -207,8 +121,6 @@ void L1TMuonOverlapTrackProducer::produce(edm::Event& iEvent, const edm::EventSe
 
   ///Loop over all processors, each covering 60 deg in phi
   for(unsigned int iProcessor=0;iProcessor<6;++iProcessor){
-
-    //myStr<<" iProcessor: "<<iProcessor;
 
     ///Input data with phi ranges shifted for each processor, so it fits 11 bits range
     OMTFinput myInputPos = myInputMaker.buildInputForProcessor(dtPhDigis.product(),

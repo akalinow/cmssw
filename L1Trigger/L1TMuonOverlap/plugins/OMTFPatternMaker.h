@@ -15,6 +15,8 @@
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+
 class OMTFProcessor;
 class OMTFConfiguration;
 class OMTFConfigMaker;
@@ -58,7 +60,9 @@ private:
   edm::EDGetTokenT<RPCDigiCollection> inputTokenRPC;
   edm::EDGetTokenT<edm::SimTrackContainer> inputTokenSimHit;
 
-  bool makeConnectionsMaps, makeGoldenPatterns;
+  void writeMergedGPs();
+  
+  bool makeConnectionsMaps, makeGoldenPatterns, mergeXMLFiles;
 
   ///OMTF objects
   OMTFConfiguration *myOMTFConfig;

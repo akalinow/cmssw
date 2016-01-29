@@ -131,7 +131,7 @@ bool OMTFProcessor::addGP(GoldenPattern *aGP){
 ///////////////////////////////////////////////
 void  OMTFProcessor::averagePatterns(int charge){
 
-  Key aKey(2, 9, charge);
+  Key aKey(0, 9, charge);
 
   while(theGPs.find(aKey)!=theGPs.end()){
 
@@ -158,7 +158,7 @@ void  OMTFProcessor::averagePatterns(int charge){
       aGP4 = aGP2;
     }    
     //HACK. Have to clean this up.
-    ///Previously pt codeswere going by steps of 1, now this is not the case
+    ///Previously pt codes were going by steps of 1, now this is not the case
     ++aKey.thePtCode;
     while(theGPs.find(aKey)==theGPs.end() && aKey.thePtCode<=401) ++aKey.thePtCode;    
     ///////////////////////////////
@@ -170,26 +170,13 @@ void  OMTFProcessor::averagePatterns(int charge){
     GoldenPattern::vector2D meanDistPhi2  = aGP2->getMeanDistPhi();
     GoldenPattern::vector2D meanDistPhi3  = aGP3->getMeanDistPhi();
     GoldenPattern::vector2D meanDistPhi4  = aGP4->getMeanDistPhi();
-    /*        
-     std::cout<<"Key: "
-	     <<aGP1->key()
-	     <<" "<<aGP2->key()
-	     <<" "<<aGP3->key()
-	     <<" "<<aGP4->key()<<std::endl;
-    */
+   
     for(unsigned int iLayer=0;iLayer<OMTFConfiguration::nLayers;++iLayer){
       for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
 	meanDistPhi[iLayer][iRefLayer]+=meanDistPhi2[iLayer][iRefLayer];
 	meanDistPhi[iLayer][iRefLayer]+=meanDistPhi3[iLayer][iRefLayer];
 	meanDistPhi[iLayer][iRefLayer]+=meanDistPhi4[iLayer][iRefLayer];
 	meanDistPhi[iLayer][iRefLayer]/=4;
-	/*
-	std::cout<<"Mean distPhi: "<<meanDistPhi[iLayer][iRefLayer]
-		 <<" "<<meanDistPhi1[iLayer][iRefLayer]
-		 <<" "<<meanDistPhi2[iLayer][iRefLayer]
-		 <<" "<<meanDistPhi3[iLayer][iRefLayer]
-		 <<" "<<meanDistPhi4[iLayer][iRefLayer]<<std::endl;	
-	*/
       }
     }
     
@@ -281,25 +268,11 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
   ////////////////////////////////////// 
   for(auto & itRefHit: myResults) for(auto & itKey: itRefHit) itKey.second.finalise();
 
-  //#ifndef NDEBUG
   std::ostringstream myStr;
   myStr<<"iProcessor: "<<iProcessor<<std::endl;
   myStr<<"Input: ------------"<<std::endl;
-  myStr<<aInput<<std::endl;
-  /*
-  for(auto itRefHit: myResults){
-    myStr<<"--- Reference hit ---"<<std::endl;
-    for(auto itKey: itRefHit){      
-      if(itKey.second.empty()) continue;
-      myStr<<itKey.first<<std::endl;
-      myStr<<itKey.second<<std::endl;
-    }
-    myStr<<"--------------------"<<std::endl;
-  }
-  */
-  //LogDebug("OMTF processor")<<myStr.str();
+  myStr<<aInput<<std::endl; 
   edm::LogInfo("OMTF processor")<<myStr.str();
-  //#endif
   
   return myResults;
 }   
@@ -327,13 +300,10 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
 			       const OMTFinput & aInput,
 			       const SimTrack* aSimMuon){
 
-  int theCharge = (abs(aSimMuon->type()) == 13) ? aSimMuon->type()/-13 : 0;
-  //Charge convention for uGMT is charge = (-1)^iCharge
-  if(theCharge<0) theCharge=1;
-  else theCharge=0;
+  int theCharge = (abs(aSimMuon->type()) == 13) ? aSimMuon->type()/-13 : 0; 
   unsigned int  iPt =  RPCConst::iptFromPt(aSimMuon->momentum().pt());
   ///Stupid conersion. Have to go through PAC pt scale, as we later
-  ///shitf resulting pt code by +1
+  ///shift resulting pt code by +1
   iPt+=1;
   if(iPt>31) iPt=200*2+1;
   else iPt = RPCConst::ptFromIpt(iPt)*2.0+1;//MicroGMT has 0.5 GeV step size, with lower bin edge  (uGMT_pt_code - 1)*step_size

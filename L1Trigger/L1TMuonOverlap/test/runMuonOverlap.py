@@ -26,7 +26,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 
 ####Event Setup Producer
-process.load('L1Trigger.L1TMuonOverlap.fakeMuonOverlapParams_cfi')
+process.load('L1Trigger.L1TMuonOverlap.fakeOmtfParams_cff')
 process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(
       cms.PSet(record = cms.string('L1TMuonOverlapParamsRcd'),
@@ -37,9 +37,7 @@ process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
 
 
 ####OMTF Emulator
-process.load('L1Trigger.L1TMuonOverlap.simMuonOverlapDigis_cfi')
-process.simOmtfDigis.dropRPCPrimitives = cms.bool(True)
-
+process.load('L1Trigger.L1TMuonOverlap.simOmtfDigis_cfi')
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
