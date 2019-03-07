@@ -17,6 +17,8 @@
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
+
+#include "L1Trigger/L1TMuonOverlap/interface/XMLConfigReader.h"//AK
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 OMTFProcessor::~OMTFProcessor(){
@@ -58,7 +60,6 @@ bool OMTFProcessor::configure(const OMTFConfiguration * omtfConfig,
     iEta = etaLUT->data(address);
     iCharge = chargeLUT->data(address)==0? -1:1;
     iPt = ptLUT->data(address);
-
     GoldenPattern::vector2D meanDistPhi2D(myOmtfConfig->nLayers());
     GoldenPattern::vector1D pdf1D(exp2(myOmtfConfig->nPdfAddrBits()));
     GoldenPattern::vector3D pdf3D(myOmtfConfig->nLayers());
@@ -86,10 +87,11 @@ bool OMTFProcessor::configure(const OMTFConfiguration * omtfConfig,
     }
     Key aKey(iEta,iPt,iCharge,iGP);
 
+    std::cout<<__FUNCTION__<<" "<<aKey<<std::endl;
     GoldenPattern *aGP = new GoldenPattern(aKey, myOmtfConfig);
     aGP->setMeanDistPhi(meanDistPhi2D);
     aGP->setPdf(pdf3D);
-    addGP(aGP);    
+    addGP(aGP);
   }
   return true;
 }

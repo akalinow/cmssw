@@ -261,8 +261,6 @@ void OMTFPatternMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
  
   ///Loop over all processors, each covering 60 deg in phi
   for(unsigned int iProcessor=0;iProcessor<6;++iProcessor){
-    if(iProcessor!=0) continue;
-
     ///Input data with phi ranges shifted for each processor, so it fits 11 bits range
     OMTFinput myInput = myInputMaker->buildInputForProcessor(dtPhDigis.product(),
 							     dtThDigis.product(),
