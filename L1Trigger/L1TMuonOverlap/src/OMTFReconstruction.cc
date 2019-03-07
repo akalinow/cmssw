@@ -93,14 +93,17 @@ std::unique_ptr<l1t::RegionalMuonCandBxCollection> OMTFReconstruction::reconstru
   // NOTE: assuming all is for bx 0
   int bx = 0;
   std::unique_ptr<l1t::RegionalMuonCandBxCollection> candidates(new l1t::RegionalMuonCandBxCollection);
-
+  
+   for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)
+    getProcessorCandidates(iProcessor, l1t::tftype::bmtf, bx, *candidates);
+   
   ///The order is important: first put omtf_pos candidates, then omtf_neg.
   for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)
     getProcessorCandidates(iProcessor, l1t::tftype::omtf_pos, bx, *candidates);
 
   for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)
     getProcessorCandidates(iProcessor, l1t::tftype::omtf_neg, bx, *candidates);
-    
+   
   return candidates;
 }
 
@@ -123,7 +126,6 @@ void OMTFReconstruction::loadAndFilterDigis(const edm::Event& iEvent){
 void OMTFReconstruction::getProcessorCandidates(unsigned int iProcessor, l1t::tftype mtfType, int bx,
                l1t::RegionalMuonCandBxCollection & omtfCandidates){
 
-  
   m_InputMaker.setFlag(0);
   OMTFinput input = m_InputMaker.buildInputForProcessor(dtPhDigis.product(),
                 dtThDigis.product(),
@@ -131,9 +133,8 @@ void OMTFReconstruction::getProcessorCandidates(unsigned int iProcessor, l1t::tf
                 rpcDigis.product(),
                 iProcessor, mtfType);
   int flag = m_InputMaker.getFlag();
-  
-  const std::vector<OMTFProcessor::resultsMap> & results = m_OMTF->processInput(iProcessor,input);
 
+  const std::vector<OMTFProcessor::resultsMap> & results = m_OMTF->processInput(iProcessor,input);
   std::vector<AlgoMuon> algoCandidates;
 
   m_Sorter.sortRefHitResults(results, algoCandidates);  

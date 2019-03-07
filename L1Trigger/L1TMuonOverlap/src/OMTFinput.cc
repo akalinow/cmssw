@@ -24,9 +24,9 @@ const OMTFinput::vector1D & OMTFinput::getLayerData(unsigned int iLayer, bool gi
 }
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
-std::bitset<128> OMTFinput::getRefHits(unsigned int iProcessor) const{
+std::bitset<192> OMTFinput::getRefHits(unsigned int iProcessor) const{
  
-  std::bitset<128> refHits;
+  std::bitset<192> refHits;
 
   unsigned int iRefHit = 0;
   for(auto iRefHitDef:myOmtfConfig->getRefHitsDefs()[iProcessor]){
@@ -101,7 +101,7 @@ void OMTFinput::clear(){
   vector1D aLayer1D(14,myOmtfConfig->nPhiBins());
   measurementsPhi.assign(myOmtfConfig->nLayers(),aLayer1D);
   measurementsEta.assign(myOmtfConfig->nLayers(),aLayer1D);
-  refHitsEta.assign(128,myOmtfConfig->nPhiBins());
+  refHitsEta.assign(myOmtfConfig->nRefHits(),myOmtfConfig->nPhiBins());
 
 }
 ///////////////////////////////////////////////////

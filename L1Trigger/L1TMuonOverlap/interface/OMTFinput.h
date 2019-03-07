@@ -40,7 +40,7 @@ class OMTFinput{
 
   const OMTFinput::vector1D & getLayerData(unsigned int iLayer, bool giveEta=false) const;
 
-  std::bitset<128> getRefHits(unsigned int iProcessor) const;
+  std::bitset<192> getRefHits(unsigned int iProcessor) const;
 
   friend std::ostream & operator << (std::ostream &out, const OMTFinput & aInput);
 

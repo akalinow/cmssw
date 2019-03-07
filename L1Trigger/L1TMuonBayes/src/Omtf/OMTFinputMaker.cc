@@ -84,6 +84,7 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
     }
 
     if(type==l1t::tftype::bmtf && aId.region()!=0) return false;
+    if(type==l1t::tftype::bmtf && aId.station()==4) return false;//TEST AK
 
     if(type==l1t::tftype::emtf_pos &&
         (aId.region()<=0 ||
@@ -417,7 +418,6 @@ const OMTFinput OMTFinputMaker::buildInputForProcessor(const L1MuDTChambPhContai
   processDT(result.getMuonStubs(), dtPhDigis, dtThDigis, iProcessor, type, true, bxFrom, bxTo);
   processCSC(result.getMuonStubs(), cscDigis, iProcessor, type, bxFrom, bxTo);
   processRPC(result.getMuonStubs(), rpcDigis, iProcessor, type, bxFrom, bxTo);
-  //cout<<result<<endl;
   return result;
 }
 ////////////////////////////////////////////

@@ -37,9 +37,9 @@ void OMTFConfigMaker::fillPhiMaps(unsigned int iProcessor,
     const OMTFinput::vector1D & refLayerHits = aInput.getLayerData(myOmtfConfig->getRefToLogicNumber()[iRefLayer]);	
     if(refLayerHits.empty()) continue;
     for(unsigned int iInput=0;iInput<myOmtfConfig->nInputs();++iInput){	
-      int phiRef = refLayerHits[iInput];
-      unsigned int iRegion = myOmtfConfig->getRegionNumberFromMap(iInput,iRefLayer,phiRef);       
+      int phiRef = refLayerHits[iInput];            
       if(phiRef>=(int)myOmtfConfig->nPhiBins()) continue;      
+      unsigned int iRegion = myOmtfConfig->getRegionNumberFromRange(phiRef);      
       if(phiRef<minRefPhi2D[iRefLayer][iRegion]) minRefPhi2D[iRefLayer][iRegion] = phiRef;      
       if(phiRef>maxRefPhi2D[iRefLayer][iRegion]) maxRefPhi2D[iRefLayer][iRegion] = phiRef;      
     }
@@ -81,7 +81,8 @@ void OMTFConfigMaker::makeConnetionsMap(unsigned int iProcessor,
     //////////////////////
     for(unsigned int iInput=0;iInput<refLayerHits.size();++iInput){
       int phiRef = refLayerHits[iInput];
-      unsigned int iRegion = myOmtfConfig->getRegionNumberFromMap(iInput,iRefLayer,phiRef);     
+      //unsigned int iRegion = myOmtfConfig->getRegionNumberFromMap(iInput,iRefLayer,phiRef);
+      unsigned int iRegion = myOmtfConfig->getRegionNumberFromRange(phiRef);
       if(iRegion>=myOmtfConfig->nLogicRegions()) continue;      
       fillInputRange(iProcessor,iRegion,aInput);
       fillInputRange(iProcessor,iRegion,iRefLayer,iInput);
@@ -126,8 +127,8 @@ void OMTFConfigMaker::printConnections(std::ostream & out,
      <<std::endl;
 
   out<<"Ref hits"<<std::endl;
-  for(unsigned int iLogicLayer=0;iLogicLayer<myOmtfConfig->nLayers();++iLogicLayer){
-    out<<"Logic layer: "<<iLogicLayer<<" Hits: ";
+  for(unsigned int iLogicLayer=0;iLogicLayer<myOmtfConfig->nRefLayers();++iLogicLayer){
+    out<<"Ref layer: "<<iLogicLayer<<" Hits: ";
     for(unsigned int iInput=0;iInput<myOmtfConfig->nInputs();++iInput){
       out<<myOmtfConfig->getMeasurements4Dref()[iProcessor][iRegion][iLogicLayer][iInput]<<"\t";
     }

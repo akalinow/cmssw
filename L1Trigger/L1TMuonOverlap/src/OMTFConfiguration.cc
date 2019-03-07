@@ -45,7 +45,7 @@ std::ostream & operator << (std::ostream &out, const  RefHitDef & aRefHitDef){
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 void OMTFConfiguration::initCounterMatrices(){
-  
+
   ///Vector of all inputs
   std::vector<int> aLayer1D(nInputs(),0);
 
@@ -79,7 +79,7 @@ void OMTFConfiguration::configure(const L1TMuonOverlapParams *omtfParams){
 
   const std::vector<int> *connectedSectorsStartVec =  omtfParams->connectedSectorsStart();
   const std::vector<int> *connectedSectorsEndVec =  omtfParams->connectedSectorsEnd();
-
+  
   std::copy(connectedSectorsStartVec->begin(), connectedSectorsStartVec->begin()+6, barrelMin.begin());  
   std::copy(connectedSectorsStartVec->begin()+6, connectedSectorsStartVec->begin()+12, endcap10DegMin.begin());
   std::copy(connectedSectorsStartVec->begin()+12, connectedSectorsStartVec->end(), endcap20DegMin.begin());
@@ -87,7 +87,7 @@ void OMTFConfiguration::configure(const L1TMuonOverlapParams *omtfParams){
   std::copy(connectedSectorsEndVec->begin(), connectedSectorsEndVec->begin()+6, barrelMax.begin());
   std::copy(connectedSectorsEndVec->begin()+6, connectedSectorsEndVec->begin()+12, endcap10DegMax.begin());
   std::copy(connectedSectorsEndVec->begin()+12, connectedSectorsEndVec->end(), endcap20DegMax.begin());
-
+  
   ///Set connections tables
   const std::vector<L1TMuonOverlapParams::LayerMapNode> *layerMap = omtfParams->layerMap();
 
@@ -208,6 +208,20 @@ bool OMTFConfiguration::isInRegionRange(int iPhiStart,
     return iPhi<iPhiStart+(int)coneSize-(int)nPhiBins();
   }
   return false;
+}
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+unsigned int OMTFConfiguration::getRegionNumberFromRange(int iPhi) const {
+
+  int iPhiStart = 0;
+  int coneSize = 150;
+  for(unsigned int iRegion=0;iRegion<nLogicRegions();++iRegion){
+    int iPhiStartRegion = iPhiStart + iRegion*coneSize; 
+    bool isInRange = isInRegionRange(iPhiStartRegion, coneSize, iPhi);
+    if(isInRange) return iRegion;
+  }
+
+  return 99;
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////

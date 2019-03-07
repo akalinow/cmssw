@@ -50,7 +50,7 @@ void OMTFResult::clear(){
 ////////////////////////////////////////////
 void OMTFResult::finalise(){
 
-  for(unsigned int iLogicLayer=0;iLogicLayer<results.size();++iLogicLayer){    
+  for(unsigned int iLogicLayer=0;iLogicLayer<results.size();++iLogicLayer){
     unsigned int connectedLayer = myOmtfConfig->getLogicToLogic().at(iLogicLayer);
     for(unsigned int iRefLayer=0;iRefLayer<results[iLogicLayer].size();++iRefLayer){
       ///If connected layer (POS or BEND) has not been fired, ignore this layer also

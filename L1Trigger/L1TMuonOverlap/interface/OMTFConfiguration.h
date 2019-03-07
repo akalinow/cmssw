@@ -65,7 +65,7 @@ class OMTFConfiguration{
 
   void initCounterMatrices();
   
-   ///Find logic region number using first input number
+  ///Find logic region number using first input number
   ///and then local phi value. The input and phi
   ///ranges are taken from DB. 
   unsigned int getRegionNumberFromMap(unsigned int iInput,
@@ -74,10 +74,14 @@ class OMTFConfiguration{
   
   ///Check if given referecne hit is
   ///in phi range for some logic cone.
-  ///Care is needed arounf +Pi and +2Pi points
+  ///Care is needed around +Pi and +2Pi points
   bool isInRegionRange(int iPhiStart,
 		       unsigned int coneSize,
 		       int iPhi) const;
+
+  ///Find logic region number approximate region ranges
+  ///in local phi coordinate.
+  unsigned int getRegionNumberFromRange(int iPhi) const;
 
   ///Return global phi for beggining of given processor
   ///Uses minim phi over all reference layers.

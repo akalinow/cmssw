@@ -516,6 +516,7 @@ void XMLConfigWriter::writeGPData(const GoldenPattern & aGP1,
 void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFConfiguration::vector2D> > & measurements4D){
 
  std::ostringstream stringStr;
+ unsigned int maxRefHits = 128+64;//AK set by hand
 
   for(unsigned int iProcessor=0;iProcessor<6;++iProcessor){
     xercesc::DOMElement* aProcessorElement = theDoc->createElement(_toDOMS("Processor"));
@@ -534,13 +535,13 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
       }
     unsigned int iRefHit = 0;   
     ///////
-    for(unsigned int iRefLayer=0;iRefLayer<myOMTFConfig->nRefLayers();++iRefLayer){
+    for(unsigned int iRefLayer=0;iRefLayer<myOMTFConfig->nRefLayers() && iProcessor==0;++iRefLayer){
 	for(unsigned int iRegion=0;iRegion<6;++iRegion){
 	  unsigned int maxHitCount =  0;
 	  for(unsigned int iInput=0;iInput<14;++iInput) {
 	    if((int)maxHitCount<myOMTFConfig->getMeasurements4Dref()[iProcessor][iRegion][iRefLayer][iInput])
 	      maxHitCount = myOMTFConfig->getMeasurements4Dref()[iProcessor][iRegion][iRefLayer][iInput];
-	  }
+	  }	         	  
 	for(unsigned int iInput=0;iInput<14;++iInput){
 	  unsigned int hitCount =  myOMTFConfig->getMeasurements4Dref()[iProcessor][iRegion][iRefLayer][iInput];
 	  if(hitCount<maxHitCount*0.1) continue;
@@ -560,13 +561,8 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
 	  stringStr<<iInput;
 	  aRefHitElement->setAttribute(_toDOMS("iInput"), _toDOMS(stringStr.str()));
 	  unsigned int logicRegionSize = 10/360.0*myOMTFConfig->nPhiBins();
-	  int lowScaleEnd = std::pow(2,myOMTFConfig->nPhiBits()-1);
-	  ///iPhiMin and iPhiMax are expressed in n bit scale -2**n, +2**2-1 used in each processor
-	  int iPhiMin = myOMTFConfig->getProcessorPhiVsRefLayer()[iProcessor][iRefLayer]-myOMTFConfig->globalPhiStart(iProcessor)-lowScaleEnd;
+	  int iPhiMin = iRegion*logicRegionSize;
 	  int iPhiMax = iPhiMin+logicRegionSize-1;
-
-	  iPhiMin+=iRegion*logicRegionSize;
-	  iPhiMax+=iRegion*logicRegionSize;
 
 	  stringStr.str("");
 	  stringStr<<iPhiMin;
@@ -575,10 +571,10 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
 	  stringStr.str("");
 	  stringStr<<iPhiMax;
 	  aRefHitElement->setAttribute(_toDOMS("iPhiMax"), _toDOMS(stringStr.str()));
-	  if(iRefHit<myOMTFConfig->nRefHits()) aProcessorElement->appendChild(aRefHitElement);
+	  if(iRefHit<maxRefHits) aProcessorElement->appendChild(aRefHitElement);
 	  ++iRefHit;
 	}	      
-	for(;iRegion==5 && iRefLayer==7 && iRefHit<myOMTFConfig->nRefHits();++iRefHit){
+	for(;iRegion==5 && iRefLayer==7 && iRefHit<maxRefHits;++iRefHit){
 	xercesc::DOMElement* aRefHitElement = theDoc->createElement(_toDOMS("RefHit"));
 	stringStr.str("");
 	stringStr<<iRefHit;
@@ -610,8 +606,8 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
       }
 	}
       }
-      ////      
-      for(unsigned int iRegion=0;iRegion<6;++iRegion){
+      ////Print connections only for one processor, as thos are the same for all processors.
+      for(unsigned int iRegion=0;iRegion<6 && iProcessor==0;++iRegion){
 	xercesc::DOMElement* aRegionElement = theDoc->createElement(_toDOMS("LogicRegion"));
 	stringStr.str("");
 	stringStr<<iRegion;
@@ -626,14 +622,15 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
 	const OMTFConfiguration::vector1D & myCounts = myOMTFConfig->getMeasurements4D()[iProcessor][iRegion][iLogicLayer];
 	unsigned int maxInput = findMaxInput(myCounts);
 	unsigned int begin = 0, end = 0;
+	///Add overlap from left.
 	if((int)maxInput-2>=0) begin = maxInput-2;
 	else begin = maxInput;
-	end = maxInput+3;
+	end = maxInput + myOMTFConfig->nHitsPerLayer() - 2;
 	stringStr.str("");
 	stringStr<<begin;
 	aLayerElement->setAttribute(_toDOMS("iFirstInput"), _toDOMS(stringStr.str()));
 	stringStr.str("");
-	stringStr<<end-begin+1;
+	stringStr<<end-begin;
 	aLayerElement->setAttribute(_toDOMS("nInputs"), _toDOMS(stringStr.str()));
 	aRegionElement->appendChild(aLayerElement);
       }

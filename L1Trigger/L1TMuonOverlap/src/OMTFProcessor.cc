@@ -21,7 +21,7 @@
 ///////////////////////////////////////////////
 OMTFProcessor::~OMTFProcessor(){
 
-   for(auto it: theGPs) delete it.second;
+  //AK for(auto it: theGPs) delete it.second;
    
 }
 ///////////////////////////////////////////////
@@ -215,7 +215,7 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
 
   //////////////////////////////////////
   //////////////////////////////////////  
-  std::bitset<128> refHitsBits = aInput.getRefHits(iProcessor);
+  std::bitset<192> refHitsBits = aInput.getRefHits(iProcessor);
   if(refHitsBits.none()) return myResults;
    
   for(unsigned int iLayer=0;iLayer<myOmtfConfig->nLayers();++iLayer){
@@ -227,11 +227,9 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
       if(!refHitsBits[iRefHit]) continue;
       if(nTestedRefHits--==0) break;
       const RefHitDef & aRefHitDef = myOmtfConfig->getRefHitsDefs()[iProcessor][iRefHit];
-      
       int phiRef = aInput.getLayerData(myOmtfConfig->getRefToLogicNumber()[aRefHitDef.iRefLayer])[aRefHitDef.iInput];
       int etaRef = aInput.getLayerData(myOmtfConfig->getRefToLogicNumber()[aRefHitDef.iRefLayer],true)[aRefHitDef.iInput];
       unsigned int iRegion = aRefHitDef.iRegion;
-      
       if(myOmtfConfig->getBendingLayers().count(iLayer)) phiRef = 0;
       const OMTFinput::vector1D restrictedLayerHits = restrictInput(iProcessor, iRegion, iLayer,layerHits);
       for(auto itGP: theGPs){
@@ -292,7 +290,7 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
   //////
 
   //////////////////////////////////////  
-  std::bitset<128> refHitsBits = aInput.getRefHits(iProcessor);
+  std::bitset<192> refHitsBits = aInput.getRefHits(iProcessor);
   if(refHitsBits.none()) return;
 
   std::ostringstream myStr;

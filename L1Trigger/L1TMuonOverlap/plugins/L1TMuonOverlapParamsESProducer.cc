@@ -32,12 +32,10 @@ L1TMuonOverlapParamsESProducer::L1TMuonOverlapParamsESProducer(const edm::Parame
   XMLConfigReader myReader;
   myReader.setConfigFile(fName);
   readConnectionsXML(myReader);
-  
   for(auto it: fileNames){
     myReader.setPatternsFile(it);
     readPatternsXML(myReader);
   }
-
   unsigned int patternsVersion = myReader.getPatternsVersion();
   unsigned int fwVersion =  params.fwVersion();
 

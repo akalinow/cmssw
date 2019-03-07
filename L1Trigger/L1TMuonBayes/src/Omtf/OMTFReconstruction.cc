@@ -106,7 +106,6 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
       patternType = m_Config.getParameter<std::string>("patternType");
     }
 
-    std::cout<<__FUNCTION__<<":"<<__LINE__<<std::endl;
     if(patternType == "GoldenPattern") {
       auto const& gps = xmlReader.readPatterns<GoldenPattern>(*omtfParams);
 
@@ -126,8 +125,6 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
       }
     }
     else if(patternType == "GoldenPatternWithStat") {
-      std::cout<<__FUNCTION__<<":"<<__LINE__<<std::endl;
-
       auto gps = xmlReader.readPatterns<GoldenPatternWithStat>(*omtfParams);
 
       if(processorType == "OMTFProcessor") {
@@ -149,7 +146,6 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
       }
     }
     else if(patternType == "GoldenPatternWithThresh") {
-      std::cout<<__FUNCTION__<<":"<<__LINE__<<std::endl;
       auto gps = xmlReader.readPatterns<GoldenPatternWithThresh>(*omtfParams);
       m_OMTF.reset(new OMTFProcessor<GoldenPatternWithThresh>(m_OMTFConfig, m_Config, iSetup, gps) );
       edm::LogImportant("OMTFReconstruction") << "OMTFProcessor constructed. GoldenPattern type: "<<patternType<<" size: "<<gps.size() << std::endl;
@@ -207,19 +203,8 @@ std::unique_ptr<l1t::RegionalMuonCandBxCollection> OMTFReconstruction::reconstru
   std::unique_ptr<l1t::RegionalMuonCandBxCollection> candidates(new l1t::RegionalMuonCandBxCollection);
   candidates->setBXRange(bxMin, bxMax);
 
-
   ///The order is important: first put omtf_pos candidates, then omtf_neg.
   for(int bx = bxMin; bx<= bxMax; bx++) {
-
-    for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor) {
-      std::vector<l1t::RegionalMuonCand> candMuons = m_OMTF->run(iProcessor, l1t::tftype::bmtf, bx, observers);
-
-      //fill outgoing collection
-      for (auto & candMuon :  candMuons) {
-	std::cout<<"candMuon: "<<"pt: "<<candMuon.hwPt()<<" eta: "<<candMuon.hwEta()<<" phi: "<<candMuon.hwPhi()<<std::endl;
-        candidates->push_back(bx, candMuon);
-      }
-    }
   
     for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor) {
       std::vector<l1t::RegionalMuonCand> candMuons = m_OMTF->run(iProcessor, l1t::tftype::omtf_pos, bx, observers);
@@ -229,7 +214,7 @@ std::unique_ptr<l1t::RegionalMuonCandBxCollection> OMTFReconstruction::reconstru
         candidates->push_back(bx, candMuon);
       }
     }
-    /*
+    
     for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor) {
       std::vector<l1t::RegionalMuonCand> candMuons = m_OMTF->run(iProcessor, l1t::tftype::omtf_neg, bx, observers);
 
@@ -238,8 +223,7 @@ std::unique_ptr<l1t::RegionalMuonCandBxCollection> OMTFReconstruction::reconstru
         candidates->push_back(bx, candMuon);
       }
     }
-    */
-
+    
     edm::LogInfo("OMTFReconstruction") <<"OMTF:  Number of candidates in BX="<<bx<<": "<<candidates->size(bx) << std::endl;;  
   }
   

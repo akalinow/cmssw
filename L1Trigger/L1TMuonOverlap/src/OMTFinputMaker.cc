@@ -71,7 +71,7 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
 	 //RPC RE1/2 temporarily not used (aId.region()==1 && aId.station()==1 && aId.ring()<2) ||
 	(aId.region()==-1 && aId.station()>0 && aId.ring()<3))
        ) return false;
-    
+
     if(type==l1t::tftype::bmtf && aId.region()!=0) return false;
     
     if(type==l1t::tftype::emtf_pos &&
@@ -96,7 +96,7 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
     if(type==l1t::tftype::omtf_pos && dt.wheel()!=2) return false;
     if(type==l1t::tftype::omtf_neg && dt.wheel()!=-2) return false;
     if(type==l1t::tftype::emtf_pos || type==l1t::tftype::emtf_neg) return false;
-    
+
     aSector =  dt.sector();   	
     break;
   }
@@ -162,12 +162,14 @@ unsigned int OMTFinputMaker::getInputNumber(unsigned int rawId,
       ///number shift formula for all stations
       if(rpc.station()==2 && rpc.layer()==2 && rpc.roll()==2) iRoll = 1;
       ///Only one roll from station 3 is connected.
+      /*AK
       if(rpc.station()==3){
 	iRoll = 1;
 	nInputsPerSector = 2;
       }
       ///At the moment do not use RPC chambers splitting into rolls for bmtf part      
       if(type==l1t::tftype::bmtf)iRoll = 1;
+      */
     }
     if(rpc.region()!=0){
       aSector = (rpc.sector()-1)*6+rpc.subsector();
@@ -246,7 +248,8 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
     unsigned int iLayer = iter->second;
     int iPhi =  myAngleConverter.getProcessorPhi(iProcessor, type, digiIt);
     int iEta =  myAngleConverter.getGlobalEta(detid.rawId(), digiIt, dtThDigis);
-    unsigned int iInput= getInputNumber(detid.rawId(), iProcessor, type);    
+    unsigned int iInput= getInputNumber(detid.rawId(), iProcessor, type);
+    
     result.addLayerHit(iLayer,iInput,iPhi,iEta);
     result.addLayerHit(iLayer+1,iInput,digiIt.phiB(),iEta);    
   }
@@ -340,7 +343,7 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
       if (cSize>3) continue;
       int iEta =  myAngleConverter.getGlobalEta(rawid, cluster.first);      
       unsigned int hwNumber = myOmtfConfig->getLayerNumber(rawid);
-      unsigned int iLayer = myOmtfConfig->getHwToLogicLayer().at(hwNumber);
+      unsigned int iLayer = myOmtfConfig->getHwToLogicLayer().at(hwNumber);      
       unsigned int iInput= getInputNumber(rawid, iProcessor, type);
 //      std::cout <<"ADDING HIT: iLayer = " << iLayer << " iInput: " << iInput << " iPhi: " << iPhi << std::endl;
       if (iLayer==17 && (iInput==0 || iInput==1)) continue;  // FIXME (MK) there is no RPC link for that input, because it is taken by DAQ link
@@ -374,6 +377,7 @@ OMTFinput OMTFinputMaker::buildInputForProcessor(const L1MuDTChambPhContainer *d
 							 const RPCDigiCollection *rpcDigis,
 							 unsigned int iProcessor,
 							 l1t::tftype type){
+
   OMTFinput result(myOmtfConfig);
   result += processDT(dtPhDigis, dtThDigis, iProcessor, type);
   result += processCSC(cscDigis, iProcessor, type);
