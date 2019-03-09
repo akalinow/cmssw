@@ -83,6 +83,10 @@ class OMTFConfiguration{
   ///in local phi coordinate.
   unsigned int getRegionNumberFromRange(int iPhi) const;
 
+  ///Return eta bin for Golden Pattern eta segmentation.
+  ///Eta expresed in L1 scale: eta*2.61*240
+  int etaRange(int iEta) const;
+
   ///Return global phi for beggining of given processor
   ///Uses minim phi over all reference layers.
   int globalPhiStart(unsigned int iProcessor) const;

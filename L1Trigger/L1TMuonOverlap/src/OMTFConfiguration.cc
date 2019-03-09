@@ -239,6 +239,20 @@ unsigned int OMTFConfiguration::getRegionNumberFromMap(unsigned int iInput,
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
+int OMTFConfiguration::etaRange(int iEta) const{
+
+  double floatEta = std::abs(iEta)/240.0*2.61;
+ 
+  if(floatEta<0.2) return 0;
+  else if(floatEta<0.5) return 1;
+  else if(floatEta<0.83) return 2;
+  else if(floatEta<1.23) return 3;
+  else return 4;
+
+  return 0;
+}
+///////////////////////////////////////////////
+///////////////////////////////////////////////
 int OMTFConfiguration::globalPhiStart(unsigned int iProcessor) const {
 
   return *std::min_element(processorPhiVsRefLayer[iProcessor].begin(),

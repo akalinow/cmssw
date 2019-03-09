@@ -96,14 +96,15 @@ std::unique_ptr<l1t::RegionalMuonCandBxCollection> OMTFReconstruction::reconstru
   
    for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)
     getProcessorCandidates(iProcessor, l1t::tftype::bmtf, bx, *candidates);
-   
+
+   /*
   ///The order is important: first put omtf_pos candidates, then omtf_neg.
   for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)
     getProcessorCandidates(iProcessor, l1t::tftype::omtf_pos, bx, *candidates);
 
   for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)
     getProcessorCandidates(iProcessor, l1t::tftype::omtf_neg, bx, *candidates);
-   
+   */
   return candidates;
 }
 

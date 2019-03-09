@@ -357,8 +357,8 @@ void XMLConfigWriter::writeGPData(const GoldenPattern & aGP){
   stringStr<<aGP.key().thePtCode;
   aGPElement->setAttribute(_toDOMS("iPt"), _toDOMS(stringStr.str()));
   stringStr.str("");
-  //stringStr<<aGP.key().theEtaCode;
-  stringStr<<"0";//No eta code at the moment
+  stringStr<<aGP.key().theEtaCode;
+  //AK stringStr<<"0";//No eta code at the moment
   aGPElement->setAttribute(_toDOMS("iEta"), _toDOMS(stringStr.str()));
   stringStr.str("");
   stringStr<<0; //No phi code is assigned to GP for the moment.
@@ -440,8 +440,8 @@ void XMLConfigWriter::writeGPData(const GoldenPattern & aGP1,
   aGPElement->setAttribute(_toDOMS("iPt4"), _toDOMS(stringStr.str()));
 
   stringStr.str("");
-  //stringStr<<aGP1.key().theEtaCode;
-  stringStr<<"0";//No eta code at the moment
+  stringStr<<aGP1.key().theEtaCode;
+  //AK stringStr<<"0";//No eta code at the moment
   aGPElement->setAttribute(_toDOMS("iEta"), _toDOMS(stringStr.str()));
   stringStr.str("");
   stringStr<<"0";//No phi code is assigned to GP for the moment.

@@ -61,9 +61,6 @@ class XMLConfigReader{
 			  const L1TMuonOverlapParams & aConfig,
 			  unsigned int index=0,
 			  unsigned int aGPNumber=999);
-  
-  //  xercesc::XercesDOMParser *parser;
-  //  xercesc::DOMDocument* doc;
 
   ///Cache with GPs read.
   std::vector<std::shared_ptr<GoldenPattern>> aGPs;

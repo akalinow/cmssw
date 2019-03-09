@@ -74,7 +74,9 @@ void OMTFPatternMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSet
   omtfParamsMutable.setGeneralParams(generalParams);
   
   myOMTFConfig->configure(&omtfParamsMutable);
-  myOMTF->configure(myOMTFConfig, omtfParams);
+  if(mergeXMLFiles) myOMTF->configure(myOMTFConfig, omtfParams);
+  else myOMTF->configure(myOMTFConfig, NULL);
+
   myOMTFConfigMaker = new OMTFConfigMaker(myOMTFConfig);
   
   ///Clear existing GoldenPatterns
@@ -150,7 +152,7 @@ void OMTFPatternMaker::endJob(){
 
     std::string fName = "OMTF";
     myWriter->initialiseXMLDocument(fName);
-    const std::map<Key,GoldenPattern*> & myGPmap = myOMTF->getPatterns();
+    const std::map<Key,GoldenPattern*> & myGPmap = myOMTF->getPatterns();    
     for(auto itGP: myGPmap){
       myWriter->writeGPData(*itGP.second,*dummy, *dummy, *dummy);
     }

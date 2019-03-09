@@ -24,7 +24,7 @@ Key(int iEta=99, unsigned int iPt=0, int iCharge= 0, unsigned int iNumber=999):
   }
   
   friend std::ostream & operator << (std::ostream &out, const Key & o) {
-    out << "Key_"<<o.theNumber<<": (eta="<<o.theEtaCode<<", pt="<<o.thePtCode<<", charge="<<o.theCharge<<")";
+    out << "Key_"<<o.theNumber<<": (eta="<<o.theEtaCode<<", pt="<<o.thePtCode<<", charge="<<o.theCharge<<", number="<<o.theNumber<<")";
     return out;
   }
 
@@ -57,13 +57,13 @@ class GoldenPattern {
   
   Key key() const {return theKey;}
 
-  void setMeanDistPhi(const vector2D & aMeanDistPhi){ meanDistPhi = aMeanDistPhi; }
+  void setMeanDistPhi(const vector2D & aMeanDistPhi){ meanDistPhi = aMeanDistPhi;}
 
   const vector2D & getMeanDistPhi() const {return meanDistPhi;}
 
   const vector3D & getPdf() const {return pdfAllRef;}
 
-  void setPdf(const vector3D & aPdf){  pdfAllRef = aPdf; }
+  void setPdf(const vector3D & aPdf){  pdfAllRef = aPdf;}
 
   int meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer) const { return meanDistPhi[iLayer][iRefLayer];}
 
