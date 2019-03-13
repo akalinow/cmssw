@@ -295,7 +295,7 @@ int AngleConverter::getGlobalEta(unsigned int rawid,
   // TODO:::::>>> need to make sure this ordering doesn't flip under wheel sign
   const int NBTI_theta = ( (baseid.station() != 4) ?  trig_geom->nCell(2) : trig_geom->nCell(3) );
 
-  {
+  {//AK
   const int bti_group = findBTIgroup(aDigi,dtThDigis);
   const unsigned bti_actual = bti_group*NBTI_theta/7 + NBTI_theta/14 + 1;
   DTBtiId thetaBTI;
@@ -309,8 +309,7 @@ int AngleConverter::getGlobalEta(unsigned int rawid,
   const GlobalPoint theta_gp = trig_geom->CMSPosition(thetaBTI);
   int iEtaGeom = theta_gp.eta()/2.61*240;
   return iEtaGeom;
-  }
-  //return iEta;
+  }/////////////////////////////////////////////
 
   const L1MuDTChambThDigi *theta_segm = dtThDigis->chThetaSegm(aDigi.whNum(), aDigi.stNum(), aDigi.scNum(), aDigi.bxNum());
   int bti_group = -1;

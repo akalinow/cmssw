@@ -286,7 +286,7 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
   unsigned int  iPt =  RPCConst::iptFromPt(aSimMuon->momentum().pt());
   int iEta = std::abs(aSimMuon->momentum().eta())*240/2.61;
   int etaRegion = myOmtfConfig->etaRange(iEta);
-  ///Stupid conersion. Have to go through PAC pt scale, as we later
+  ///Stupid conversion. Have to go through PAC pt scale, as we later
   ///shift resulting pt code by +1
   iPt+=1;
   if(iPt>31) iPt=200*2+1;
