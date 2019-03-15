@@ -60,9 +60,12 @@ XMLConfigReader::~XMLConfigReader()
 //////////////////////////////////////////////////
 void XMLConfigReader::readLUTs(std::vector<l1t::LUT*> luts,const L1TMuonOverlapParams & aConfig, const std::vector<std::string> & types){
 
-  ///Fill payload string  
-  auto const & aGPs = readPatterns(aConfig);
-
+  ///Fill payload string
+  aGPs.clear();
+  for(auto aPatternsFile: patternsFiles){
+    readPatterns(aConfig, aPatternsFile);
+  }
+  
   for ( unsigned int i=0; i< luts.size(); i++ ) {
     l1t::LUT* lut=luts[i];
     const std::string &type=types[i];
@@ -90,6 +93,7 @@ void XMLConfigReader::readLUTs(std::vector<l1t::LUT*> luts,const L1TMuonOverlapP
     unsigned int in = 0;
     int out = 0;
     for(auto it: aGPs){
+      if(it->key().thePtCode == 0) continue;
       if(type=="iCharge") out = it->key().theCharge==-1 ? 0:1;
       if(type=="iEta") out = it->key().theEtaCode;
       if(type=="iPt") out = it->key().thePtCode;
@@ -118,7 +122,6 @@ void XMLConfigReader::readLUTs(std::vector<l1t::LUT*> luts,const L1TMuonOverlapP
 	++in;
       }
     }
-    
     ///Read the data into LUT
     lut->read(strStream);
   }
@@ -127,6 +130,8 @@ void XMLConfigReader::readLUTs(std::vector<l1t::LUT*> luts,const L1TMuonOverlapP
 //////////////////////////////////////////////////
 unsigned int XMLConfigReader::getPatternsVersion() const{
 
+  if(!patternsFiles.size()) return 0;
+  std::string patternsFile = patternsFiles[0];
   if(patternsFile.empty()) return 0;
 
   unsigned int version=0;
@@ -156,9 +161,8 @@ unsigned int XMLConfigReader::getPatternsVersion() const{
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
-std::vector<std::shared_ptr<GoldenPattern>> XMLConfigReader::readPatterns(const L1TMuonOverlapParams & aConfig){
-
-  aGPs.clear();
+void  XMLConfigReader::readPatterns(const L1TMuonOverlapParams & aConfig,
+				    const std::string & patternsFile){
   
   XMLPlatformUtils::Initialize();
 
@@ -178,7 +182,7 @@ std::vector<std::shared_ptr<GoldenPattern>> XMLConfigReader::readPatterns(const 
     if(nElem<1){
       edm::LogError("critical")<<"Problem parsing XML file "<<patternsFile<<std::endl;
       edm::LogError("critical")<<"No GoldenPattern items: GP found"<<std::endl;
-      return aGPs;
+      return;
     }
     
     DOMNode *aNode = nullptr;
@@ -194,7 +198,7 @@ std::vector<std::shared_ptr<GoldenPattern>> XMLConfigReader::readPatterns(const 
 	///Patterns XML format backward compatibility. Can use both packed by 4, or by 1 XML files.      
 	if(aGPElement->getAttributeNode(xmliPt[index-1])) {
 	  aGP = buildGP(aGPElement, aConfig, index, iGPNumber);
-	  if(aGP){	  
+	  if(aGP){
 	    aGPs.emplace_back(std::move(aGP));
 	    iGPNumber++;
 	  }
@@ -208,10 +212,8 @@ std::vector<std::shared_ptr<GoldenPattern>> XMLConfigReader::readPatterns(const 
 	  break;
 	}
       }
-    }
-    
+    }    
     // Reset the documents vector pool and release all the associated memory back to the system.
-  //parser->resetDocumentPool();
     parser.resetDocumentPool();
   }
   XMLString::release(&xmlGP);
@@ -219,11 +221,7 @@ std::vector<std::shared_ptr<GoldenPattern>> XMLConfigReader::readPatterns(const 
   XMLString::release(&xmliPt[1]);
   XMLString::release(&xmliPt[2]);
   XMLString::release(&xmliPt[3]);
-
-
   XMLPlatformUtils::Terminate();
-
-  return aGPs;
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
@@ -255,8 +253,7 @@ std::unique_ptr<GoldenPattern> XMLConfigReader::buildGP(DOMElement* aGPElement,
   int iCharge = std::atoi(_toString(aGPElement->getAttribute(xmliCharge)).c_str());
   int val = 0;
   unsigned int nLayers = aGPElement->getElementsByTagName(xmlLayer)->getLength();
-  assert(nLayers==(unsigned) aConfig.nLayers());
-
+  
   DOMNode *aNode = nullptr;
   DOMElement* aLayerElement = nullptr;
   DOMElement* aItemElement = nullptr;
@@ -278,6 +275,8 @@ std::unique_ptr<GoldenPattern> XMLConfigReader::buildGP(DOMElement* aGPElement,
     aGP->setPdf(pdf3D);
     return aGP;
   }
+
+  assert(nLayers==(unsigned) aConfig.nLayers());
   
   ///Loop over layers
   for(unsigned int iLayer=0;iLayer<nLayers;++iLayer){
@@ -425,6 +424,9 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
     unsigned int nLayers =  std::atoi(_toString(aElement->getAttribute(xmlnLayers)).c_str());
     unsigned int nRefLayers =  std::atoi(_toString(aElement->getAttribute(xmlnRefLayers)).c_str());
     unsigned int nGoldenPatterns =  std::atoi(_toString(aElement->getAttribute(xmlnGoldenPatterns)).c_str());
+
+    
+    std::cout<<"configFile: "<<configFile<<" nGoldenPatterns: "<<nGoldenPatterns<<std::endl;
     
     std::vector<int> paramsVec(L1TMuonOverlapParams::GENERAL_NCONFIG);
     paramsVec[L1TMuonOverlapParams::GENERAL_ADDRBITS] = nPdfAddrBits;
@@ -469,7 +471,6 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
     aConfig->setConnectedSectorsStart(sectorsStart);
     aConfig->setConnectedSectorsEnd(sectorsEnd);
     
-    
     ///hw <-> logic numbering map
     std::vector<L1TMuonOverlapParams::LayerMapNode> aLayerMapVec;
     L1TMuonOverlapParams::LayerMapNode aLayerMapNode;
@@ -507,7 +508,7 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
       aRefLayerMapVec.push_back(aRefLayerNode);
     }
     aConfig->setRefLayerMap(aRefLayerMapVec);
-    
+
     std::vector<int> aGlobalPhiStartVec(nProcessors*nRefLayers);
     
     std::vector<L1TMuonOverlapParams::RefHitNode> aRefHitMapVec(nProcessors*nRefHits);
@@ -558,7 +559,7 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
       ///////////
       unsigned int nElem2 = aProcessorElement->getElementsByTagName(xmlLogicRegion)->getLength();
       assert( (iProcessor==0 && nElem2==nLogicRegions) || (iProcessor!=0 && nElem2==0) );
-      DOMElement* aRegionElement = nullptr;
+      DOMElement* aRegionElement = nullptr;      
       for(unsigned int ii=0;ii<nElem2;++ii){
 	aNode = aProcessorElement->getElementsByTagName(xmlLogicRegion)->item(ii);
 	aRegionElement = static_cast<DOMElement *>(aNode); 
@@ -577,7 +578,7 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
 	  aLayerInputNode.nInputs = nInputs;
 	  for (unsigned int iProcessor=0; iProcessor<nProcessors; ++iProcessor) aLayerInputMapVec[iLayer + iRegion*nLayers + iProcessor*nLayers*nLogicRegions] = aLayerInputNode;
 	}
-      }   
+      }        
     }
     
     aConfig->setGlobalPhiStartMap(aGlobalPhiStartVec);

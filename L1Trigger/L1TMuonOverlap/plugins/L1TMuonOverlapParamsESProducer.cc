@@ -22,7 +22,6 @@ L1TMuonOverlapParamsESProducer::L1TMuonOverlapParamsESProducer(const edm::Parame
   if (!theConfig.exists("configXMLFile") ) return;
   std::string fName = theConfig.getParameter<edm::FileInPath>("configXMLFile").fullPath();
   
-  ///WARNING: filling the CondFormats objects works only for a single XML patterns file.
   if (!theConfig.exists("patternsXMLFiles") ) return;
   std::vector<std::string> fileNames;
   for(auto it: theConfig.getParameter<std::vector<edm::ParameterSet> >("patternsXMLFiles")){
@@ -32,11 +31,9 @@ L1TMuonOverlapParamsESProducer::L1TMuonOverlapParamsESProducer(const edm::Parame
   XMLConfigReader myReader;
   myReader.setConfigFile(fName);
   readConnectionsXML(myReader);
-  
-  for(auto it: fileNames){
-    myReader.setPatternsFile(it);
-    readPatternsXML(myReader);
-  }
+
+  myReader.setPatternsFiles(fileNames);
+  readPatternsXML(myReader);
 
   unsigned int patternsVersion = myReader.getPatternsVersion();
   unsigned int fwVersion =  params.fwVersion();
@@ -82,6 +79,8 @@ bool L1TMuonOverlapParamsESProducer::readPatternsXML(XMLConfigReader & aReader){
 L1TMuonOverlapParamsESProducer::ReturnType
 L1TMuonOverlapParamsESProducer::produceParams(const L1TMuonOverlapParamsRcd& iRecord)
 {
+   using namespace edm::es;
+  
    return std::make_unique<L1TMuonOverlapParams>(params);
 }
 ///////////////////////////////////////////////////////////////////

@@ -161,13 +161,11 @@ unsigned int OMTFinputMaker::getInputNumber(unsigned int rawId,
       ///Set roll number by hand to keep common input 
       ///number shift formula for all stations
       if(rpc.station()==2 && rpc.layer()==2 && rpc.roll()==2) iRoll = 1;
-      ///Only one roll from station 3 is connected.
-      if(rpc.station()==3){
+      ///Only one roll from station 3 is connected for omtf
+      if(rpc.station()==3 && type!=l1t::tftype::bmtf){
 	iRoll = 1;
 	nInputsPerSector = 2;
       }
-      ///At the moment do not use RPC chambers splitting into rolls for bmtf part      
-      if(type==l1t::tftype::bmtf)iRoll = 1;
     }
     if(rpc.region()!=0){
       aSector = (rpc.sector()-1)*6+rpc.subsector();

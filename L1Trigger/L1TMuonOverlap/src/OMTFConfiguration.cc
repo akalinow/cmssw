@@ -45,7 +45,7 @@ std::ostream & operator << (std::ostream &out, const  RefHitDef & aRefHitDef){
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 void OMTFConfiguration::initCounterMatrices(){
-  
+
   ///Vector of all inputs
   std::vector<int> aLayer1D(nInputs(),0);
 
@@ -79,7 +79,7 @@ void OMTFConfiguration::configure(const L1TMuonOverlapParams *omtfParams){
 
   const std::vector<int> *connectedSectorsStartVec =  omtfParams->connectedSectorsStart();
   const std::vector<int> *connectedSectorsEndVec =  omtfParams->connectedSectorsEnd();
-
+  
   std::copy(connectedSectorsStartVec->begin(), connectedSectorsStartVec->begin()+6, barrelMin.begin());  
   std::copy(connectedSectorsStartVec->begin()+6, connectedSectorsStartVec->begin()+12, endcap10DegMin.begin());
   std::copy(connectedSectorsStartVec->begin()+12, connectedSectorsStartVec->end(), endcap20DegMin.begin());
@@ -87,7 +87,7 @@ void OMTFConfiguration::configure(const L1TMuonOverlapParams *omtfParams){
   std::copy(connectedSectorsEndVec->begin(), connectedSectorsEndVec->begin()+6, barrelMax.begin());
   std::copy(connectedSectorsEndVec->begin()+6, connectedSectorsEndVec->begin()+12, endcap10DegMax.begin());
   std::copy(connectedSectorsEndVec->begin()+12, connectedSectorsEndVec->end(), endcap20DegMax.begin());
-
+  
   ///Set connections tables
   const std::vector<L1TMuonOverlapParams::LayerMapNode> *layerMap = omtfParams->layerMap();
 
@@ -211,6 +211,20 @@ bool OMTFConfiguration::isInRegionRange(int iPhiStart,
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
+unsigned int OMTFConfiguration::getRegionNumberFromRange(int iPhi) const {
+
+  int iPhiStart = 0;
+  int coneSize = 150;
+  for(unsigned int iRegion=0;iRegion<nLogicRegions();++iRegion){
+    int iPhiStartRegion = iPhiStart + iRegion*coneSize; 
+    bool isInRange = isInRegionRange(iPhiStartRegion, coneSize, iPhi);
+    if(isInRange) return iRegion;
+  }
+
+  return 99;
+}
+///////////////////////////////////////////////
+///////////////////////////////////////////////
 unsigned int OMTFConfiguration::getRegionNumberFromMap(unsigned int iInput,
 						       unsigned int iRefLayer,						       
 						       int iPhi) const {
@@ -222,6 +236,20 @@ unsigned int OMTFConfiguration::getRegionNumberFromMap(unsigned int iInput,
   }
 
   return 99;
+}
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+int OMTFConfiguration::etaRange(int iEta) const{
+
+  double floatEta = std::abs(iEta)/240.0*2.61;
+ 
+  if(floatEta<0.2) return 0;
+  else if(floatEta<0.5) return 1;
+  else if(floatEta<0.83) return 2;
+  else if(floatEta<1.23) return 3;
+  else return 4;
+
+  return 0;
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////

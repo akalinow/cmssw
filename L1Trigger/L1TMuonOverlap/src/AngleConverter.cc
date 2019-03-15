@@ -132,15 +132,16 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
   double hsPhiPitch = 2*M_PI/nPhiBins; // width of phi Pitch, related to halfStrip at CSC station 2
   const int dummy = nPhiBins;
   int processor= iProcessor+1;                           // FIXME: get from OMTF name when available
-  int posneg = (part==l1t::tftype::omtf_pos) ? 1 : -1;        // FIXME: get from OMTF name
+  //AK int posneg = (part==l1t::tftype::omtf_pos) ? 1 : -1;        // FIXME: get from OMTF name
+  
 
   int sector  = digi.scNum()+1;   //NOTE: there is a inconsistency in DT sector numb. Thus +1 needed to get detector numb.
-  int wheel   = digi.whNum();
-  int station = digi.stNum();
+  //AK int wheel   = digi.whNum();
+  //AK int station = digi.stNum();
   int phiDT   = digi.phi();
 
-  if (posneg*2 != wheel) return dummy;
-  if (station > 3 ) return dummy;
+  //AK if (posneg*2 != wheel) return dummy;
+  //AK if (station > 3 ) return dummy;
 
   //FIXME: update the following two lines with proper method when Connections introduced
   if (processor !=6 && !(sector >= processor*2-1 && sector <= processor*2+1) ) return dummy;
@@ -154,6 +155,7 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
   double scale = 1./4096/hsPhiPitch;
   int scale_coeff = lround(scale* pow(2,11));
 //  int phi = static_cast<int>(phiDT*scale) + offsetLoc;
+
   int phi = floor(phiDT*scale_coeff/pow(2,11)) + offsetLoc;
 
   return phi;
@@ -293,19 +295,22 @@ int AngleConverter::getGlobalEta(unsigned int rawid,
   // TODO:::::>>> need to make sure this ordering doesn't flip under wheel sign
   const int NBTI_theta = ( (baseid.station() != 4) ?  trig_geom->nCell(2) : trig_geom->nCell(3) );
 
-//  const int bti_group = findBTIgroup(aDigi,dtThDigis);
-//  const unsigned bti_actual = bti_group*NBTI_theta/7 + NBTI_theta/14 + 1;
-//  DTBtiId thetaBTI;
-//  if ( baseid.station() != 4 && bti_group != -1) {
-//    thetaBTI = DTBtiId(baseid,2,bti_actual);
-//  } else {
-//    // since this is phi oriented it'll give us theta in the middle
-//    // of the chamber
-//    thetaBTI = DTBtiId(baseid,3,1);
-//  }
-//  const GlobalPoint theta_gp = trig_geom->CMSPosition(thetaBTI);
-//  int iEta = theta_gp.eta()/2.61*240;
-//  return iEta;
+  {
+  const int bti_group = findBTIgroup(aDigi,dtThDigis);
+  const unsigned bti_actual = bti_group*NBTI_theta/7 + NBTI_theta/14 + 1;
+  DTBtiId thetaBTI;
+  if ( baseid.station() != 4 && bti_group != -1) {
+    thetaBTI = DTBtiId(baseid,2,bti_actual);
+  } else {
+    // since this is phi oriented it'll give us theta in the middle
+    // of the chamber
+    thetaBTI = DTBtiId(baseid,3,1);
+  }
+  const GlobalPoint theta_gp = trig_geom->CMSPosition(thetaBTI);
+  int iEtaGeom = theta_gp.eta()/2.61*240;
+  return iEtaGeom;
+  }
+  //return iEta;
 
   const L1MuDTChambThDigi *theta_segm = dtThDigis->chThetaSegm(aDigi.whNum(), aDigi.stNum(), aDigi.scNum(), aDigi.bxNum());
   int bti_group = -1;
@@ -418,9 +423,9 @@ int AngleConverter::getGlobalEta(unsigned int rawid, const unsigned int &strip){
   const GlobalPoint gp = roll->toGlobal(lp);
   roll.release();
 
-  return etaVal2Code(gp.eta());
-//  float iEta = gp.eta()/2.61*240;
-//  return iEta;
+  //AK return etaVal2Code(gp.eta());
+  float iEta = gp.eta()/2.61*240;//AK
+  return iEta;//AK
 
 } 
 ///////////////////////////////////////
