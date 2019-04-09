@@ -127,7 +127,11 @@ std::ostream & operator << (std::ostream &out, const OMTFinput & aInput){
 for(unsigned int iLogicLayer=0;iLogicLayer<aInput.measurementsPhi.size();++iLogicLayer){
     out<<"Logic layer: "<<iLogicLayer<<" Hits: ";
     for(unsigned int iHit=0;iHit<aInput.measurementsPhi[iLogicLayer].size();++iHit){
-      out<<aInput.measurementsPhi[iLogicLayer][iHit]<<"\t";
+      out<<aInput.measurementsPhi[iLogicLayer][iHit];
+      if(aInput.measurementsPhi[iLogicLayer][iHit]<5400){
+      out<<"("<<aInput.measurementsEta[iLogicLayer][iHit]/240.0*2.61<<")\t";
+      }
+      else out<<"\t";
     }
     out<<std::endl;
   }

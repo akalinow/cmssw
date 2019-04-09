@@ -71,19 +71,20 @@ void XMLConfigReader::readLUTs(std::vector<l1t::LUT*> luts,const L1TMuonOverlapP
     const std::string &type=types[i];
     
     std::stringstream strStream;
-    int totalInWidth = 7;//Number of bits used to address LUT
+    int totalInWidth = 8;//Number of bits used to address LUT //AK was 7
     int outWidth = 6;//Number of bits used to store LUT value
     
     if(type=="iCharge") outWidth = 1;
-    if(type=="iEta") outWidth = 2;
+    if(type=="iEta") outWidth = 3;//AK was 2
     if(type=="iPt") outWidth = 9;
     if(type=="meanDistPhi"){
       outWidth = 11;
-      totalInWidth = 14;
+      totalInWidth = 16;//AK was 14
     }
     if(type=="pdf"){
+      std::cout<<__FUNCTION__<<" aGPs.size(): "<<aGPs.size()<<std::endl;
       outWidth = 6;
-      totalInWidth = 21;
+      totalInWidth = 23;//AK was 21
     }
     
     ///Prepare the header 
@@ -253,6 +254,10 @@ std::unique_ptr<GoldenPattern> XMLConfigReader::buildGP(DOMElement* aGPElement,
   int iCharge = std::atoi(_toString(aGPElement->getAttribute(xmliCharge)).c_str());
   int val = 0;
   unsigned int nLayers = aGPElement->getElementsByTagName(xmlLayer)->getLength();
+
+  ///TEST
+  //if(iEta<4 || iEta>6 || iPt==0) return 0;
+  ////
   
   DOMNode *aNode = nullptr;
   DOMElement* aLayerElement = nullptr;
@@ -424,9 +429,6 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
     unsigned int nLayers =  std::atoi(_toString(aElement->getAttribute(xmlnLayers)).c_str());
     unsigned int nRefLayers =  std::atoi(_toString(aElement->getAttribute(xmlnRefLayers)).c_str());
     unsigned int nGoldenPatterns =  std::atoi(_toString(aElement->getAttribute(xmlnGoldenPatterns)).c_str());
-
-    
-    std::cout<<"configFile: "<<configFile<<" nGoldenPatterns: "<<nGoldenPatterns<<std::endl;
     
     std::vector<int> paramsVec(L1TMuonOverlapParams::GENERAL_NCONFIG);
     paramsVec[L1TMuonOverlapParams::GENERAL_ADDRBITS] = nPdfAddrBits;

@@ -174,6 +174,7 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
 
   // filter out chambers not connected to OMTF board
   // FIXME: temporary - use Connections or relay that filtering done before.
+  /* AK
   if (posneg != csc.zendcap()) return dummy;
   if ( csc.ring() != 3 && !(csc.ring()==2 && (csc.station()==2 || csc.station()==3 || csc.station()==1)) ) return dummy;
   if (processor !=6) {
@@ -182,7 +183,9 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
   } else {
     if (csc.chamber() > 2 && csc.chamber() < 32) return dummy;
   }
+*/
 
+  
   //
   // assign number 0..6, consecutive processor for a processor
   //
@@ -407,11 +410,11 @@ int AngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi 
 //  int station = (id.endcap()==1) ? id.station() : -id.station();
 //  std::cout <<"ETA_CSC: " << station <<" "<<id.ring()<<" "<< final_gp.eta()<<" "<<keyWG <<" "<< etaKeyWG2Code(id,keyWG) << std::endl;
 
-   return etaKeyWG2Code(id,keyWG);
+  //AK return etaKeyWG2Code(id,keyWG);
 
 // return etaVal2Code( final_gp.eta() );
-// int iEta =  final_gp.eta()/2.61*240;
-// return iEta;  
+  int iEta =  final_gp.eta()/2.61*240;//AK
+  return iEta;  //AK
 }
 ///////////////////////////////////////
 ///////////////////////////////////////

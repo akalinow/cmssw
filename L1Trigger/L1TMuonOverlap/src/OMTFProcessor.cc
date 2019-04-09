@@ -59,7 +59,7 @@ bool OMTFProcessor::configure(const OMTFConfiguration * omtfConfig,
     address = iGP;
     iEta = etaLUT->data(address);
     iCharge = chargeLUT->data(address)==0? -1:1;
-    iPt = ptLUT->data(address);
+    iPt = ptLUT->data(address);    
     GoldenPattern::vector2D meanDistPhi2D(myOmtfConfig->nLayers());
     GoldenPattern::vector1D pdf1D(exp2(myOmtfConfig->nPdfAddrBits()));
     GoldenPattern::vector3D pdf3D(myOmtfConfig->nLayers());
@@ -86,10 +86,11 @@ bool OMTFProcessor::configure(const OMTFConfiguration * omtfConfig,
       pdf3D[iLayer] = pdf2D;
     }
     Key aKey(iEta,iPt,iCharge, iGP);
+    std::cout<<aKey<<std::endl;
     GoldenPattern *aGP = new GoldenPattern(aKey, myOmtfConfig);
     aGP->setMeanDistPhi(meanDistPhi2D);
     aGP->setPdf(pdf3D);
-    addGP(aGP);  
+    addGP(aGP);
   }
   return true;
 }
@@ -231,10 +232,12 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
       const RefHitDef & aRefHitDef = myOmtfConfig->getRefHitsDefs()[iProcessor][iRefHit];
       int phiRef = aInput.getLayerData(myOmtfConfig->getRefToLogicNumber()[aRefHitDef.iRefLayer])[aRefHitDef.iInput];
       int etaRef = aInput.getLayerData(myOmtfConfig->getRefToLogicNumber()[aRefHitDef.iRefLayer],true)[aRefHitDef.iInput];
+      int etaRegion = myOmtfConfig->etaRange(etaRef);
       unsigned int iRegion = aRefHitDef.iRegion;
       if(myOmtfConfig->getBendingLayers().count(iLayer)) phiRef = 0;
       const OMTFinput::vector1D restrictedLayerHits = restrictInput(iProcessor, iRegion, iLayer,layerHits);
       for(auto itGP: theGPs){
+	if(itGP.first.theEtaCode!=etaRegion) continue;
       	GoldenPattern::layerResult aLayerResult = itGP.second->process1Layer1RefLayer(aRefHitDef.iRefLayer,iLayer,
       										      phiRef,
       										      restrictedLayerHits);             
@@ -249,6 +252,12 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
   //////////////////////////////////////
   ////////////////////////////////////// 
   for(auto & itRefHit: myResults) for(auto & itKey: itRefHit) itKey.second.finalise();
+  /*
+  for(auto & itRefHit: myResults) for(auto & itKey: itRefHit){
+      std::cout<<itKey.first<<std::endl;
+      std::cout<<itKey.second<<std::endl;
+    }
+  */
 
   std::ostringstream myStr;
   myStr<<"iProcessor: "<<iProcessor<<std::endl;
@@ -284,8 +293,6 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
 
   int theCharge = (abs(aSimMuon->type()) == 13) ? aSimMuon->type()/-13 : 0; 
   unsigned int  iPt =  RPCConst::iptFromPt(aSimMuon->momentum().pt());
-  int iEta = std::abs(aSimMuon->momentum().eta())*240/2.61;
-  int etaRegion = myOmtfConfig->etaRange(iEta);
   ///Stupid conersion. Have to go through PAC pt scale, as we later
   ///shift resulting pt code by +1
   iPt+=1;
@@ -310,7 +317,9 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
     for(unsigned int iRefHit=0;iRefHit<myOmtfConfig->nRefHits();++iRefHit){
       if(!refHitsBits[iRefHit]) continue;
       const RefHitDef & aRefHitDef = myOmtfConfig->getRefHitsDefs()[iProcessor][iRefHit];
-      int phiRef = aInput.getLayerData(myOmtfConfig->getRefToLogicNumber()[aRefHitDef.iRefLayer])[aRefHitDef.iInput]; 
+      int phiRef = aInput.getLayerData(myOmtfConfig->getRefToLogicNumber()[aRefHitDef.iRefLayer])[aRefHitDef.iInput];
+      int etaRef = aInput.getLayerData(myOmtfConfig->getRefToLogicNumber()[aRefHitDef.iRefLayer], true)[aRefHitDef.iInput];
+      int etaRegion = myOmtfConfig->etaRange(etaRef);
       unsigned int iRegion = aRefHitDef.iRegion;
       if(myOmtfConfig->getBendingLayers().count(iLayer)) phiRef = 0;
       const OMTFinput::vector1D restrictedLayerHits = restrictInput(iProcessor, iRegion, iLayer,layerHits);
@@ -342,6 +351,9 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
 
       }            
       for(auto itGP: theGPs){
+
+	std::cout<<"etaRegion: "<<etaRegion<<" itGP.first.theEtaCode: "<<itGP.first.theEtaCode<<std::endl;
+	
 	if(itGP.first.theCharge!=theCharge) continue;
 	if(itGP.first.thePtCode!=iPt) continue;
 	if(itGP.first.theEtaCode!=etaRegion) continue;

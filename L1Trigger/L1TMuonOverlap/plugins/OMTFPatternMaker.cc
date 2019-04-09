@@ -257,25 +257,39 @@ void OMTFPatternMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if(!theConfig.getParameter<bool>("dropRPCPrimitives")) iEvent.getByToken(inputTokenRPC,rpcDigis);  
   if(!theConfig.getParameter<bool>("dropCSCPrimitives")) iEvent.getByToken(inputTokenCSC,cscDigis);
 
-  l1t::tftype mtfType = l1t::tftype::bmtf;
+  //l1t::tftype mtfType = l1t::tftype::bmtf;
   //l1t::tftype mtfType = l1t::tftype::omtf_pos;
-  //l1t::tftype mtfType = l1t::tftype::emtf_pos;
+  l1t::tftype mtfTypePos = l1t::tftype::emtf_pos;
+  l1t::tftype mtfTypeNeg = l1t::tftype::emtf_neg;
  
   ///Loop over all processors, each covering 60 deg in phi
   for(unsigned int iProcessor=0;iProcessor<6;++iProcessor){
     ///Input data with phi ranges shifted for each processor, so it fits 11 bits range
-    OMTFinput myInput = myInputMaker->buildInputForProcessor(dtPhDigis.product(),
-							     dtThDigis.product(),
-							     cscDigis.product(),
-							     rpcDigis.product(),								       
-							     iProcessor,
-							     mtfType);
+    OMTFinput myInputPos = myInputMaker->buildInputForProcessor(dtPhDigis.product(),
+								dtThDigis.product(),
+								cscDigis.product(),
+								rpcDigis.product(),								       
+								iProcessor,
+								mtfTypePos);
+
+    OMTFinput myInputNeg = myInputMaker->buildInputForProcessor(dtPhDigis.product(),
+								dtThDigis.product(),
+								cscDigis.product(),
+								rpcDigis.product(),								       
+								iProcessor,
+								mtfTypeNeg);
+
     ///Connections maps are made by hand. makeConnetionsMap method
     ///provides tables for checking their consistency.
-    if(makeConnectionsMaps) myOMTFConfigMaker->makeConnetionsMap(iProcessor,myInput);
-  
-    if(makeGoldenPatterns) myOMTF->fillCounts(iProcessor,myInput, aSimMuon);
-    
+    if(makeConnectionsMaps){
+      myOMTFConfigMaker->makeConnetionsMap(iProcessor,myInputPos);
+      myOMTFConfigMaker->makeConnetionsMap(iProcessor,myInputNeg);
+    }
+    ///  
+    if(makeGoldenPatterns){
+      myOMTF->fillCounts(iProcessor, myInputPos, aSimMuon);
+      myOMTF->fillCounts(iProcessor, myInputNeg, aSimMuon);
+    }
   }
 }
 /////////////////////////////////////////////////////

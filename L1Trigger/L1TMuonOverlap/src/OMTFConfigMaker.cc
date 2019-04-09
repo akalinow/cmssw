@@ -39,7 +39,8 @@ void OMTFConfigMaker::fillPhiMaps(unsigned int iProcessor,
     for(unsigned int iInput=0;iInput<myOmtfConfig->nInputs();++iInput){	
       int phiRef = refLayerHits[iInput];            
       if(phiRef>=(int)myOmtfConfig->nPhiBins()) continue;      
-      unsigned int iRegion = myOmtfConfig->getRegionNumberFromRange(phiRef);      
+      unsigned int iRegion = myOmtfConfig->getRegionNumberFromRange(phiRef);
+      if(iRegion==99) continue;      
       if(phiRef<minRefPhi2D[iRefLayer][iRegion]) minRefPhi2D[iRefLayer][iRegion] = phiRef;      
       if(phiRef>maxRefPhi2D[iRefLayer][iRegion]) maxRefPhi2D[iRefLayer][iRegion] = phiRef;      
     }
@@ -81,7 +82,7 @@ void OMTFConfigMaker::makeConnetionsMap(unsigned int iProcessor,
     //////////////////////
     for(unsigned int iInput=0;iInput<refLayerHits.size();++iInput){
       int phiRef = refLayerHits[iInput];
-      //unsigned int iRegion = myOmtfConfig->getRegionNumberFromMap(iInput,iRefLayer,phiRef);
+      if(phiRef>=(int)myOmtfConfig->nPhiBins()) continue;
       unsigned int iRegion = myOmtfConfig->getRegionNumberFromRange(phiRef);
       if(iRegion>=myOmtfConfig->nLogicRegions()) continue;      
       fillInputRange(iProcessor,iRegion,aInput);

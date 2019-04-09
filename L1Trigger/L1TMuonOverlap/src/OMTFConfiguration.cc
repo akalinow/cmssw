@@ -246,8 +246,11 @@ int OMTFConfiguration::etaRange(int iEta) const{
   if(floatEta<0.2) return 0;
   else if(floatEta<0.5) return 1;
   else if(floatEta<0.83) return 2;
-  else if(floatEta<1.23) return 3;
-  else return 4;
+  else if(floatEta<1.24) return 3;
+  else if(floatEta<1.35) return 4;
+  else if(floatEta<1.45) return 5;
+  else if(floatEta<1.6) return 6;
+  else return 7;
 
   return 0;
 }
@@ -278,6 +281,9 @@ uint32_t OMTFConfiguration::getLayerNumber(uint32_t rawId) const {
     if(isBarrel) aLayer = aId.station() <=2  ? 
 		   2*( aId.station()-1)+ aId.layer() 
 		   : aId.station()+2;
+
+    else if(!isBarrel && aId.ring()<3) aLayer = aId.station()+4;//a stupid numbering convention 
+    
     else aLayer = aId.station(); 
     aLayer+= 10*(!isBarrel);
     break;
@@ -296,8 +302,7 @@ uint32_t OMTFConfiguration::getLayerNumber(uint32_t rawId) const {
   }
   }  
 
-  int hwNumber = aLayer+100*detId.subdetId();
-
+  int hwNumber = aLayer+100*detId.subdetId();  
   return hwNumber;
 }
 ///////////////////////////////////////////////

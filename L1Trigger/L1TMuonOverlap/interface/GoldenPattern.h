@@ -20,7 +20,7 @@ Key(int iEta=99, unsigned int iPt=0, int iCharge= 0, unsigned int iNumber=999):
   inline bool operator< (const Key & o) const {return (theNumber < o.theNumber);}
    
   bool operator==(const Key& o) const {
-    return theEtaCode==o.theEtaCode && thePtCode==o.thePtCode && theCharge==o.theCharge && theNumber==o.theNumber;
+    return theEtaCode==o.theEtaCode && thePtCode==o.thePtCode && theCharge==o.theCharge;//AK && theNumber==o.theNumber;
   }
   
   friend std::ostream & operator << (std::ostream &out, const Key & o) {

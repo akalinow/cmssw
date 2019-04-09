@@ -48,7 +48,7 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
   switch (detId.subdetId()) {
   case MuonSubdetId::RPC: {
     RPCDetId aId(rawId);
-    
+
     ///Select RPC chambers connected to OMTF
     if(type==l1t::tftype::omtf_pos &&
        (aId.region()<0 ||
@@ -74,12 +74,13 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
     
     if(type==l1t::tftype::bmtf && aId.region()!=0) return false;
     
-    if(type==l1t::tftype::emtf_pos &&
-        (aId.region()<=0 ||
-	(aId.station()==1 && aId.ring()==3))) return false;
-    if(type==l1t::tftype::emtf_neg &&
-        (aId.region()>=0 ||
-	(aId.station()==1 && aId.ring()==3))) return false;
+    if(type==l1t::tftype::emtf_pos || type==l1t::tftype::emtf_neg){
+      if(type==l1t::tftype::emtf_pos && aId.region()!=1) return false;
+      if(type==l1t::tftype::emtf_neg && aId.region()!=-1) return false;
+      if((aId.ring()==1) ||
+	 (aId.station()==1 && aId.ring()==3) ||
+	 (aId.station()==2 && aId.ring()==3)) return false;
+    }
     ////////////////
     if(aId.region()==0) aSector = aId.sector();
     if(aId.region()!=0){
@@ -87,7 +88,6 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
       aMin = myOmtfConfig->getEndcap10DegMin()[iProcessor];
       aMax = myOmtfConfig->getEndcap10DegMax()[iProcessor];
     }
-   
     break;
   }
   case MuonSubdetId::DT: {
@@ -102,19 +102,20 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
   }
   case MuonSubdetId::CSC: {
 
-    CSCDetId csc(rawId);    
+    CSCDetId csc(rawId);
+    
     if(type==l1t::tftype::omtf_pos &&
        (csc.endcap()==2 || csc.ring()==1 || csc.station()==4)) return false;
     if(type==l1t::tftype::omtf_neg &&
        (csc.endcap()==1 || csc.ring()==1 || csc.station()==4)) return false;
-
+    
     if(type==l1t::tftype::emtf_pos &&
-       (csc.endcap()==2 || (csc.station()==1 && csc.ring()==3))
+       (csc.endcap()==2 || csc.ring()!=2)
        ) return false;
     if(type==l1t::tftype::emtf_neg &&
-       (csc.endcap()==1 || (csc.station()==1 && csc.ring()==3))
+       (csc.endcap()==1 || csc.ring()!=2)
        ) return false;
-
+    
     aSector =  csc.chamber();   	
     aMin = myOmtfConfig->getEndcap10DegMin()[iProcessor];
     aMax = myOmtfConfig->getEndcap10DegMax()[iProcessor];
@@ -125,9 +126,8 @@ bool  OMTFinputMaker::acceptDigi(uint32_t rawId,
       aMax = myOmtfConfig->getEndcap20DegMax()[iProcessor];
     }
     break;
-  }    
   }
-  
+  }  
   if(aMax>aMin && aSector>=aMin && aSector<=aMax) return true;
   if(aMax<aMin && (aSector>=aMin || aSector<=aMax)) return true;
 
@@ -280,21 +280,17 @@ OMTFinput OMTFinputMaker::processCSC(const CSCCorrelatedLCTDigiCollection *cscDi
     for( ; digi != dend; ++digi ) {
 
       ///Check if LCT trigger primitive has the right BX.
-      if (digi->getBX()-CSCConstants::LCT_CENTRAL_BX != bxTrg) continue;
+      if (digi->getBX()-6 != bxTrg) continue;//AK hack
+      //if (digi->getBX()-CSCConstants::LCT_CENTRAL_BX != bxTrg) continue;
 
       unsigned int hwNumber = myOmtfConfig->getLayerNumber(rawid);
       if(myOmtfConfig->getHwToLogicLayer().find(hwNumber)==myOmtfConfig->getHwToLogicLayer().end()) continue;
 
       unsigned int iLayer = myOmtfConfig->getHwToLogicLayer().at(hwNumber);      
       int iPhi = myAngleConverter.getProcessorPhi(iProcessor, type, CSCDetId(rawid), *digi);
-      int iEta = myAngleConverter.getGlobalEta(rawid, *digi);
-      ///Accept CSC digis only up to eta=1.26.
-      ///The nominal OMTF range is up to 1.24, but cutting at 1.24
-      ///kill efficnency at the edge. 1.26 is one eta bin above nominal.
-      //if(abs(iEta)>1.26/2.61*240) continue;
-      //if (abs(iEta) > 115) continue;
+      int iEta = myAngleConverter.getGlobalEta(rawid, *digi);       
       unsigned int iInput= getInputNumber(rawid, iProcessor, type);      
-//    std::cout <<" ADDING CSC hit, proc: "<<iProcessor<<" iPhi : " << iPhi <<" iEta: "<< iEta << std::endl; 
+      //std::cout <<" ADDING CSC hit, proc: "<<iProcessor<<" iPhi : " << iPhi <<" iEta: "<< iEta << " iInput: "<<iInput<<std::endl; 
       bool allowOverwrite = false;
       result.addLayerHit(iLayer,iInput,iPhi,iEta,allowOverwrite);     
     }
@@ -327,8 +323,8 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
     ///NOTE: when copying I select only digis with bx==       //FIXME: find a better place/way to filtering digi against quality/BX etc.
 //  for (auto tdigi = rollDigis.second.first; tdigi != rollDigis.second.second; tdigi++) { std::cout << "RPC DIGIS: " << roll.rawId()<< " "<<roll<<" digi: " << tdigi->strip() <<" bx: " << tdigi->bx() << std::endl; }
     std::vector<RPCDigi> digisCopy;
-//  std::copy_if(rollDigis.second.first, rollDigis.second.second, std::back_inserter(digisCopy), [](const RPCDigi & aDigi){return (aDigi.bx()==0);} );
-    for (auto pDigi=rollDigis.second.first; pDigi != rollDigis.second.second; pDigi++) { if (pDigi->bx()==bxTrg) digisCopy.push_back( *pDigi); }
+//  std::copy_if(rollDigis.second.first, rollDigis.second.second, std::back_inserter(digisCopy), [](const RPCDigi & aDigi){return (aDigi.bx()==0);} );    
+    for (auto pDigi=rollDigis.second.first; pDigi != rollDigis.second.second; pDigi++) if (pDigi->bx()==bxTrg) digisCopy.push_back( *pDigi);
     std::sort(digisCopy.begin(),digisCopy.end(),rpcPrimitiveCmp);
     typedef std::pair<unsigned int, unsigned int> Cluster;
     std::vector<Cluster> clusters;
@@ -349,8 +345,8 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
       unsigned int hwNumber = myOmtfConfig->getLayerNumber(rawid);
       unsigned int iLayer = myOmtfConfig->getHwToLogicLayer().at(hwNumber);
       unsigned int iInput= getInputNumber(rawid, iProcessor, type);
-//      std::cout <<"ADDING HIT: iLayer = " << iLayer << " iInput: " << iInput << " iPhi: " << iPhi << std::endl;
-      if (iLayer==17 && (iInput==0 || iInput==1)) continue;  // FIXME (MK) there is no RPC link for that input, because it is taken by DAQ link
+      //std::cout <<"ADDING HIT: iLayer = " << iLayer << " iInput: " << iInput << " iPhi: " << iPhi << std::endl;
+      //AK hack if (iLayer==17 && (iInput==0 || iInput==1)) continue;  // FIXME (MK) there is no RPC link for that input, because it is taken by DAQ link
       bool outres = 
         result.addLayerHit(iLayer,iInput,iPhi,iEta);
 //      if (cSize>2) flag |= 2;
