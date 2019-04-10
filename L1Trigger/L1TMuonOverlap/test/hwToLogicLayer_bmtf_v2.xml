@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OMTF xmlns:xi="http://www.w3.org/2001/XInclude" version="0x0011">
+
+<GlobalData nPdfAddrBits="7" nPdfValBits="6" nHitsPerLayer="8" nPhiBits="11" nPhiBins="5400" nRefHits="192" nTestRefHits="8" nProcessors="6" nLogicRegions="6" nInputs="14" nLayers="14" nRefLayers="8" nGoldenPatterns="162"/>
+
+<ConnectionMap iProcessor="0" barrelMin="1"  barrelMax="3"  endcap10DegMin="2"  endcap10DegMax="8"  endcap20DegMin="1" endcap20DegMax="4"/>
+<ConnectionMap iProcessor="1" barrelMin="3"  barrelMax="5"  endcap10DegMin="8"  endcap10DegMax="14" endcap20DegMin="4" endcap20DegMax="7"/>
+<ConnectionMap iProcessor="2" barrelMin="5"  barrelMax="7"  endcap10DegMin="14" endcap10DegMax="20" endcap20DegMin="7" endcap20DegMax="10"/>
+<ConnectionMap iProcessor="3" barrelMin="7"  barrelMax="9"  endcap10DegMin="20" endcap10DegMax="26" endcap20DegMin="10" endcap20DegMax="13"/>
+<ConnectionMap iProcessor="4" barrelMin="9"  barrelMax="11" endcap10DegMin="26" endcap10DegMax="32" endcap20DegMin="13" endcap20DegMax="16"/>
+<ConnectionMap iProcessor="5" barrelMin="11" barrelMax="1"  endcap10DegMin="32" endcap10DegMax="2"  endcap20DegMin="16" endcap20DegMax="1"/>
+
+<LayerMap hwName = "MB1"    hwNumber = "101"  logicNumber = "0"  bendingLayer = "0" connectedToLayer="1"/>
+<LayerMap hwName = "MB1b"   hwNumber = "1101" logicNumber = "1"  bendingLayer = "1" connectedToLayer="0"/>
+<LayerMap hwName = "MB2"    hwNumber = "102"  logicNumber = "2"  bendingLayer = "0" connectedToLayer="3"/>
+<LayerMap hwName = "MB2b"   hwNumber = "1102" logicNumber = "3"  bendingLayer = "1" connectedToLayer="2"/>
+<LayerMap hwName = "MB3"    hwNumber = "103"  logicNumber = "4"  bendingLayer = "0" connectedToLayer="5"/>
+<LayerMap hwName = "MB3b"   hwNumber = "1103" logicNumber = "5"  bendingLayer = "1" connectedToLayer="4"/>
+<LayerMap hwName = "MB4"    hwNumber = "104"  logicNumber = "6"  bendingLayer = "0" connectedToLayer="7"/>
+<LayerMap hwName = "MB4b"   hwNumber = "1104" logicNumber = "7"  bendingLayer = "1" connectedToLayer="6"/>
+<LayerMap hwName = "RB1in"  hwNumber = "301"  logicNumber = "8" bendingLayer = "0" connectedToLayer="8"/>
+<LayerMap hwName = "RB1out" hwNumber = "302"  logicNumber = "9" bendingLayer = "0" connectedToLayer="9"/>
+<LayerMap hwName = "RB2in"  hwNumber = "303"  logicNumber = "10" bendingLayer = "0" connectedToLayer="10"/>
+<LayerMap hwName = "RB2out" hwNumber = "304"  logicNumber = "11" bendingLayer = "0" connectedToLayer="11"/>
+<LayerMap hwName = "RB3"    hwNumber = "305"  logicNumber = "12" bendingLayer = "0" connectedToLayer="12"/>
+<LayerMap hwName = "RB4"    hwNumber = "306"  logicNumber = "13" bendingLayer = "0" connectedToLayer="13"/>
+
+<RefLayerMap refLayer="0" logicNumber ="0"/>
+<RefLayerMap refLayer="1" logicNumber ="8"/>
+<RefLayerMap refLayer="2" logicNumber ="9"/>
+<RefLayerMap refLayer="3" logicNumber ="2"/>
+<RefLayerMap refLayer="4" logicNumber ="10"/>
+<RefLayerMap refLayer="5" logicNumber ="11"/>
+<RefLayerMap refLayer="6" logicNumber ="4"/>
+<RefLayerMap refLayer="7" logicNumber ="12"/>
+
+  <Processor iProcessor="0">
+    <RefLayer iGlobalPhiStart="354" iRefLayer="0"/>
+    <RefLayer iGlobalPhiStart="235" iRefLayer="1"/>
+    <RefLayer iGlobalPhiStart="230" iRefLayer="2"/>
+    <RefLayer iGlobalPhiStart="258" iRefLayer="3"/>
+    <RefLayer iGlobalPhiStart="242" iRefLayer="4"/>
+    <RefLayer iGlobalPhiStart="295" iRefLayer="5"/>
+    <RefLayer iGlobalPhiStart="338" iRefLayer="6"/>
+    <RefLayer iGlobalPhiStart="340" iRefLayer="7"/>
+    <RefHit iInput="0" iPhiMax="149" iPhiMin="0" iRefHit="0" iRefLayer="0" iRegion="0"/>
+    <RefHit iInput="1" iPhiMax="149" iPhiMin="0" iRefHit="1" iRefLayer="0" iRegion="0"/>
+    <RefHit iInput="2" iPhiMax="149" iPhiMin="0" iRefHit="2" iRefLayer="0" iRegion="0"/>
+    <RefHit iInput="3" iPhiMax="149" iPhiMin="0" iRefHit="3" iRefLayer="0" iRegion="0"/>
+    <RefHit iInput="2" iPhiMax="299" iPhiMin="150" iRefHit="4" iRefLayer="0" iRegion="1"/>
+    <RefHit iInput="3" iPhiMax="299" iPhiMin="150" iRefHit="5" iRefLayer="0" iRegion="1"/>
+    <RefHit iInput="2" iPhiMax="449" iPhiMin="300" iRefHit="6" iRefLayer="0" iRegion="2"/>
+    <RefHit iInput="3" iPhiMax="449" iPhiMin="300" iRefHit="7" iRefLayer="0" iRegion="2"/>
+    <RefHit iInput="2" iPhiMax="599" iPhiMin="450" iRefHit="8" iRefLayer="0" iRegion="3"/>
+    <RefHit iInput="3" iPhiMax="599" iPhiMin="450" iRefHit="9" iRefLayer="0" iRegion="3"/>
+    <RefHit iInput="4" iPhiMax="599" iPhiMin="450" iRefHit="10" iRefLayer="0" iRegion="3"/>
+    <RefHit iInput="5" iPhiMax="599" iPhiMin="450" iRefHit="11" iRefLayer="0" iRegion="3"/>
+    <RefHit iInput="4" iPhiMax="749" iPhiMin="600" iRefHit="12" iRefLayer="0" iRegion="4"/>
+    <RefHit iInput="5" iPhiMax="749" iPhiMin="600" iRefHit="13" iRefLayer="0" iRegion="4"/>
+    <RefHit iInput="4" iPhiMax="899" iPhiMin="750" iRefHit="14" iRefLayer="0" iRegion="5"/>
+    <RefHit iInput="5" iPhiMax="899" iPhiMin="750" iRefHit="15" iRefLayer="0" iRegion="5"/>
+    <RefHit iInput="0" iPhiMax="149" iPhiMin="0" iRefHit="16" iRefLayer="1" iRegion="0"/>
+    <RefHit iInput="1" iPhiMax="149" iPhiMin="0" iRefHit="17" iRefLayer="1" iRegion="0"/>
+    <RefHit iInput="2" iPhiMax="149" iPhiMin="0" iRefHit="18" iRefLayer="1" iRegion="0"/>
+    <RefHit iInput="3" iPhiMax="149" iPhiMin="0" iRefHit="19" iRefLayer="1" iRegion="0"/>
+    <RefHit iInput="4" iPhiMax="149" iPhiMin="0" iRefHit="20" iRefLayer="1" iRegion="0"/>
+    <RefHit iInput="5" iPhiMax="149" iPhiMin="0" iRefHit="21" iRefLayer="1" iRegion="0"/>
+    <RefHit iInput="6" iPhiMax="149" iPhiMin="0" iRefHit="22" iRefLayer="1" iRegion="0"/>
+    <RefHit iInput="7" iPhiMax="149" iPhiMin="0" iRefHit="23" iRefLayer="1" iRegion="0"/>
+    <RefHit iInput="4" iPhiMax="299" iPhiMin="150" iRefHit="24" iRefLayer="1" iRegion="1"/>
+    <RefHit iInput="5" iPhiMax="299" iPhiMin="150" iRefHit="25" iRefLayer="1" iRegion="1"/>
+    <RefHit iInput="6" iPhiMax="299" iPhiMin="150" iRefHit="26" iRefLayer="1" iRegion="1"/>
+    <RefHit iInput="7" iPhiMax="299" iPhiMin="150" iRefHit="27" iRefLayer="1" iRegion="1"/>
+    <RefHit iInput="4" iPhiMax="449" iPhiMin="300" iRefHit="28" iRefLayer="1" iRegion="2"/>
+    <RefHit iInput="5" iPhiMax="449" iPhiMin="300" iRefHit="29" iRefLayer="1" iRegion="2"/>
+    <RefHit iInput="6" iPhiMax="449" iPhiMin="300" iRefHit="30" iRefLayer="1" iRegion="2"/>
+    <RefHit iInput="7" iPhiMax="449" iPhiMin="300" iRefHit="31" iRefLayer="1" iRegion="2"/>
+    <RefHit iInput="4" iPhiMax="599" iPhiMin="450" iRefHit="32" iRefLayer="1" iRegion="3"/>
+    <RefHit iInput="5" iPhiMax="599" iPhiMin="450" iRefHit="33" iRefLayer="1" iRegion="3"/>
+    <RefHit iInput="6" iPhiMax="599" iPhiMin="450" iRefHit="34" iRefLayer="1" iRegion="3"/>
+    <RefHit iInput="7" iPhiMax="599" iPhiMin="450" iRefHit="35" iRefLayer="1" iRegion="3"/>
+    <RefHit iInput="8" iPhiMax="599" iPhiMin="450" iRefHit="36" iRefLayer="1" iRegion="3"/>
+    <RefHit iInput="9" iPhiMax="599" iPhiMin="450" iRefHit="37" iRefLayer="1" iRegion="3"/>
+    <RefHit iInput="10" iPhiMax="599" iPhiMin="450" iRefHit="38" iRefLayer="1" iRegion="3"/>
+    <RefHit iInput="11" iPhiMax="599" iPhiMin="450" iRefHit="39" iRefLayer="1" iRegion="3"/>
+    <RefHit iInput="8" iPhiMax="749" iPhiMin="600" iRefHit="40" iRefLayer="1" iRegion="4"/>
+    <RefHit iInput="9" iPhiMax="749" iPhiMin="600" iRefHit="41" iRefLayer="1" iRegion="4"/>
+    <RefHit iInput="10" iPhiMax="749" iPhiMin="600" iRefHit="42" iRefLayer="1" iRegion="4"/>
+    <RefHit iInput="11" iPhiMax="749" iPhiMin="600" iRefHit="43" iRefLayer="1" iRegion="4"/>
+    <RefHit iInput="8" iPhiMax="899" iPhiMin="750" iRefHit="44" iRefLayer="1" iRegion="5"/>
+    <RefHit iInput="9" iPhiMax="899" iPhiMin="750" iRefHit="45" iRefLayer="1" iRegion="5"/>
+    <RefHit iInput="10" iPhiMax="899" iPhiMin="750" iRefHit="46" iRefLayer="1" iRegion="5"/>
+    <RefHit iInput="11" iPhiMax="899" iPhiMin="750" iRefHit="47" iRefLayer="1" iRegion="5"/>
+    <RefHit iInput="0" iPhiMax="149" iPhiMin="0" iRefHit="48" iRefLayer="2" iRegion="0"/>
+    <RefHit iInput="1" iPhiMax="149" iPhiMin="0" iRefHit="49" iRefLayer="2" iRegion="0"/>
+    <RefHit iInput="2" iPhiMax="149" iPhiMin="0" iRefHit="50" iRefLayer="2" iRegion="0"/>
+    <RefHit iInput="3" iPhiMax="149" iPhiMin="0" iRefHit="51" iRefLayer="2" iRegion="0"/>
+    <RefHit iInput="4" iPhiMax="149" iPhiMin="0" iRefHit="52" iRefLayer="2" iRegion="0"/>
+    <RefHit iInput="5" iPhiMax="149" iPhiMin="0" iRefHit="53" iRefLayer="2" iRegion="0"/>
+    <RefHit iInput="6" iPhiMax="149" iPhiMin="0" iRefHit="54" iRefLayer="2" iRegion="0"/>
+    <RefHit iInput="7" iPhiMax="149" iPhiMin="0" iRefHit="55" iRefLayer="2" iRegion="0"/>
+    <RefHit iInput="4" iPhiMax="299" iPhiMin="150" iRefHit="56" iRefLayer="2" iRegion="1"/>
+    <RefHit iInput="5" iPhiMax="299" iPhiMin="150" iRefHit="57" iRefLayer="2" iRegion="1"/>
+    <RefHit iInput="6" iPhiMax="299" iPhiMin="150" iRefHit="58" iRefLayer="2" iRegion="1"/>
+    <RefHit iInput="7" iPhiMax="299" iPhiMin="150" iRefHit="59" iRefLayer="2" iRegion="1"/>
+    <RefHit iInput="4" iPhiMax="449" iPhiMin="300" iRefHit="60" iRefLayer="2" iRegion="2"/>
+    <RefHit iInput="5" iPhiMax="449" iPhiMin="300" iRefHit="61" iRefLayer="2" iRegion="2"/>
+    <RefHit iInput="6" iPhiMax="449" iPhiMin="300" iRefHit="62" iRefLayer="2" iRegion="2"/>
+    <RefHit iInput="7" iPhiMax="449" iPhiMin="300" iRefHit="63" iRefLayer="2" iRegion="2"/>
+    <RefHit iInput="4" iPhiMax="599" iPhiMin="450" iRefHit="64" iRefLayer="2" iRegion="3"/>
+    <RefHit iInput="5" iPhiMax="599" iPhiMin="450" iRefHit="65" iRefLayer="2" iRegion="3"/>
+    <RefHit iInput="6" iPhiMax="599" iPhiMin="450" iRefHit="66" iRefLayer="2" iRegion="3"/>
+    <RefHit iInput="7" iPhiMax="599" iPhiMin="450" iRefHit="67" iRefLayer="2" iRegion="3"/>
+    <RefHit iInput="8" iPhiMax="599" iPhiMin="450" iRefHit="68" iRefLayer="2" iRegion="3"/>
+    <RefHit iInput="9" iPhiMax="599" iPhiMin="450" iRefHit="69" iRefLayer="2" iRegion="3"/>
+    <RefHit iInput="10" iPhiMax="599" iPhiMin="450" iRefHit="70" iRefLayer="2" iRegion="3"/>
+    <RefHit iInput="11" iPhiMax="599" iPhiMin="450" iRefHit="71" iRefLayer="2" iRegion="3"/>
+    <RefHit iInput="8" iPhiMax="749" iPhiMin="600" iRefHit="72" iRefLayer="2" iRegion="4"/>
+    <RefHit iInput="9" iPhiMax="749" iPhiMin="600" iRefHit="73" iRefLayer="2" iRegion="4"/>
+    <RefHit iInput="10" iPhiMax="749" iPhiMin="600" iRefHit="74" iRefLayer="2" iRegion="4"/>
+    <RefHit iInput="11" iPhiMax="749" iPhiMin="600" iRefHit="75" iRefLayer="2" iRegion="4"/>
+    <RefHit iInput="8" iPhiMax="899" iPhiMin="750" iRefHit="76" iRefLayer="2" iRegion="5"/>
+    <RefHit iInput="9" iPhiMax="899" iPhiMin="750" iRefHit="77" iRefLayer="2" iRegion="5"/>
+    <RefHit iInput="10" iPhiMax="899" iPhiMin="750" iRefHit="78" iRefLayer="2" iRegion="5"/>
+    <RefHit iInput="11" iPhiMax="899" iPhiMin="750" iRefHit="79" iRefLayer="2" iRegion="5"/>
+    <RefHit iInput="2" iPhiMax="149" iPhiMin="0" iRefHit="80" iRefLayer="3" iRegion="0"/>
+    <RefHit iInput="3" iPhiMax="149" iPhiMin="0" iRefHit="81" iRefLayer="3" iRegion="0"/>
+    <RefHit iInput="2" iPhiMax="299" iPhiMin="150" iRefHit="82" iRefLayer="3" iRegion="1"/>
+    <RefHit iInput="3" iPhiMax="299" iPhiMin="150" iRefHit="83" iRefLayer="3" iRegion="1"/>
+    <RefHit iInput="2" iPhiMax="449" iPhiMin="300" iRefHit="84" iRefLayer="3" iRegion="2"/>
+    <RefHit iInput="3" iPhiMax="449" iPhiMin="300" iRefHit="85" iRefLayer="3" iRegion="2"/>
+    <RefHit iInput="4" iPhiMax="599" iPhiMin="450" iRefHit="86" iRefLayer="3" iRegion="3"/>
+    <RefHit iInput="5" iPhiMax="599" iPhiMin="450" iRefHit="87" iRefLayer="3" iRegion="3"/>
+    <RefHit iInput="4" iPhiMax="749" iPhiMin="600" iRefHit="88" iRefLayer="3" iRegion="4"/>
+    <RefHit iInput="5" iPhiMax="749" iPhiMin="600" iRefHit="89" iRefLayer="3" iRegion="4"/>
+    <RefHit iInput="4" iPhiMax="899" iPhiMin="750" iRefHit="90" iRefLayer="3" iRegion="5"/>
+    <RefHit iInput="5" iPhiMax="899" iPhiMin="750" iRefHit="91" iRefLayer="3" iRegion="5"/>
+    <RefHit iInput="4" iPhiMax="149" iPhiMin="0" iRefHit="92" iRefLayer="4" iRegion="0"/>
+    <RefHit iInput="5" iPhiMax="149" iPhiMin="0" iRefHit="93" iRefLayer="4" iRegion="0"/>
+    <RefHit iInput="6" iPhiMax="149" iPhiMin="0" iRefHit="94" iRefLayer="4" iRegion="0"/>
+    <RefHit iInput="7" iPhiMax="149" iPhiMin="0" iRefHit="95" iRefLayer="4" iRegion="0"/>
+    <RefHit iInput="4" iPhiMax="299" iPhiMin="150" iRefHit="96" iRefLayer="4" iRegion="1"/>
+    <RefHit iInput="5" iPhiMax="299" iPhiMin="150" iRefHit="97" iRefLayer="4" iRegion="1"/>
+    <RefHit iInput="6" iPhiMax="299" iPhiMin="150" iRefHit="98" iRefLayer="4" iRegion="1"/>
+    <RefHit iInput="7" iPhiMax="299" iPhiMin="150" iRefHit="99" iRefLayer="4" iRegion="1"/>
+    <RefHit iInput="4" iPhiMax="449" iPhiMin="300" iRefHit="100" iRefLayer="4" iRegion="2"/>
+    <RefHit iInput="5" iPhiMax="449" iPhiMin="300" iRefHit="101" iRefLayer="4" iRegion="2"/>
+    <RefHit iInput="6" iPhiMax="449" iPhiMin="300" iRefHit="102" iRefLayer="4" iRegion="2"/>
+    <RefHit iInput="7" iPhiMax="449" iPhiMin="300" iRefHit="103" iRefLayer="4" iRegion="2"/>
+    <RefHit iInput="9" iPhiMax="449" iPhiMin="300" iRefHit="104" iRefLayer="4" iRegion="2"/>
+    <RefHit iInput="8" iPhiMax="599" iPhiMin="450" iRefHit="105" iRefLayer="4" iRegion="3"/>
+    <RefHit iInput="9" iPhiMax="599" iPhiMin="450" iRefHit="106" iRefLayer="4" iRegion="3"/>
+    <RefHit iInput="10" iPhiMax="599" iPhiMin="450" iRefHit="107" iRefLayer="4" iRegion="3"/>
+    <RefHit iInput="11" iPhiMax="599" iPhiMin="450" iRefHit="108" iRefLayer="4" iRegion="3"/>
+    <RefHit iInput="8" iPhiMax="749" iPhiMin="600" iRefHit="109" iRefLayer="4" iRegion="4"/>
+    <RefHit iInput="9" iPhiMax="749" iPhiMin="600" iRefHit="110" iRefLayer="4" iRegion="4"/>
+    <RefHit iInput="10" iPhiMax="749" iPhiMin="600" iRefHit="111" iRefLayer="4" iRegion="4"/>
+    <RefHit iInput="11" iPhiMax="749" iPhiMin="600" iRefHit="112" iRefLayer="4" iRegion="4"/>
+    <RefHit iInput="8" iPhiMax="899" iPhiMin="750" iRefHit="113" iRefLayer="4" iRegion="5"/>
+    <RefHit iInput="9" iPhiMax="899" iPhiMin="750" iRefHit="114" iRefLayer="4" iRegion="5"/>
+    <RefHit iInput="10" iPhiMax="899" iPhiMin="750" iRefHit="115" iRefLayer="4" iRegion="5"/>
+    <RefHit iInput="11" iPhiMax="899" iPhiMin="750" iRefHit="116" iRefLayer="4" iRegion="5"/>
+    <RefHit iInput="4" iPhiMax="149" iPhiMin="0" iRefHit="117" iRefLayer="5" iRegion="0"/>
+    <RefHit iInput="5" iPhiMax="149" iPhiMin="0" iRefHit="118" iRefLayer="5" iRegion="0"/>
+    <RefHit iInput="6" iPhiMax="149" iPhiMin="0" iRefHit="119" iRefLayer="5" iRegion="0"/>
+    <RefHit iInput="7" iPhiMax="149" iPhiMin="0" iRefHit="120" iRefLayer="5" iRegion="0"/>
+    <RefHit iInput="4" iPhiMax="299" iPhiMin="150" iRefHit="121" iRefLayer="5" iRegion="1"/>
+    <RefHit iInput="5" iPhiMax="299" iPhiMin="150" iRefHit="122" iRefLayer="5" iRegion="1"/>
+    <RefHit iInput="6" iPhiMax="299" iPhiMin="150" iRefHit="123" iRefLayer="5" iRegion="1"/>
+    <RefHit iInput="7" iPhiMax="299" iPhiMin="150" iRefHit="124" iRefLayer="5" iRegion="1"/>
+    <RefHit iInput="4" iPhiMax="449" iPhiMin="300" iRefHit="125" iRefLayer="5" iRegion="2"/>
+    <RefHit iInput="5" iPhiMax="449" iPhiMin="300" iRefHit="126" iRefLayer="5" iRegion="2"/>
+    <RefHit iInput="6" iPhiMax="449" iPhiMin="300" iRefHit="127" iRefLayer="5" iRegion="2"/>
+    <RefHit iInput="7" iPhiMax="449" iPhiMin="300" iRefHit="128" iRefLayer="5" iRegion="2"/>
+    <RefHit iInput="8" iPhiMax="599" iPhiMin="450" iRefHit="129" iRefLayer="5" iRegion="3"/>
+    <RefHit iInput="9" iPhiMax="599" iPhiMin="450" iRefHit="130" iRefLayer="5" iRegion="3"/>
+    <RefHit iInput="10" iPhiMax="599" iPhiMin="450" iRefHit="131" iRefLayer="5" iRegion="3"/>
+    <RefHit iInput="11" iPhiMax="599" iPhiMin="450" iRefHit="132" iRefLayer="5" iRegion="3"/>
+    <RefHit iInput="8" iPhiMax="749" iPhiMin="600" iRefHit="133" iRefLayer="5" iRegion="4"/>
+    <RefHit iInput="9" iPhiMax="749" iPhiMin="600" iRefHit="134" iRefLayer="5" iRegion="4"/>
+    <RefHit iInput="10" iPhiMax="749" iPhiMin="600" iRefHit="135" iRefLayer="5" iRegion="4"/>
+    <RefHit iInput="11" iPhiMax="749" iPhiMin="600" iRefHit="136" iRefLayer="5" iRegion="4"/>
+    <RefHit iInput="8" iPhiMax="899" iPhiMin="750" iRefHit="137" iRefLayer="5" iRegion="5"/>
+    <RefHit iInput="9" iPhiMax="899" iPhiMin="750" iRefHit="138" iRefLayer="5" iRegion="5"/>
+    <RefHit iInput="10" iPhiMax="899" iPhiMin="750" iRefHit="139" iRefLayer="5" iRegion="5"/>
+    <RefHit iInput="11" iPhiMax="899" iPhiMin="750" iRefHit="140" iRefLayer="5" iRegion="5"/>
+    <RefHit iInput="0" iPhiMax="149" iPhiMin="0" iRefHit="141" iRefLayer="6" iRegion="0"/>
+    <RefHit iInput="1" iPhiMax="149" iPhiMin="0" iRefHit="142" iRefLayer="6" iRegion="0"/>
+    <RefHit iInput="2" iPhiMax="149" iPhiMin="0" iRefHit="143" iRefLayer="6" iRegion="0"/>
+    <RefHit iInput="3" iPhiMax="149" iPhiMin="0" iRefHit="144" iRefLayer="6" iRegion="0"/>
+    <RefHit iInput="2" iPhiMax="299" iPhiMin="150" iRefHit="145" iRefLayer="6" iRegion="1"/>
+    <RefHit iInput="3" iPhiMax="299" iPhiMin="150" iRefHit="146" iRefLayer="6" iRegion="1"/>
+    <RefHit iInput="2" iPhiMax="449" iPhiMin="300" iRefHit="147" iRefLayer="6" iRegion="2"/>
+    <RefHit iInput="3" iPhiMax="449" iPhiMin="300" iRefHit="148" iRefLayer="6" iRegion="2"/>
+    <RefHit iInput="2" iPhiMax="599" iPhiMin="450" iRefHit="149" iRefLayer="6" iRegion="3"/>
+    <RefHit iInput="3" iPhiMax="599" iPhiMin="450" iRefHit="150" iRefLayer="6" iRegion="3"/>
+    <RefHit iInput="4" iPhiMax="599" iPhiMin="450" iRefHit="151" iRefLayer="6" iRegion="3"/>
+    <RefHit iInput="5" iPhiMax="599" iPhiMin="450" iRefHit="152" iRefLayer="6" iRegion="3"/>
+    <RefHit iInput="4" iPhiMax="749" iPhiMin="600" iRefHit="153" iRefLayer="6" iRegion="4"/>
+    <RefHit iInput="5" iPhiMax="749" iPhiMin="600" iRefHit="154" iRefLayer="6" iRegion="4"/>
+    <RefHit iInput="4" iPhiMax="899" iPhiMin="750" iRefHit="155" iRefLayer="6" iRegion="5"/>
+    <RefHit iInput="5" iPhiMax="899" iPhiMin="750" iRefHit="156" iRefLayer="6" iRegion="5"/>
+    <RefHit iInput="4" iPhiMax="149" iPhiMin="0" iRefHit="157" iRefLayer="7" iRegion="0"/>
+    <RefHit iInput="5" iPhiMax="149" iPhiMin="0" iRefHit="158" iRefLayer="7" iRegion="0"/>
+    <RefHit iInput="6" iPhiMax="149" iPhiMin="0" iRefHit="159" iRefLayer="7" iRegion="0"/>
+    <RefHit iInput="7" iPhiMax="149" iPhiMin="0" iRefHit="160" iRefLayer="7" iRegion="0"/>
+    <RefHit iInput="4" iPhiMax="299" iPhiMin="150" iRefHit="161" iRefLayer="7" iRegion="1"/>
+    <RefHit iInput="5" iPhiMax="299" iPhiMin="150" iRefHit="162" iRefLayer="7" iRegion="1"/>
+    <RefHit iInput="6" iPhiMax="299" iPhiMin="150" iRefHit="163" iRefLayer="7" iRegion="1"/>
+    <RefHit iInput="7" iPhiMax="299" iPhiMin="150" iRefHit="164" iRefLayer="7" iRegion="1"/>
+    <RefHit iInput="4" iPhiMax="449" iPhiMin="300" iRefHit="165" iRefLayer="7" iRegion="2"/>
+    <RefHit iInput="5" iPhiMax="449" iPhiMin="300" iRefHit="166" iRefLayer="7" iRegion="2"/>
+    <RefHit iInput="6" iPhiMax="449" iPhiMin="300" iRefHit="167" iRefLayer="7" iRegion="2"/>
+    <RefHit iInput="7" iPhiMax="449" iPhiMin="300" iRefHit="168" iRefLayer="7" iRegion="2"/>
+    <RefHit iInput="4" iPhiMax="599" iPhiMin="450" iRefHit="169" iRefLayer="7" iRegion="3"/>
+    <RefHit iInput="5" iPhiMax="599" iPhiMin="450" iRefHit="170" iRefLayer="7" iRegion="3"/>
+    <RefHit iInput="6" iPhiMax="599" iPhiMin="450" iRefHit="171" iRefLayer="7" iRegion="3"/>
+    <RefHit iInput="7" iPhiMax="599" iPhiMin="450" iRefHit="172" iRefLayer="7" iRegion="3"/>
+    <RefHit iInput="8" iPhiMax="599" iPhiMin="450" iRefHit="173" iRefLayer="7" iRegion="3"/>
+    <RefHit iInput="9" iPhiMax="599" iPhiMin="450" iRefHit="174" iRefLayer="7" iRegion="3"/>
+    <RefHit iInput="10" iPhiMax="599" iPhiMin="450" iRefHit="175" iRefLayer="7" iRegion="3"/>
+    <RefHit iInput="11" iPhiMax="599" iPhiMin="450" iRefHit="176" iRefLayer="7" iRegion="3"/>
+    <RefHit iInput="8" iPhiMax="749" iPhiMin="600" iRefHit="177" iRefLayer="7" iRegion="4"/>
+    <RefHit iInput="9" iPhiMax="749" iPhiMin="600" iRefHit="178" iRefLayer="7" iRegion="4"/>
+    <RefHit iInput="10" iPhiMax="749" iPhiMin="600" iRefHit="179" iRefLayer="7" iRegion="4"/>
+    <RefHit iInput="11" iPhiMax="749" iPhiMin="600" iRefHit="180" iRefLayer="7" iRegion="4"/>
+    <RefHit iInput="8" iPhiMax="899" iPhiMin="750" iRefHit="181" iRefLayer="7" iRegion="5"/>
+    <RefHit iInput="9" iPhiMax="899" iPhiMin="750" iRefHit="182" iRefLayer="7" iRegion="5"/>
+    <RefHit iInput="10" iPhiMax="899" iPhiMin="750" iRefHit="183" iRefLayer="7" iRegion="5"/>
+    <RefHit iInput="11" iPhiMax="899" iPhiMin="750" iRefHit="184" iRefLayer="7" iRegion="5"/>
+    <RefHit iInput="0" iPhiMax="1" iPhiMin="0" iRefHit="185" iRefLayer="0" iRegion="0"/>
+    <RefHit iInput="0" iPhiMax="1" iPhiMin="0" iRefHit="186" iRefLayer="0" iRegion="0"/>
+    <RefHit iInput="0" iPhiMax="1" iPhiMin="0" iRefHit="187" iRefLayer="0" iRegion="0"/>
+    <RefHit iInput="0" iPhiMax="1" iPhiMin="0" iRefHit="188" iRefLayer="0" iRegion="0"/>
+    <RefHit iInput="0" iPhiMax="1" iPhiMin="0" iRefHit="189" iRefLayer="0" iRegion="0"/>
+    <RefHit iInput="0" iPhiMax="1" iPhiMin="0" iRefHit="190" iRefLayer="0" iRegion="0"/>
+    <RefHit iInput="0" iPhiMax="1" iPhiMin="0" iRefHit="191" iRefLayer="0" iRegion="0"/>
+    <LogicRegion iRegion="0">
+      <Layer iFirstInput="0" iLayer="0" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="1" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="2" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="3" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="4" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="5" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="6" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="7" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="8" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="9" nInputs="8"/>
+      <Layer iFirstInput="3" iLayer="10" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="11" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="12" nInputs="8"/>
+      <Layer iFirstInput="4" iLayer="13" nInputs="8"/>
+    </LogicRegion>
+    <LogicRegion iRegion="1">
+      <Layer iFirstInput="0" iLayer="0" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="1" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="2" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="3" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="4" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="5" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="6" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="7" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="8" nInputs="8"/>
+      <Layer iFirstInput="4" iLayer="9" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="10" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="11" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="12" nInputs="8"/>
+      <Layer iFirstInput="4" iLayer="13" nInputs="8"/>
+    </LogicRegion>
+    <LogicRegion iRegion="2">
+      <Layer iFirstInput="0" iLayer="0" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="1" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="2" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="3" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="4" nInputs="8"/>
+      <Layer iFirstInput="0" iLayer="5" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="6" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="7" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="8" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="9" nInputs="8"/>
+      <Layer iFirstInput="3" iLayer="10" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="11" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="12" nInputs="8"/>
+      <Layer iFirstInput="6" iLayer="13" nInputs="8"/>
+    </LogicRegion>
+    <LogicRegion iRegion="3">
+      <Layer iFirstInput="2" iLayer="0" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="1" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="2" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="3" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="4" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="5" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="6" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="7" nInputs="8"/>
+      <Layer iFirstInput="6" iLayer="8" nInputs="8"/>
+      <Layer iFirstInput="6" iLayer="9" nInputs="8"/>
+      <Layer iFirstInput="7" iLayer="10" nInputs="8"/>
+      <Layer iFirstInput="8" iLayer="11" nInputs="8"/>
+      <Layer iFirstInput="8" iLayer="12" nInputs="8"/>
+      <Layer iFirstInput="8" iLayer="13" nInputs="8"/>
+    </LogicRegion>
+    <LogicRegion iRegion="4">
+      <Layer iFirstInput="2" iLayer="0" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="1" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="2" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="3" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="4" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="5" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="6" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="7" nInputs="8"/>
+      <Layer iFirstInput="8" iLayer="8" nInputs="8"/>
+      <Layer iFirstInput="6" iLayer="9" nInputs="8"/>
+      <Layer iFirstInput="6" iLayer="10" nInputs="8"/>
+      <Layer iFirstInput="6" iLayer="11" nInputs="8"/>
+      <Layer iFirstInput="6" iLayer="12" nInputs="8"/>
+      <Layer iFirstInput="6" iLayer="13" nInputs="8"/>
+    </LogicRegion>
+    <LogicRegion iRegion="5">
+      <Layer iFirstInput="2" iLayer="0" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="1" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="2" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="3" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="4" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="5" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="6" nInputs="8"/>
+      <Layer iFirstInput="2" iLayer="7" nInputs="8"/>
+      <Layer iFirstInput="6" iLayer="8" nInputs="8"/>
+      <Layer iFirstInput="6" iLayer="9" nInputs="8"/>
+      <Layer iFirstInput="6" iLayer="10" nInputs="8"/>
+      <Layer iFirstInput="6" iLayer="11" nInputs="8"/>
+      <Layer iFirstInput="6" iLayer="12" nInputs="8"/>
+      <Layer iFirstInput="6" iLayer="13" nInputs="8"/>
+    </LogicRegion>
+  </Processor>
+
+  <Processor iProcessor="1">
+    <RefLayer iGlobalPhiStart="1313" iRefLayer="0"/>
+    <RefLayer iGlobalPhiStart="1195" iRefLayer="1"/>
+    <RefLayer iGlobalPhiStart="1190" iRefLayer="2"/>
+    <RefLayer iGlobalPhiStart="1218" iRefLayer="3"/>
+    <RefLayer iGlobalPhiStart="1202" iRefLayer="4"/>
+    <RefLayer iGlobalPhiStart="1255" iRefLayer="5"/>
+    <RefLayer iGlobalPhiStart="1298" iRefLayer="6"/>
+    <RefLayer iGlobalPhiStart="1300" iRefLayer="7"/>
+  </Processor>
+
+  <Processor iProcessor="2">
+    <RefLayer iGlobalPhiStart="2274" iRefLayer="0"/>
+    <RefLayer iGlobalPhiStart="2155" iRefLayer="1"/>
+    <RefLayer iGlobalPhiStart="2150" iRefLayer="2"/>
+    <RefLayer iGlobalPhiStart="2179" iRefLayer="3"/>
+    <RefLayer iGlobalPhiStart="2162" iRefLayer="4"/>
+    <RefLayer iGlobalPhiStart="2215" iRefLayer="5"/>
+    <RefLayer iGlobalPhiStart="2258" iRefLayer="6"/>
+    <RefLayer iGlobalPhiStart="2260" iRefLayer="7"/>
+  </Processor>
+
+  <Processor iProcessor="3">
+    <RefLayer iGlobalPhiStart="-2526" iRefLayer="0"/>
+    <RefLayer iGlobalPhiStart="-2644" iRefLayer="1"/>
+    <RefLayer iGlobalPhiStart="-2649" iRefLayer="2"/>
+    <RefLayer iGlobalPhiStart="-2621" iRefLayer="3"/>
+    <RefLayer iGlobalPhiStart="-2637" iRefLayer="4"/>
+    <RefLayer iGlobalPhiStart="-2584" iRefLayer="5"/>
+    <RefLayer iGlobalPhiStart="-2541" iRefLayer="6"/>
+    <RefLayer iGlobalPhiStart="-2539" iRefLayer="7"/>
+  </Processor>
+
+  <Processor iProcessor="4">
+    <RefLayer iGlobalPhiStart="-1566" iRefLayer="0"/>
+    <RefLayer iGlobalPhiStart="-1684" iRefLayer="1"/>
+    <RefLayer iGlobalPhiStart="-1689" iRefLayer="2"/>
+    <RefLayer iGlobalPhiStart="-1661" iRefLayer="3"/>
+    <RefLayer iGlobalPhiStart="-1677" iRefLayer="4"/>
+    <RefLayer iGlobalPhiStart="-1624" iRefLayer="5"/>
+    <RefLayer iGlobalPhiStart="-1581" iRefLayer="6"/>
+    <RefLayer iGlobalPhiStart="-1579" iRefLayer="7"/>
+  </Processor>
+
+  <Processor iProcessor="5">
+    <RefLayer iGlobalPhiStart="-606" iRefLayer="0"/>
+    <RefLayer iGlobalPhiStart="-724" iRefLayer="1"/>
+    <RefLayer iGlobalPhiStart="-729" iRefLayer="2"/>
+    <RefLayer iGlobalPhiStart="-701" iRefLayer="3"/>
+    <RefLayer iGlobalPhiStart="-717" iRefLayer="4"/>
+    <RefLayer iGlobalPhiStart="-664" iRefLayer="5"/>
+    <RefLayer iGlobalPhiStart="-621" iRefLayer="6"/>
+    <RefLayer iGlobalPhiStart="-619" iRefLayer="7"/>
+  </Processor>
+
+</OMTF>

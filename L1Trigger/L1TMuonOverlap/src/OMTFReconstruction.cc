@@ -112,20 +112,20 @@ std::unique_ptr<l1t::RegionalMuonCandBxCollection> OMTFReconstruction::reconstru
     for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)
       getProcessorCandidates(iProcessor, l1t::tftype::bmtf, bx, *candidates);
     */
-    /*
+    
     for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)
       getProcessorCandidates(iProcessor, l1t::tftype::emtf_pos, bx, *candidates);
 
     for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)
       getProcessorCandidates(iProcessor, l1t::tftype::emtf_neg, bx, *candidates);    
-    */
     
+    /*
     for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)
       getProcessorCandidates(iProcessor, l1t::tftype::omtf_pos, bx, *candidates);
 
     for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)
       getProcessorCandidates(iProcessor, l1t::tftype::omtf_neg, bx, *candidates);
-    
+    */
     edm::LogInfo("OMTFReconstruction") <<"OMTF:  Number of candidates in BX="<<bx<<": "<<candidates->size(bx) << std::endl;      
   }
 

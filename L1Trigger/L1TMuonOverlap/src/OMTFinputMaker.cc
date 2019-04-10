@@ -343,6 +343,7 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
       if (cSize>3) continue;
       int iEta =  myAngleConverter.getGlobalEta(rawid, cluster.first);      
       unsigned int hwNumber = myOmtfConfig->getLayerNumber(rawid);
+      if(myOmtfConfig->getHwToLogicLayer().find(hwNumber)==myOmtfConfig->getHwToLogicLayer().end()) continue;
       unsigned int iLayer = myOmtfConfig->getHwToLogicLayer().at(hwNumber);
       unsigned int iInput= getInputNumber(rawid, iProcessor, type);
       //std::cout <<"ADDING HIT: iLayer = " << iLayer << " iInput: " << iInput << " iPhi: " << iPhi << std::endl;
