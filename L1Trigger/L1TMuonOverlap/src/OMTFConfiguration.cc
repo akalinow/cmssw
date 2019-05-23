@@ -256,6 +256,16 @@ int OMTFConfiguration::etaRange(int iEta) const{
 }
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
+int OMTFConfiguration::triggerPtCode(double fPt) const{
+
+  for(unsigned int iPtCode=1;iPtCode<ptRanges.size();++iPtCode){
+    if(fPt<ptRanges[iPtCode]) return 2*ptRanges[iPtCode-1] + 1;
+  }
+
+  return 0;
+}
+///////////////////////////////////////////////
+///////////////////////////////////////////////
 int OMTFConfiguration::globalPhiStart(unsigned int iProcessor) const {
 
   return *std::min_element(processorPhiVsRefLayer[iProcessor].begin(),

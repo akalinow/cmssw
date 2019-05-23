@@ -87,6 +87,11 @@ class OMTFConfiguration{
   ///Eta expresed in L1 scale: eta*2.61*240
   int etaRange(int iEta) const;
 
+  ///Return discretized pt value defined as int(2*pT_float)+1
+  ///The pt is discretized in OMTF pt bins defined by
+  ///OMTFConfiguration::ptRanges
+  int triggerPtCode(double fPt) const;
+
   ///Return global phi for beggining of given processor
   ///Uses minim phi over all reference layers.
   int globalPhiStart(unsigned int iProcessor) const;
@@ -145,6 +150,16 @@ class OMTFConfiguration{
   friend std::ostream & operator << (std::ostream &out, const OMTFConfiguration & aConfig);
 
  private:
+
+  std::vector<double> ptRanges = {0.,   1.,   2.,   3.,   4.,   
+			          5.,   6.,   7.,   8.,   9., 
+				  10.,  11.,  12.,  13.,  14.,
+				  15.,  16.,  17.,  18.,  19.,
+				  20.,  21.,  22.,  23.,  24.,
+				  25.,  26.,  28.,  30.,  32.,  34.,
+				  36.,  38.,  40.,  50.,  60.,
+				  70.,  80.,  90.,  100., 200., 99999};
+				  
 
   L1TMuonOverlapParams rawParams;
      

@@ -79,11 +79,6 @@ void OMTFPatternMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSet
 
   myOMTFConfigMaker = new OMTFConfigMaker(myOMTFConfig);
   
-  ///Clear existing GoldenPatterns
-  if(!mergeXMLFiles){
-    const std::map<Key,GoldenPattern*> & theGPs = myOMTF->getPatterns();
-    for(auto itGP: theGPs) itGP.second->reset();
-  }  
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
@@ -113,14 +108,14 @@ void OMTFPatternMaker::endJob(){
     generalParams[L1TMuonOverlapParams::GENERAL_ADDRBITS] = nPdfAddrBits;
     omtfParamsMutable.setGeneralParams(generalParams);
     myOMTFConfig->configure(&omtfParamsMutable);
-    
+
     for(auto itGP: myGPmap){
       ////
       unsigned int iPt = theConfig.getParameter<int>("ptCode")+1;
       if(iPt>31) iPt = 200*2+1;
       else iPt = RPCConst::ptFromIpt(iPt)*2.0+1;//MicroGMT has 0.5 GeV step size, with lower bin edge  (uGMT_pt_code - 1)*step_size
       ////
-      if(itGP.first.thePtCode==iPt && 
+      if(//TEST AK itGP.first.thePtCode==iPt && 
 	 itGP.first.theCharge==theConfig.getParameter<int>("charge")){ 
 	std::cout<<*itGP.second<<std::endl;      
 	myWriter->writeGPData(*itGP.second, dummyGP, dummyGP, dummyGP);
@@ -258,9 +253,10 @@ void OMTFPatternMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if(!theConfig.getParameter<bool>("dropCSCPrimitives")) iEvent.getByToken(inputTokenCSC,cscDigis);
 
   //l1t::tftype mtfType = l1t::tftype::bmtf;
-  //l1t::tftype mtfType = l1t::tftype::omtf_pos;
-  l1t::tftype mtfTypePos = l1t::tftype::emtf_pos;
-  l1t::tftype mtfTypeNeg = l1t::tftype::emtf_neg;
+  l1t::tftype mtfTypePos = l1t::tftype::omtf_pos;
+  l1t::tftype mtfTypeNeg = l1t::tftype::omtf_neg;
+  //l1t::tftype mtfTypePos = l1t::tftype::emtf_pos;
+  //l1t::tftype mtfTypeNeg = l1t::tftype::emtf_neg;
  
   ///Loop over all processors, each covering 60 deg in phi
   for(unsigned int iProcessor=0;iProcessor<6;++iProcessor){

@@ -37,13 +37,12 @@ void OMTFProcessor::resetConfiguration(){
 bool OMTFProcessor::configure(const OMTFConfiguration * omtfConfig,
 			      const L1TMuonOverlapParams * omtfPatterns){
 			      
-  resetConfiguration();
-
   myOmtfConfig = omtfConfig;
   
   myResults.assign(myOmtfConfig->nTestRefHits(),OMTFProcessor::resultsMap());
 
   if(!omtfPatterns) return true;
+  resetConfiguration();
   
   const l1t::LUT* chargeLUT =  omtfPatterns->chargeLUT();
   const l1t::LUT* etaLUT =  omtfPatterns->etaLUT();
@@ -292,14 +291,16 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
 			       const SimTrack* aSimMuon){
 
   int theCharge = (abs(aSimMuon->type()) == 13) ? aSimMuon->type()/-13 : 0; 
-  unsigned int  iPt =  RPCConst::iptFromPt(aSimMuon->momentum().pt());
+  /*
+  unsigned int iPt =  RPCConst::iptFromPt(aSimMuon->momentum().pt());
   ///Stupid conersion. Have to go through PAC pt scale, as we later
   ///shift resulting pt code by +1
   iPt+=1;
   if(iPt>31) iPt=200*2+1;
   else iPt = RPCConst::ptFromIpt(iPt)*2.0+1;//MicroGMT has 0.5 GeV step size, with lower bin edge  (uGMT_pt_code - 1)*step_size
   //////
-
+  */  
+  unsigned int iPt = myOmtfConfig->triggerPtCode(aSimMuon->momentum().pt());
   //////////////////////////////////////  
   std::bitset<192> refHitsBits = aInput.getRefHits(iProcessor);
   if(refHitsBits.none()) return;
@@ -320,6 +321,7 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
       int phiRef = aInput.getLayerData(myOmtfConfig->getRefToLogicNumber()[aRefHitDef.iRefLayer])[aRefHitDef.iInput];
       int etaRef = aInput.getLayerData(myOmtfConfig->getRefToLogicNumber()[aRefHitDef.iRefLayer], true)[aRefHitDef.iInput];
       int etaRegion = myOmtfConfig->etaRange(etaRef);
+      if(etaRegion!=3) continue;//AK TEST 
       unsigned int iRegion = aRefHitDef.iRegion;
       if(myOmtfConfig->getBendingLayers().count(iLayer)) phiRef = 0;
       const OMTFinput::vector1D restrictedLayerHits = restrictInput(iProcessor, iRegion, iLayer,layerHits);
@@ -331,7 +333,7 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
 	if(itGP.first.theCharge==theCharge &&
 	   itGP.first.thePtCode==iPt && 
 	   itGP.first.theEtaCode==etaRegion) isPresent = true;
-      }
+      }      
       if(!isPresent){
 	GoldenPattern::vector2D meanDistPhi2D(myOmtfConfig->nLayers());
 	GoldenPattern::vector1D pdf1D(exp2(myOmtfConfig->nPdfAddrBits()));
@@ -350,10 +352,7 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
 	addGP(aGP);
 
       }            
-      for(auto itGP: theGPs){
-
-	std::cout<<"etaRegion: "<<etaRegion<<" itGP.first.theEtaCode: "<<itGP.first.theEtaCode<<std::endl;
-	
+      for(auto itGP: theGPs){	
 	if(itGP.first.theCharge!=theCharge) continue;
 	if(itGP.first.thePtCode!=iPt) continue;
 	if(itGP.first.theEtaCode!=etaRegion) continue;

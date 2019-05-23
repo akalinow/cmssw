@@ -165,7 +165,7 @@ void GoldenPattern::normalise(unsigned int nPdfAddrBits){
   for (unsigned int iRefLayer=0;iRefLayer<meanDistPhi[0].size();++iRefLayer){
     for (unsigned int iLayer=0;iLayer<meanDistPhi.size();++iLayer){   
       if(!meanDistPhiCounts.empty() && meanDistPhiCounts[iLayer][iRefLayer]){
-	if(meanDistPhiCounts[iLayer][iRefLayer]<100) 	meanDistPhi[iLayer][iRefLayer] = 0; //AK was 1000
+	if(meanDistPhiCounts[iLayer][iRefLayer]<1000) 	meanDistPhi[iLayer][iRefLayer] = 0;
 	else meanDistPhi[iLayer][iRefLayer] = rint((float)meanDistPhi[iLayer][iRefLayer]/meanDistPhiCounts[iLayer][iRefLayer]);      
       }
     }
@@ -182,7 +182,7 @@ void GoldenPattern::normalise(unsigned int nPdfAddrBits){
 	   !pdfAllRef[iLayer][iRefLayer][iPdf]) continue;	
 	pVal = log((float)pdfAllRef[iLayer][iRefLayer][iPdf]/meanDistPhiCounts[myOmtfConfig->getRefToLogicNumber()[iRefLayer]][iRefLayer]);
 	///If there are only a few counts in given measurement layer, set pdf value to 0	
-	if((pVal<minPlog || meanDistPhiCounts[iLayer][iRefLayer]<100 )){ //AK was 1000
+	if((pVal<minPlog || meanDistPhiCounts[iLayer][iRefLayer]<1000 )){
 	  pdfAllRef[iLayer][iRefLayer][iPdf] = 0;
 	  continue;
 	}	
