@@ -317,7 +317,7 @@ std::vector<float> PtAssignmentNNRegression::getPts(AlgoMuons::value_type& algoM
       LogTrace("l1tOmtfEventPrint") << "hit: layer " << (int)hit.layer << " quality " << (int)hit.quality << " eta "
                                     << (int)hit.eta << " valid " << (int)hit.valid << " phiDist " << (int)hit.phiDist
                                     << " z " << (int)hit.z << std::endl;
-
+                           
       omtfHitWithQualToEventInput(hit, inputs, algoMuon->getRefLayer(), false);
     }
   }
@@ -342,7 +342,6 @@ std::vector<float> PtAssignmentNNRegression::getPts(AlgoMuons::value_type& algoM
   //pt in the hardware scale, ptGeV = (ptHw -1) / 2
 
   algoMuon->setPtNNConstr(omtfConfig->ptGevToHw(calibratedHwPt));
-
   algoMuon->setChargeNNConstr(nnResult[1] >= 0 ? 1 : -1);
 
   //TODO add some if here, such that the property_tree is filled only when needed
