@@ -341,7 +341,6 @@ std::vector<float> PtAssignmentNNRegression::getPts(AlgoMuons::value_type& algoM
   //pt in the hardware scale, ptGeV = (ptHw -1) / 2
 
   algoMuon->setPtNNConstr(omtfConfig->ptGevToHw(calibratedHwPt));
-
   algoMuon->setChargeNNConstr(nnResult[1] >= 0 ? 1 : -1);
 
   //TODO add some if here, such that the property_tree is filled only when needed
