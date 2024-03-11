@@ -9,6 +9,7 @@ simOmtfPhase2Digis = cms.EDProducer("L1TMuonOverlapPhase2TrackProducer",
   srcCSC = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
   srcRPC = cms.InputTag('simMuonRPCDigis'), 
   srcDTPhPhase2 = cms.InputTag('dtTriggerPhase2PrimitiveDigis'),
+  srcDTThPhase2 = cms.InputTag('dtTriggerPhase2PrimitiveDigis'),
   
   simTracksTag = cms.InputTag('g4SimHits'),                             
   dumpResultToXML = cms.bool(False),
