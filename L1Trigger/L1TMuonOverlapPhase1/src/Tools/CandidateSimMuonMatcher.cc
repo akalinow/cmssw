@@ -341,18 +341,27 @@ std::vector<const l1t::RegionalMuonCand*> CandidateSimMuonMatcher::ghostBust(
 
 TrajectoryStateOnSurface CandidateSimMuonMatcher::atStation2(const FreeTrajectoryState& ftsStart) const {
   // first propagate to MB2 assuming that muon is within barrel+overlap
-  // 512.401cm is R of middle of the MB2
+  // 512.401 cm is R of middle of the MB2, 660.5cm is |z| of the edge of MB2 (B field on)
   ReferenceCountingPointer<Surface> rpc = ReferenceCountingPointer<Surface>(new BoundCylinder(
-      GlobalPoint(0., 0., 0.), TkRotation<float>(), SimpleCylinderBounds(512.401, 512.401, -900, 900)));
+      GlobalPoint(0., 0., 0.), TkRotation<float>(), SimpleCylinderBounds(512.401, 512.401, -660.5, 660.5)));
+
   TrajectoryStateOnSurface trackAtRPC = propagator->propagate(ftsStart, *rpc);
-  float zAtRPC = trackAtRPC.globalPosition().z();
-  // check if propagated track within barrel+overlap, |z| = 660.5cm is edge of MB2 (B field on)
-  if (std::abs(zAtRPC) > 660.5) {  //endcap, RE2, z = +-790cm
-    rpc = ReferenceCountingPointer<Surface>(new BoundDisk(GlobalPoint(0., 0., std::copysign(790., zAtRPC)),
+
+  //propagate to RE2 if propagation to MB2 failed
+  if (!trackAtRPC.isValid()) {  //endcap, RE2, z = +-790cm
+    double eta = ftsStart.momentum().eta();
+    rpc = ReferenceCountingPointer<Surface>(new BoundDisk(GlobalPoint(0., 0., std::copysign(790.,eta)),
                                                           TkRotation<float>(),
                                                           SimpleDiskBounds(300., 810., -10., 10.)));
     trackAtRPC = propagator->propagate(ftsStart, *rpc);
   }
+  //mockup a state if both propagations failed
+  /*
+  if(!trackAtRPC.isValid()){
+    trackAtRPC = propagator->propagate(ftsStart, *rpc);
+
+  }*/
+
   return trackAtRPC;
 }
 
