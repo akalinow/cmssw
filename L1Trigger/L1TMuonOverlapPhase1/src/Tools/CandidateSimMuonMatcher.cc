@@ -348,20 +348,13 @@ TrajectoryStateOnSurface CandidateSimMuonMatcher::atStation2(const FreeTrajector
   TrajectoryStateOnSurface trackAtRPC = propagator->propagate(ftsStart, *rpc);
 
   //propagate to RE2 if propagation to MB2 failed
-  if (!trackAtRPC.isValid()) {  //endcap, RE2, z = +-790cm
+  if (!trackAtRPC.isValid()) { 
     double eta = ftsStart.momentum().eta();
-    rpc = ReferenceCountingPointer<Surface>(new BoundDisk(GlobalPoint(0., 0., std::copysign(790.,eta)),
+    rpc = ReferenceCountingPointer<Surface>(new BoundDisk(GlobalPoint(0., 0., std::copysign(790.,eta)),//endcap, RE2, z = +-790cm
                                                           TkRotation<float>(),
                                                           SimpleDiskBounds(300., 810., -10., 10.)));
     trackAtRPC = propagator->propagate(ftsStart, *rpc);
-  }
-  //mockup a state if both propagations failed
-  /*
-  if(!trackAtRPC.isValid()){
-    trackAtRPC = propagator->propagate(ftsStart, *rpc);
-
-  }*/
-
+  } 
   return trackAtRPC;
 }
 
