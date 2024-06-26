@@ -102,6 +102,7 @@ l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildRPCOnlyStub(const RPCDetId& 
 
   l1t::MuonStub stub(wheel, sector, station, tfLayer, 0, phi2, tag, bx, quality, 0, eta2, 2, 0);
   stub.setOfflineQuantities(gp.phi().value(), gp.phi().value(), gp.eta(), gp.eta());
+  stub.setTime(digi.time()); 
   return stub;
 }
 
@@ -177,6 +178,7 @@ l1t::MuonStubCollection L1TPhase2GMTEndcapStubProcessor::combineStubs(const l1t:
                          3,
                          0);
       stub.setOfflineQuantities(csc.offline_coord1(), offline_finalRPCPhi, csc.offline_eta1(), offline_finalRPCEta);
+      stub.setTime(usedRPC.back().time());
       out.push_back(stub);
     } else {
       out.push_back(csc);
@@ -234,6 +236,7 @@ l1t::MuonStubCollection L1TPhase2GMTEndcapStubProcessor::combineStubs(const l1t:
                        2,
                        0);
     stub.setOfflineQuantities(phiF / nRPC, phiF / nRPC, etaF / nRPC, etaF / nRPC);
+    stub.setTime(cleanedRPC[0].time());
     out.push_back(stub);
     cleanedRPC = freeRPC;
   };
