@@ -35,16 +35,6 @@ void GoldenPatternResult::set(int refLayer_, int phi, int eta, int refHitPhi) {
   this->refHitPhi = refHitPhi;
 }
 
-void GoldenPatternResult::setStubResult(float pdfVal, bool valid, int pdfBin, int layer, MuonStubPtr stub) {
-  if (valid) {
-    //pdfSum and firedLayerBits is calculated in finaliseX()
-    firedLayerBits |= (1 << layer);
-  }
-  stubResults[layer] = StubResult(pdfVal, valid, pdfBin, layer, stub);
-
-  //stub result is added even thought it is not valid since this might be needed for debugging or optimization
-}
-
 void GoldenPatternResult::setStubResult(int layer, StubResult& stubResult) {
   if (stubResult.getValid()) {
     //pdfSum and firedLayerBits is calculated in finaliseX()

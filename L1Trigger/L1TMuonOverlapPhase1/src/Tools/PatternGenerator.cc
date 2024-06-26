@@ -159,10 +159,10 @@ void PatternGenerator::updateStat() {
 
         bool fired = false;
         if (gpResult.getStubResults()[iLayer].getMuonStub()) {
-          if (omtfConfig->isBendingLayer(iLayer)) {
+          /*if (omtfConfig->isBendingLayer(iLayer)) {
             if (gpResult.getStubResults()[iLayer].getMuonStub()->qualityHw >= 4)  //TODO change quality cut if needed
               fired = true;
-          } else
+          } else*/
             fired = true;
         }
 
@@ -452,7 +452,7 @@ void PatternGenerator::upadatePdfs() {
         //the shift for given pattern and layer should be the same same for all refLayers
         //otherwise the firmware does not compile - at least the phase-1
         //for phase2
-        /*if ((gp->key().thePt <= 10) &&
+        if ((gp->key().thePt <= 10) &&
             (iLayer == 1 || iLayer == 3 || iLayer == 5)) {  //iRefLayer: MB2, iLayer: MB1 and MB2 phiB
           gp->setDistPhiBitShift(2, iLayer, iRefLayer);
         } else if ((gp->key().thePt <= 10) && (iLayer == 10)) {  //iRefLayer: MB2, iLayer: RB1_in
@@ -466,10 +466,10 @@ void PatternGenerator::upadatePdfs() {
           //so the shift must be increased (or the group should be divided into to 2 groups, but it will increase fw occupancy
           gp->setDistPhiBitShift(1, iLayer, iRefLayer);
         } else
-          gp->setDistPhiBitShift(0, iLayer, iRefLayer);*/
+          gp->setDistPhiBitShift(0, iLayer, iRefLayer);
 
         //for phase1
-        if ((gp->key().thePt <= 8) &&
+        /*if ((gp->key().thePt <= 8) &&
             (iLayer == 1 || iLayer == 3 || iLayer == 5)) {  //iRefLayer: MB2, iLayer: MB1 and MB2 phiB
           gp->setDistPhiBitShift(2, iLayer, iRefLayer);
         } else if ((gp->key().thePt <= 10) && (iLayer == 10)) {  //iRefLayer: MB2, iLayer: RB1_in
@@ -486,7 +486,7 @@ void PatternGenerator::upadatePdfs() {
           //so the shift must be increased (or the group should be divided into to 2 groups, but it will increase fw occupancy
           gp->setDistPhiBitShift(0, iLayer, iRefLayer);
         } else
-          gp->setDistPhiBitShift(0, iLayer, iRefLayer);
+          gp->setDistPhiBitShift(0, iLayer, iRefLayer);*/
       }
     }
   }
@@ -738,10 +738,10 @@ void PatternGenerator::modifyClassProb(double step) {
 
         //if (ptFrom == 20) //pattern Key_13
         //  newPdfVal += 1;
-        if (ptFrom >= 22 && ptFrom <= 26)
-          newPdfVal += 2;
-        if (ptFrom == 28)  //pattern Key_17
-          newPdfVal += 1;
+        //if (ptFrom >= 22 && ptFrom <= 26)
+        //  newPdfVal += 2;
+        //if (ptFrom == 28)  //pattern Key_17
+        //  newPdfVal += 1;
 
         if (ptFrom == 100)
           newPdfVal = 16;

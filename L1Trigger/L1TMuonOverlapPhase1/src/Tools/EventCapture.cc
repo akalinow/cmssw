@@ -105,7 +105,6 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
     for (auto& matchingResult : matchingResults) {
       //TODO choose a condition, to print the desired candidates
       if (matchingResult.muonCand) {
-        dump = true;
 
         bool runStubsSimHitsMatcher = false;
         if (matchingResult.trackingParticle) {
@@ -122,6 +121,12 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
                << matchingResult.simTrack->momentum().pt()  //<<" Beta "<<simMuon->momentum().Beta()
                << " eta " << std::setw(9) << matchingResult.simTrack->momentum().eta() << " phi " << std::setw(9)
                << matchingResult.simTrack->momentum().phi() << std::endl;
+          //TODO choose a condition, to print the desired candidates
+          if (//matchingResult.simTrack->eventId().event() == 0 && std::abs(matchingResult.simTrack->momentum().eta()) > 0.82 &&
+                    std::abs(matchingResult.simTrack->momentum().eta()) < 1.24 && matchingResult.simTrack->momentum().pt() >= 22. &&
+                    matchingResult.muonCand != nullptr && matchingResult.muonCand->hwPt() < 47) {
+            dump = true;
+          }
         } else {
           ostr << "no simMuon ";
           runStubsSimHitsMatcher = true;
@@ -144,7 +149,7 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
     for (auto& simMuon : simMuons) {
       //TODO choose a condition, to print the desired events
       if (simMuon->eventId().event() == 0 && std::abs(simMuon->momentum().eta()) > 0.82 &&
-          std::abs(simMuon->momentum().eta()) < 1.24 && simMuon->momentum().pt() >= 3.) {
+          std::abs(simMuon->momentum().eta()) < 1.24 && simMuon->momentum().pt() >= 22.) {
         ostr << "SimMuon: eventId " << simMuon->eventId().event() << " pdgId " << std::setw(3) << simMuon->type()
              << " pt " << std::setw(9) << simMuon->momentum().pt()  //<<" Beta "<<simMuon->momentum().Beta()
              << " eta " << std::setw(9) << simMuon->momentum().eta() << " phi " << std::setw(9)
@@ -162,12 +167,12 @@ void EventCapture::observeEventEnd(const edm::Event& iEvent,
 
     for (auto& finalCandidate : *finalCandidates) {
       //TODO choose a condition, to print the desired candidates
-      if (finalCandidate.trackFinderType() == l1t::tftype::omtf_neg && finalCandidate.hwQual() >= 12 &&
-          finalCandidate.hwPt() > 20)
+      if (//finalCandidate.trackFinderType() == l1t::tftype::omtf_neg && finalCandidate.hwQual() >= 12 &&
+          finalCandidate.hwPt() < 47)
         wasCandInNeg = true;
 
-      if (finalCandidate.trackFinderType() == l1t::tftype::omtf_pos && finalCandidate.hwQual() >= 12 &&
-          finalCandidate.hwPt() > 20)
+      if (//finalCandidate.trackFinderType() == l1t::tftype::omtf_pos && finalCandidate.hwQual() >= 12 &&
+          finalCandidate.hwPt() < 47)
         wasCandInPos = true;
     }
 
