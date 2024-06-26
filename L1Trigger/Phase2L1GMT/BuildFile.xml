@@ -4,6 +4,13 @@
 <use name="L1Trigger/L1TMuon"/>
 <use name="L1Trigger/L1TTwinMux"/>
 <use name="hls"/>
+
+<use name="HepMC"/>
+<use name="SimTracker/TrackTriggerAssociation"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="CommonTools/UtilAlgos"/>
+<flags CHECK_PRIVATE_HEADERS="0"/>
+
 <export>
   <lib name="1"/>
 </export>

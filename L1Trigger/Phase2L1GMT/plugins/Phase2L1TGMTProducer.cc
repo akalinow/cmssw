@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "L1Trigger/Phase2L1GMT/interface/DataDumper.h"
+#include "L1Trigger/Phase2L1GMT/plugins/DataDumper.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
