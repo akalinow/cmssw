@@ -21,7 +21,7 @@ namespace Phase2L1GMT {
 
   const unsigned int PHIDIVIDER = 1 << (BITSPHI - BITSSTUBCOORD);
   const unsigned int ETADIVIDER = 1 << (BITSETA - BITSSTUBETA);
-
+/*
   typedef struct {
     ap_int<BITSSTUBCOORD> coord1;
     ap_uint<BITSSIGMACOORD> sigma_coord1;
@@ -33,6 +33,7 @@ namespace Phase2L1GMT {
     ap_uint<1> valid;
     ap_uint<1> is_barrel;
   } propagation_t;
+  */
 
   typedef struct {
     ap_uint<BITSMATCHQUALITY - 2> quality;
@@ -41,6 +42,18 @@ namespace Phase2L1GMT {
     bool isGlobal;
     l1t::RegionalMuonCandRef muRef;
     l1t::MuonStubRef stubRef;
+
+    int propCoord1{-999};
+    int propCoord2{-999};
+    int propEta{-999};
+    int prop_sigma_coord1{-999};
+    int prop_sigma_coord2{-999};
+    int prop_sigma_eta1{-999};
+    int prop_sigma_eta2{-999};
+    int stubCoord1{-999};
+    int stubCoord2{-999};
+    int stubEta1{-999};
+    int stubEta2{-999};
 
   } match_t;
 
@@ -408,6 +421,20 @@ namespace Phase2L1GMT {
       if (verbose_ == 1)
         printf("GlobalMatchQuality = %d\n", out.quality.to_int());
       out.stubRef = stub;
+
+      out.propCoord1 = prop.coord1;
+      out.propCoord2 = prop.coord2;
+      out.propEta = prop.eta;
+      out.prop_sigma_coord1 = prop.sigma_coord1;
+      out.prop_sigma_coord2 = prop.sigma_coord2;
+      out.prop_sigma_eta1 = prop.sigma_eta1;
+      out.prop_sigma_eta2 = prop.sigma_eta2;
+
+      out.stubCoord1 = stub->coord1();
+      out.stubCoord2 = stub->coord2();
+      out.stubEta1 = stub->eta1();
+      out.stubEta2 = stub->eta2();
+
       return out;
     }
 
@@ -472,6 +499,8 @@ namespace Phase2L1GMT {
         match_t b = getBest(matchInfo0);
         if (b.valid) {
           muon.addStub(b.stubRef);
+          propagation_t prop = propagate(track, 0);
+          muon.addPropagatedState(prop, 0);
           if (b.isGlobal)
             muon.addMuonRef(b.muRef);
           quality += b.quality;
@@ -481,6 +510,8 @@ namespace Phase2L1GMT {
         match_t b = getBest(matchInfo1);
         if (b.valid) {
           muon.addStub(b.stubRef);
+          propagation_t prop = propagate(track, 1);
+          muon.addPropagatedState(prop, 1);
           if (b.isGlobal)
             muon.addMuonRef(b.muRef);
           quality += b.quality;
@@ -490,6 +521,8 @@ namespace Phase2L1GMT {
         match_t b = getBest(matchInfo2);
         if (b.valid) {
           muon.addStub(b.stubRef);
+          propagation_t prop = propagate(track, 2);
+          muon.addPropagatedState(prop, 2);
           if (b.isGlobal)
             muon.addMuonRef(b.muRef);
           quality += b.quality;
@@ -499,6 +532,8 @@ namespace Phase2L1GMT {
         match_t b = getBest(matchInfo3);
         if (b.valid) {
           muon.addStub(b.stubRef);
+          propagation_t prop = propagate(track, 3);
+          muon.addPropagatedState(prop, 3);
           if (b.isGlobal)
             muon.addMuonRef(b.muRef);
           quality += b.quality;
@@ -508,6 +543,8 @@ namespace Phase2L1GMT {
         match_t b = getBest(matchInfo4);
         if (b.valid) {
           muon.addStub(b.stubRef);
+          propagation_t prop = propagate(track, 4);
+          muon.addPropagatedState(prop, 4);
           if (b.isGlobal)
             muon.addMuonRef(b.muRef);
           quality += b.quality;

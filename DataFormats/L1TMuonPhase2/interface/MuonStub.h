@@ -118,6 +118,10 @@ namespace l1t {
 
     void print() const;
 
+      int time() const {return time_;}
+
+    void setTime(int time = 0) {time_ = time;}
+
   private:
     int etaRegion_;    //In the barrel this is wheel. In the endcap it is 6-ring
     int phiRegion_;    //In the barrel it is sector. In the endcap it is chamber
@@ -137,6 +141,7 @@ namespace l1t {
     double offline_coord2_;  //offline coordinate two
     double offline_eta1_;    //offline eta1
     double offline_eta2_;    //offline eta2
+    int time_;               //stub timing
   };
 
 }  // namespace l1t

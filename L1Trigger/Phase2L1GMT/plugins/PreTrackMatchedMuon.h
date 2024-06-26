@@ -15,7 +15,21 @@
 
 #include <vector>
 
+#include "TObject.h"
+
 namespace Phase2L1GMT {
+
+    typedef struct: public TObject {
+    ap_int<BITSSTUBCOORD> coord1;
+    ap_uint<BITSSIGMACOORD> sigma_coord1;
+    ap_int<BITSSTUBCOORD> coord2;
+    ap_uint<BITSSIGMACOORD> sigma_coord2;
+    ap_int<BITSSTUBETA> eta;
+    ap_uint<BITSSIGMAETA> sigma_eta1;
+    ap_uint<BITSSIGMAETA> sigma_eta2;
+    ap_uint<1> valid;
+    ap_uint<1> is_barrel;
+  } propagation_t;
 
   class PreTrackMatchedMuon {
   public:
@@ -96,6 +110,20 @@ namespace Phase2L1GMT {
 
     const l1t::MuonStubRefVector& stubs() const { return stubs_; }
 
+    void addPropagatedState(const propagation_t& prop, unsigned int tfLayer) { prop_.at(tfLayer) = prop; }
+    const propagation_t& propagatedState(unsigned int tfLayer) const { return prop_.at(tfLayer); }
+    const auto& propagatedStates() const { return prop_; }
+
+    void setDeltaCoords1(unsigned int tfLayer, int value) { deltaCoords1_.at(tfLayer) = value; } 
+    void setDeltaCoords2(unsigned int tfLayer, int value) { deltaCoords2_.at(tfLayer) = value; } 
+    void setDeltaEta1(unsigned int tfLayer, int value) { deltaEta1_.at(tfLayer) = value; } 
+    void setDeltaEta2(unsigned int tfLayer, int value) { deltaEta2_.at(tfLayer) = value; } 
+
+    auto getDeltaCoords1() const { return deltaCoords1_; } 
+    auto getDeltaCoords2() const { return deltaCoords2_; } 
+    auto getDeltaEta1() const { return deltaEta1_; } 
+    auto getDeltaEta2() const { return deltaEta2_; } 
+
     void setTrkPtr(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> >& trkPtr) { trkPtr_ = trkPtr; }
 
     const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > trkPtr() const { return trkPtr_; }
@@ -161,6 +189,28 @@ namespace Phase2L1GMT {
     l1t::MuonStubRefVector stubs_;
     std::vector<l1t::RegionalMuonCandRef> muRef_;
     edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > trkPtr_;
+
+    std::vector<propagation_t> prop_ = {propagation_t(), propagation_t(), propagation_t(), propagation_t(), propagation_t()};
+
+    std::vector<int> propCoord1_ = {0,0,0,0,0};
+    std::vector<int> propCoord2_ = {0,0,0,0,0};
+    std::vector<int> propEta_ = {0,0,0,0,0};
+    std::vector<int> prop_sigma_coord1_ = {0,0,0,0,0};
+    std::vector<int> prop_sigma_coord2_ = {0,0,0,0,0};
+    std::vector<int> prop_sigma_eta1_ = {0,0,0,0,0};
+    std::vector<int> prop_sigma_eta2_ = {0,0,0,0,0};
+
+    std::vector<int> stubCoord1 = {0,0,0,0,0};
+    std::vector<int> stubCoord2 = {0,0,0,0,0};
+    std::vector<int> stubEta1 = {0,0,0,0,0};
+    std::vector<int> stubEta2 = {0,0,0,0,0};
+
+
+    std::vector<int> deltaCoords1_ = {0,0,0,0,0}; 
+    std::vector<int> deltaCoords2_ = {0,0,0,0,0}; 
+    std::vector<int> deltaEta1_ = {0,0,0,0,0};
+    std::vector<int> deltaEta2_ = {0,0,0,0,0}; 
+
   };
 }  // namespace Phase2L1GMT
 
