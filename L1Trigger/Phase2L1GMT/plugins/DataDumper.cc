@@ -167,8 +167,13 @@ void DataDumper::process(PreTrackMatchedMuon& preTrackMatchedMuon) {
   record.propagatedStates = preTrackMatchedMuon.propagatedStates();
 
   for (const auto& stub : preTrackMatchedMuon.stubs()) {
-    record.deltaCoords1.at(stub->tfLayer()) = preTrackMatchedMuon.getDeltaCoords1().at(stub->tfLayer());
-    record.deltaCoords2.at(stub->tfLayer()) = preTrackMatchedMuon.getDeltaCoords2().at(stub->tfLayer());
+
+    auto prop = preTrackMatchedMuon.propagatedState(stub->tfLayer());
+    record.deltaCoords1.at(stub->tfLayer()) = prop.coord1 - stub->coord1();
+    record.deltaCoords2.at(stub->tfLayer()) = prop.coord2 - stub->coord2();
+
+    //record.deltaCoords1.at(stub->tfLayer()) = preTrackMatchedMuon.getDeltaCoords1().at(stub->tfLayer());
+    //record.deltaCoords2.at(stub->tfLayer()) = preTrackMatchedMuon.getDeltaCoords2().at(stub->tfLayer());
     record.deltaEta1.at(stub->tfLayer()) = preTrackMatchedMuon.getDeltaEta1().at(stub->tfLayer());
     record.deltaEta2.at(stub->tfLayer()) = preTrackMatchedMuon.getDeltaEta2().at(stub->tfLayer());
 

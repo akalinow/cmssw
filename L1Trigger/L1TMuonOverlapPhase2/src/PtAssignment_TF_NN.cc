@@ -59,8 +59,6 @@ std::vector<float> PtAssignment_TF_NN::getPts(AlgoMuons::value_type& algoMuon,
   unsigned int refLayerLogicNum = omtfConfig->getRefToLogicNumber()[algoMuon->getRefLayer()];
   int phiRefHit = gpResult.getStubResults()[refLayerLogicNum].getMuonStub()->phiHw;
 
-  double naiveBayesPt = omtfConfig->hwPtToGev(algoMuon->getPtConstr());
-
   tensorflow::Tensor inputs(tensorflow::DT_FLOAT, tensorflow::TensorShape({1, nInputs}));  
   std::vector<tensorflow::Tensor> outputs; 
   const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
@@ -89,6 +87,7 @@ if (!status.ok()) {
     return pts;
 }  
 
+  //double naiveBayesPt = omtfConfig->hwPtToGev(algoMuon->getPtConstr());
   double pt = outputs.at(0).matrix<float>()(0,0);
   double calibratedHwPt = omtfConfig->ptGevToHw(pt);
   algoMuon->setPtNNConstr(calibratedHwPt);
