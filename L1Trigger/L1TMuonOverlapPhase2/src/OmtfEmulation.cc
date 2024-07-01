@@ -10,6 +10,7 @@
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/OmtfEmulation.h"
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/InputMakerPhase2.h"
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/PtAssignmentNNRegression.h"
+#include "L1Trigger/L1TMuonOverlapPhase2/interface/PtAssignment_TF_NN.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -48,6 +49,11 @@ void OmtfEmulation::addObservers(const MuonGeometryTokens& muonGeometryTokens,
     edm::LogImportant("OMTFReconstruction") << "constructing PtAssignmentNNRegression" << std::endl;
     std::string neuralNetworkFile = edmParameterSet.getParameter<edm::FileInPath>("neuralNetworkFile").fullPath();
     ptAssignment = std::make_unique<PtAssignmentNNRegression>(edmParameterSet, omtfConfig.get(), neuralNetworkFile);
+  }
+
+  if (edmParameterSet.exists("tf_neuralNetworkFile") && !ptAssignment) {
+    edm::LogImportant("OMTFReconstruction") << "constructing PtAssignment_TF_NN" << std::endl;
+    ptAssignment = std::make_unique<PtAssignment_TF_NN>(edmParameterSet, omtfConfig.get());
   }
 
   auto omtfProcGoldenPat = dynamic_cast<OMTFProcessor<GoldenPattern>*>(omtfProc.get());
