@@ -435,9 +435,11 @@ namespace Phase2L1GMT {
       out.stubEta1 = stub->eta1();
       out.stubEta2 = stub->eta2();
 
-      std::cout << "propCoord1: " << out.propCoord1 
+      std::cout <<"propCoord1: " << out.propCoord1
+                <<" stubCoord1: "<< out.stubCoord1
                 <<" deltaCoord1: " << deltaCoord1 
                 <<" propCoord2: " << out.propCoord2
+                <<" stubCoord2: "<< out.stubCoord2
                 <<" deltaCoord2: " << deltaCoord2 << std::endl;
 
       return out;

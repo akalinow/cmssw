@@ -56,9 +56,6 @@ std::vector<float> PtAssignment_TF_NN::getPts(AlgoMuons::value_type& algoMuon,
   int nInputs = 2*stubResults.size() +1;
   if(!nInputs) return pts;
 
-  unsigned int refLayerLogicNum = omtfConfig->getRefToLogicNumber()[algoMuon->getRefLayer()];
-  int phiRefHit = gpResult.getStubResults()[refLayerLogicNum].getMuonStub()->phiHw;
-
   tensorflow::Tensor inputs(tensorflow::DT_FLOAT, tensorflow::TensorShape({1, nInputs}));  
   std::vector<tensorflow::Tensor> outputs; 
   const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
@@ -68,10 +65,7 @@ std::vector<float> PtAssignment_TF_NN::getPts(AlgoMuons::value_type& algoMuon,
 
     int hitPhi = 5000;
     if (stubResult.getMuonStub()){
-      hitPhi = stubResult.getMuonStub()->phiHw - phiRefHit;
-     if (omtfConfig->isBendingLayer(iLogicLayer)) {
-        hitPhi = stubResult.getMuonStub()->phiBHw;
-      }
+      hitPhi = stubResult.getDeltaPhi();
     }
 
     get(iLogicLayer) = hitPhi*(hitPhi<5000);
@@ -91,8 +85,7 @@ if (!status.ok()) {
   double pt = outputs.at(0).matrix<float>()(0,0);
   double calibratedHwPt = omtfConfig->ptGevToHw(pt);
   algoMuon->setPtNNConstr(calibratedHwPt);
-  algoMuon->setChargeNNConstr(algoMuon->getChargeNNConstr());
-  
+  algoMuon->setChargeNNConstr(algoMuon->getChargeNNConstr());  
   return pts;
 }
 ////////////
