@@ -56,16 +56,10 @@ void DataDumper::initializeTTree() {
 
   rootTree->Branch("quality", &record.quality);
 
-/*
-  rootTree->Branch("propagatedStates_tfLayer0", &record.propagatedStates.at(0));
-  rootTree->Branch("propagatedStates_tfLayer1", &record.propagatedStates.at(1));
-  rootTree->Branch("propagatedStates_tfLayer2", &record.propagatedStates.at(2));
-  rootTree->Branch("propagatedStates_tfLayer3", &record.propagatedStates.at(3));
-  rootTree->Branch("propagatedStates_tfLayer4", &record.propagatedStates.at(4));
-*/
-
   rootTree->Branch("deltaCoords1", &record.deltaCoords1);
   rootTree->Branch("deltaCoords2", &record.deltaCoords2);
+  rootTree->Branch("deltaEta1", &record.deltaEta1);
+  rootTree->Branch("deltaEta2", &record.deltaEta2);
 }
 
 void DataDumper::getHandles(const edm::Event& event) {
@@ -110,12 +104,12 @@ void DataDumper::process(PreTrackMatchedMuon& preTrackMatchedMuon) {
     LogTrace("gmtDataDumper")<<" findTrackingParticlePtr() - found matching TrackingParticle";
 
     //something not good here, crashing
-/*    if(mcTruthTTTrackHandle->isGenuine(ttTrackPtr))
+    if(mcTruthTTTrackHandle->isGenuine(ttTrackPtr))
       record.matching = 3;
     else if(mcTruthTTTrackHandle->isLooselyGenuine(ttTrackPtr))
-      record.matching = 2;*/
+      record.matching = 2;
 
-    record.matching = 2;
+    //record.matching = 2;
   }
   else {
     LogTrace("gmtDataDumper")<<" findTrackingParticlePtr() - nothing found";
@@ -137,9 +131,10 @@ void DataDumper::process(PreTrackMatchedMuon& preTrackMatchedMuon) {
       //here, "match" means ttTracks that can be associated to a TrackingParticle with at least one hit of at least one of its clusters - so it is very loose match
       std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > > matchedTracks = mcTruthTTTrackHandle->findTTTrackPtrs(muonTrackingPart);
       for(auto& matchedTTTrack : matchedTracks) {
-        if(matchedTTTrack == ttTrackPtr) {
+        bool match = matchedTTTrack->getHitPatternWord() == ttTrackPtr->getHitPatternWord();//workaround for MVA bits missing in matches stored in EDM file
+        //match = matchedTTTrack==ttTrackPtr;
+        if(match) {
           isVeryLoose = true;
-
           tpMatchedToL1MuCand = muonTrackingPart;
           LogTrace("l1tMuBayesEventPrint") <<" veryLoose matching muonTrackingPart found";
           break;
@@ -160,7 +155,7 @@ void DataDumper::process(PreTrackMatchedMuon& preTrackMatchedMuon) {
       record.tpPhi = tpMatchedToL1MuCand->momentum().phi();
 
       LogTrace("gmtDataDumper")<<"ttTrack matched to the TrackingParticle";
-      LogTrace("gmtDataDumper")<<" TrackingParticle type"<<(int)record.type<<" tpPt "<<record.tpPt<<" tpEta "<<record.tpEta<<" tpPhi "<<record.tpPhi ;
+      LogTrace("gmtDataDumper")<<" TrackingParticle type "<<(int)record.type<<" tpPt "<<record.tpPt<<" tpEta "<<record.tpEta<<" tpPhi "<<record.tpPhi ;
     }
   }
 
@@ -169,13 +164,10 @@ void DataDumper::process(PreTrackMatchedMuon& preTrackMatchedMuon) {
   for (const auto& stub : preTrackMatchedMuon.stubs()) {
 
     auto prop = preTrackMatchedMuon.propagatedState(stub->tfLayer());
-    record.deltaCoords1.at(stub->tfLayer()) = prop.coord1 - stub->coord1();
-    record.deltaCoords2.at(stub->tfLayer()) = prop.coord2 - stub->coord2();
-
-    //record.deltaCoords1.at(stub->tfLayer()) = preTrackMatchedMuon.getDeltaCoords1().at(stub->tfLayer());
-    //record.deltaCoords2.at(stub->tfLayer()) = preTrackMatchedMuon.getDeltaCoords2().at(stub->tfLayer());
-    record.deltaEta1.at(stub->tfLayer()) = preTrackMatchedMuon.getDeltaEta1().at(stub->tfLayer());
-    record.deltaEta2.at(stub->tfLayer()) = preTrackMatchedMuon.getDeltaEta2().at(stub->tfLayer());
+    record.deltaCoords1.at(stub->tfLayer()) = std::abs(prop.coord1 - stub->coord1());
+    record.deltaCoords2.at(stub->tfLayer()) = std::abs(prop.coord2 - stub->coord2());
+    record.deltaEta1.at(stub->tfLayer()) = std::abs(prop.eta - stub->eta1());
+    record.deltaEta2.at(stub->tfLayer()) = std::abs(prop.eta - stub->eta2());
 
     LogTrace("gmtDataDumper")<<"gmtDataDumper record: tfLayer "<<stub->tfLayer()
         <<" deltaCoords1 "<<(int)record.deltaCoords1.at(stub->tfLayer())

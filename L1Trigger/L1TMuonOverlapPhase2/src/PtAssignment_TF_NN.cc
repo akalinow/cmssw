@@ -81,10 +81,11 @@ if (!status.ok()) {
     return pts;
 }  
 
-  //double naiveBayesPt = omtfConfig->hwPtToGev(algoMuon->getPtConstr());
   double pt = outputs.at(0).matrix<float>()(0,0);
-  double calibratedHwPt = omtfConfig->ptGevToHw(pt);
-  algoMuon->setPtNNConstr(calibratedHwPt);
+  double calibratedHwPt = omtfConfig->ptGevToHw(1.15*pt);
+  double result = calibratedHwPt;
+
+  algoMuon->setPtNNConstr(result);
   algoMuon->setChargeNNConstr(algoMuon->getChargeNNConstr());  
   return pts;
 }
