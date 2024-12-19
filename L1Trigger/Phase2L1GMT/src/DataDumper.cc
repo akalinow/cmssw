@@ -5,7 +5,7 @@
  *      Author: kbunkow
  */
 
-//The includes in the PreTrackMatchedMuona and other places have no the proper includes of the below files,
+//The includes in the PreTrackMatchedMuon and other places have no the proper includes of the below files,
 //so they must be before  DataDumper.h
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuonPhase2/interface/MuonStub.h"
@@ -14,7 +14,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "L1Trigger/Phase2L1GMT/plugins/DataDumper.h"
+#include "L1Trigger/Phase2L1GMT/interface/DataDumper.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

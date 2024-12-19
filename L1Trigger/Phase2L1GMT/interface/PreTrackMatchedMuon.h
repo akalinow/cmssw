@@ -17,9 +17,10 @@
 
 #include "TObject.h"
 
+
 namespace Phase2L1GMT {
 
-    typedef struct: public TObject {
+    typedef struct {
     ap_int<BITSSTUBCOORD> coord1;
     ap_uint<BITSSIGMACOORD> sigma_coord1;
     ap_int<BITSSTUBCOORD> coord2;

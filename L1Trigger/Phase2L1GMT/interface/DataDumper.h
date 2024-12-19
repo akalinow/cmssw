@@ -8,9 +8,9 @@
 #ifndef INTERFACE_DATADUMPER_H_
 #define INTERFACE_DATADUMPER_H_
 
-#include "L1Trigger/Phase2L1GMT/plugins/PreTrackMatchedMuon.h"
+#include "L1Trigger/Phase2L1GMT/interface/PreTrackMatchedMuon.h"
 
-#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 

@@ -5,8 +5,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "L1Trigger/Phase2L1GMT/plugins/DataDumper.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
+#include "L1Trigger/Phase2L1GMT/interface/DataDumper.h"
+#include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -54,7 +54,7 @@ Phase2L1TGMTTkMuonProducer::Phase2L1TGMTTkMuonProducer(const edm::ParameterSet& 
       dataDumper(ttTrackMCTruthToken_, trackingParticleToken_, iConfig.getParameter<bool>("dumpToRoot") )
 {
   produces<std::vector<l1t::TrackerMuon> >();
-  node_->setPreTrackMatchedMuonProcessor(&dataDumper);
+  tps_->setPreTrackMatchedMuonProcessor(&dataDumper);
 }
 
 Phase2L1TGMTTkMuonProducer::~Phase2L1TGMTTkMuonProducer() {

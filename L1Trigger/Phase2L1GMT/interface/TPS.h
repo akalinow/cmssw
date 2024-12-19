@@ -6,6 +6,8 @@
 #include "L1Trigger/Phase2L1GMT/interface/TPSAlgorithm.h"
 #include "L1Trigger/Phase2L1GMT/interface/Isolation.h"
 
+#include "L1Trigger/Phase2L1GMT/interface/DataDumper.h"
+
 namespace Phase2L1GMT {
 
   class TPS {
@@ -14,6 +16,12 @@ namespace Phase2L1GMT {
     ~TPS() = default;
     std::vector<l1t::TrackerMuon> processEvent(const std::vector<edm::Ptr<l1t::TrackerMuon::L1TTTrackType> >&,
                                                const l1t::MuonStubRefVector&);
+
+    //added by AK
+    void setPreTrackMatchedMuonProcessor(PreTrackMatchedMuonProcessor* preTrackMatchedMuonProcessor) {
+      this->preTrackMatchedMuonProcessor.reset(preTrackMatchedMuonProcessor);
+    }            
+    ///                            
 
   private:
     int verbose_;
@@ -24,6 +32,8 @@ namespace Phase2L1GMT {
         const std::vector<edm::Ptr<l1t::TrackerMuon::L1TTTrackType> >& tracks, uint processor);
     l1t::SAMuonRefVector associateMuonsWithNonant(const l1t::SAMuonRefVector&, uint);
     l1t::MuonStubRefVector associateStubsWithNonant(const l1t::MuonStubRefVector&, uint);
+
+    std::unique_ptr<PreTrackMatchedMuonProcessor> preTrackMatchedMuonProcessor; //added by AK
   };
 }  // namespace Phase2L1GMT
 

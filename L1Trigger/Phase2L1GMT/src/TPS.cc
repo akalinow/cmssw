@@ -50,9 +50,10 @@ std::vector<l1t::TrackerMuon> TPS::processEvent(const std::vector<edm::Ptr<l1t::
   for (auto&& v : muCleaneds) {
     mergedCleaned.insert(mergedCleaned.end(), v.begin(), v.end());
   }
+  for(auto& preTrackMatchedMuon : mergedCleaned) preTrackMatchedMuonProcessor->process(preTrackMatchedMuon); //added by AK
 
   std::vector<l1t::TrackerMuon> trackMatchedMuonsNoIso = tps_->convert(mergedCleaned, 32);
-
+ 
   //sorter here:
   std::vector<l1t::TrackerMuon> sortedTrackMuonsNoIso = tps_->sort(trackMatchedMuonsNoIso, 12);
 
