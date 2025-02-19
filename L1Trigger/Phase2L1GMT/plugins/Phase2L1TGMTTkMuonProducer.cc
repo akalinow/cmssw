@@ -69,8 +69,10 @@ Phase2L1TGMTTkMuonProducer::~Phase2L1TGMTTkMuonProducer() {
 // ------------ method called to produce the data  ------------
 void Phase2L1TGMTTkMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
+
   Handle<l1t::TrackerMuon::L1TTTrackCollection> trackHandle;
   iEvent.getByToken(srcTracks_, trackHandle);
+
   std::vector<edm::Ptr<l1t::TrackerMuon::L1TTTrackType> > tracks;
   for (uint i = 0; i < trackHandle->size(); ++i) {
     edm::Ptr<l1t::TrackerMuon::L1TTTrackType> track(trackHandle, i);
@@ -89,6 +91,7 @@ void Phase2L1TGMTTkMuonProducer::produce(edm::Event& iEvent, const edm::EventSet
   }
 
   std::vector<l1t::TrackerMuon> out = tps_->processEvent(tracks, muonStubs);
+
   std::unique_ptr<std::vector<l1t::TrackerMuon> > out1 = std::make_unique<std::vector<l1t::TrackerMuon> >(out);
   iEvent.put(std::move(out1));
 }

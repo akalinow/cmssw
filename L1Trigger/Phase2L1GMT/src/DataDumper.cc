@@ -98,6 +98,7 @@ void DataDumper::process(PreTrackMatchedMuon& preTrackMatchedMuon) {
   record.isGlobal =  preTrackMatchedMuon.isGlobalMuon();
   record.quality = preTrackMatchedMuon.quality();
 
+/* TP matching crashes for displaced muons
   edm::Ptr< TrackingParticle > tpMatchedToL1MuCand = mcTruthTTTrackHandle->findTrackingParticlePtr(ttTrackPtr);
 
   if(tpMatchedToL1MuCand.isNonnull() ) {
@@ -158,6 +159,7 @@ void DataDumper::process(PreTrackMatchedMuon& preTrackMatchedMuon) {
       LogTrace("gmtDataDumper")<<" TrackingParticle type "<<(int)record.type<<" tpPt "<<record.tpPt<<" tpEta "<<record.tpEta<<" tpPhi "<<record.tpPhi ;
     }
   }
+*/
 
   record.propagatedStates = preTrackMatchedMuon.propagatedStates();
 
