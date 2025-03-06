@@ -28,6 +28,7 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/timer/timer.hpp>
 
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
@@ -62,13 +63,18 @@ void OMTFProcessor<GoldenPatternType>::init(const edm::ParameterSet& edmCfg, edm
 
   if (this->myOmtfConfig->getGhostBusterType() == "GhostBusterPreferRefDt" ||
       this->myOmtfConfig->getGhostBusterType() == "byLLH" || this->myOmtfConfig->getGhostBusterType() == "byFPLLH" ||
-      this->myOmtfConfig->getGhostBusterType() == "byRefLayer" || this->myOmtfConfig->getGhostBusterType() == "byRefLayerAndHitQual") {
+      this->myOmtfConfig->getGhostBusterType() == "byRefLayer" ||
+      this->myOmtfConfig->getGhostBusterType() == "byRefLayerAndHitQual") {
     setGhostBuster(new GhostBusterPreferRefDt(this->myOmtfConfig));
     edm::LogVerbatim("OMTFReconstruction") << "setting " << this->myOmtfConfig->getGhostBusterType() << std::endl;
   } else {
     setGhostBuster(new GhostBuster(this->myOmtfConfig));  //initialize with the default sorter
     edm::LogVerbatim("OMTFReconstruction") << "setting GhostBuster" << std::endl;
   }
+
+  convertToOuputScales = [&](l1t::tftype mtfType, const AlgoMuons& gbCandidates) {
+    return this->convertToOuputScalesPhase1(mtfType, gbCandidates);
+  };
 
   edm::LogVerbatim("OMTFReconstruction") << "fwVersion 0x" << hex << this->myOmtfConfig->fwVersion() << std::endl;
 
@@ -98,55 +104,48 @@ void OMTFProcessor<GoldenPatternType>::init(const edm::ParameterSet& edmCfg, edm
 }
 
 template <class GoldenPatternType>
-std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getFinalcandidates(unsigned int iProcessor,
-                                                                                        l1t::tftype mtfType,
-                                                                                        const AlgoMuons& algoCands) {
-  std::vector<l1t::RegionalMuonCand> result;
+FinalMuons OMTFProcessor<GoldenPatternType>::convertToOuputScalesPhase1(l1t::tftype mtfType,
+                                                                        const AlgoMuons& gbCandidates) {
+  LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << ":" << __LINE__ << " gbCandidates.size() " << gbCandidates.size()
+                                << std::endl;
+  FinalMuons finalMuons;
 
-  for (auto& myCand : algoCands) {
-    l1t::RegionalMuonCand candidate;
+  for (auto& myCand : gbCandidates) {
+    FinalMuon finalMuon(myCand);
 
     //the charge is only for the constrained measurement. The constrained measurement is always defined for a valid candidate
-    if (ptAssignment) {
-      if (myCand->getPdfSumConstr() > 0 && myCand->getFiredLayerCntConstr() >= 3)
-        candidate.setHwPt(myCand->getPtNNConstr());
-      else if (myCand->getPtUnconstr() > 0)
-        candidate.setHwPt(1);
-      else
-        candidate.setHwPt(0);
+    if (myCand->getPdfSumConstr() > 0 && myCand->getFiredLayerCntConstr() >= 3)
+      finalMuon.setPt(myCand->getPtConstr());
+    else if (myCand->getPtUnconstr() > 0)
+      //if myCand->getPdfSumConstr() == 0, the myCand->getPtConstr() might not be 0, see the end of GhostBusterPreferRefDt::select
+      //but 0 means empty candidate, 1 means pt=0, therefore here we set HwPt to 1, as the PtUnconstr > 0
+      finalMuon.setPt(1);
+    else
+      finalMuon.setPt(0);
 
-      candidate.setHwSign(myCand->getChargeNNConstr() < 0 ? 1 : 0);
-    } else {
-      if (myCand->getPdfSumConstr() > 0 && myCand->getFiredLayerCntConstr() >= 3)
-        candidate.setHwPt(myCand->getPtConstr());
-      else if (myCand->getPtUnconstr() > 0)
-        //if myCand->getPdfSumConstr() == 0, the myCand->getPtConstr() might not be 0, see the end of GhostBusterPreferRefDt::select
-        //but 0 means empty candidate, 1 means pt=0, therefore here we set HwPt to 1, as the PtUnconstr > 0
-        candidate.setHwPt(1);
-      else
-        candidate.setHwPt(0);
+    if (finalMuon.getPt() == 0)
+      continue;
 
-      candidate.setHwSign(myCand->getChargeConstr() < 0 ? 1 : 0);
-    }
+    finalMuon.setSign(myCand->getChargeConstr() < 0 ? 1 : 0);
 
     if (mtfType == l1t::omtf_pos)
-      candidate.setHwEta(myCand->getEtaHw());
+      finalMuon.setEta(myCand->getEtaHw());
     else
-      candidate.setHwEta((-1) * myCand->getEtaHw());
+      finalMuon.setEta((-1) * myCand->getEtaHw());
 
     int phiValue = myCand->getPhi();
     if (phiValue >= int(this->myOmtfConfig->nPhiBins()))
       phiValue -= this->myOmtfConfig->nPhiBins();
     phiValue = this->myOmtfConfig->procPhiToGmtPhi(phiValue);
-    candidate.setHwPhi(phiValue);
+    finalMuon.setPhi(phiValue);
 
-    candidate.setHwSignValid(1);
+    //finalMuon.setHwSignValid(1);
 
-    if (myCand->getPtUnconstr() >= 0) {  //empty PtUnconstrained is -1, maybe should be corrected on the source
+    if (myCand->getPtUnconstr() >= 0) {  //emtpy getPtUnconstr is 0, so this if rather has no sense, TODO - remove it
       //the upt has different hardware scale than the pt, the upt unit is 1 GeV
-      candidate.setHwPtUnconstrained(myCand->getPtUnconstr());
+      finalMuon.setPtUnconstr(myCand->getPtUnconstr());
     } else
-      candidate.setHwPtUnconstrained(0);
+      finalMuon.setPtUnconstr(0);
 
     unsigned int quality = 12;
     if (this->myOmtfConfig->fwVersion() <= 6)
@@ -285,24 +284,48 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getFinalcan
     if (abs(myCand->getEtaHw()) >= 121)
       quality = 0;  // changed from 4 on request from HI
 
-    candidate.setHwQual(quality);
+    finalMuon.setQuality(quality);
+    finalMuons.push_back(finalMuon);
+  }
+  return finalMuons;
+}
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+template <class GoldenPatternType>
+std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getRegionalMuonCands(unsigned int iProcessor,
+                                                                                          l1t::tftype mtfType,
+                                                                                          FinalMuons& finalMuons) {
+  std::vector<l1t::RegionalMuonCand> result;
+
+  for (auto& finalMuon : finalMuons) {
+    l1t::RegionalMuonCand candidate;
+
+    candidate.setHwPt(finalMuon.getPt());
+    candidate.setHwPtUnconstrained(finalMuon.getPtUnconstr());
+
+    candidate.setHwPhi(finalMuon.getPhi());
+    candidate.setHwEta(finalMuon.getEta());
+
+    candidate.setHwSign(finalMuon.getSign());
+    candidate.setHwSignValid(1);
+
+    candidate.setHwQual(finalMuon.getQuality());
 
     std::map<int, int> trackAddr;
-    trackAddr[0] = myCand->getFiredLayerBits();
+    trackAddr[0] = finalMuon.getAlgoMuon()->getFiredLayerBits();
     //TODO in the hardware, the uPt is sent to the uGMT at the trackAddr = (uPt << 18) + trackAddr;
     //check if it matters if it needs to be here as well
-    trackAddr[1] = myCand->getRefLayer();
-    trackAddr[2] = myCand->getDisc();
+    trackAddr[1] = finalMuon.getAlgoMuon()->getRefLayer();
+    trackAddr[2] = finalMuon.getAlgoMuon()->getDisc();
     if (candidate.hwPt() > 0 || candidate.hwPtUnconstrained() > 0) {
       candidate.setTrackAddress(trackAddr);
       candidate.setTFIdentifiers(iProcessor, mtfType);
       result.push_back(candidate);
     }
   }
+
   return result;
 }
-///////////////////////////////////////////////////////
-///////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
@@ -357,8 +380,9 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(const int& ref
                                                                   const int& targetStubR,
                                                                   const OMTFConfiguration* omtfConfig) {
   LogTrace("l1tOmtfEventPrint") << "\n"
-                                << __FUNCTION__ << ":" << __LINE__ << " refLogicLayer " << refLogicLayer << " refHitSuperLayer " << refHitSuperLayer
-                                << " targetLayer " << targetLayer << std::endl;
+                                << __FUNCTION__ << ":" << __LINE__ << " refLogicLayer " << refLogicLayer
+                                << " refHitSuperLayer " << refHitSuperLayer << " targetLayer " << targetLayer
+                                << std::endl;
   LogTrace("l1tOmtfEventPrint") << "refPhi " << refPhi << " refPhiB " << refPhiB << " targetStubPhi " << targetStubPhi
                                 << " targetStubQuality " << targetStubQuality << std::endl;
 
@@ -374,13 +398,12 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(const int& ref
 
   int reflLayerIndex = refLogicLayer == 0 ? 0 : 1;
   if (useStubQualInExtr) {
-  	//the phase-2 DT Trigger Primitives, since CMSSW_14_2_0_pre1 define phi always in "the middle of the chamber"
-  	//also for the uncorrelated stubs
-  	//so the below correction has sense only of the phase-1
-    if(refHitSuperLayer == 1) {
+    //the phase-2 DT Trigger Primitives, since CMSSW_14_2_0_pre1 define phi always in "the middle of the chamber"
+    //also for the uncorrelated stubs
+    //so the below correction has sense only of the phase-1
+    if (refHitSuperLayer == 1) {
       rRefLayer = rRefLayer - 23.5 / 2;  //inner superlayer
-    }
-    else if (refHitSuperLayer == 3) { //using 3 here as in the L1Phase2MuDTPhDigi::slNum(), so value 2 is not used, what might not be optimal for FW,
+    } else if (refHitSuperLayer == 3) {  //using refHitSuperLayer = 3 here as in the L1Phase2MuDTPhDigi::slNum()
       rRefLayer = rRefLayer + 23.5 / 2;  //inner superlayer
     }
 
@@ -392,10 +415,10 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(const int& ref
     float rTargetLayer = 512.475;  //MB2
 
     if (targetLayer == 0)
-      rTargetLayer = 431.175;  //MB1
-    else if (targetLayer == 4) {//MB3
+      rTargetLayer = 431.175;     //MB1
+    else if (targetLayer == 4) {  //MB3
       //it is different than in the phase-1, as in the phase-2 it is a middle of the DT chamber, not muon station
-      if(omtfConfig->usePhase2DTPrimitives())
+      if (omtfConfig->usePhase2DTPrimitives())
         rTargetLayer = 619.675;
       else
         rTargetLayer = 617.946;
@@ -593,10 +616,10 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiB(const MuonStubPtr& refSt
   // 1 is inner SL, 2 is outer.
   //N.B. that in L1Phase2MuDTPhDigi::slNum() out SL is 3
   int refHitSuperLayer = 0;
-  if(refStub->qualityHw == 2 || refStub->qualityHw == 0)
-    refHitSuperLayer =  1;
-  else if(refStub->qualityHw == 3 || refStub->qualityHw == 1)
-    refHitSuperLayer =  2;
+  if (refStub->qualityHw == 2 || refStub->qualityHw == 0)
+    refHitSuperLayer = 1;
+  else if (refStub->qualityHw == 3 || refStub->qualityHw == 1)
+    refHitSuperLayer = 2;
 
   if (useFloatingPointExtrapolation)
     return OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(refStub->logicLayer,
@@ -660,7 +683,7 @@ void OMTFProcessor<GoldenPatternType>::processInput(unsigned int iProcessor,
   }
 
   boost::property_tree::ptree procDataTree;
-  LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << " " << __LINE__;
+  LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << " " << __LINE__ << std::endl;
   for (unsigned int iLayer = 0; iLayer < this->myOmtfConfig->nLayers(); ++iLayer) {
     //debug
     /*for(auto& h : layerHits) {
@@ -748,25 +771,29 @@ void OMTFProcessor<GoldenPatternType>::processInput(unsigned int iProcessor,
     int etaRef = refStub->etaHw;
 
     //calculating the phiExtrp in the case the RefLayer is MB1, to include it in the  candidate phi of candidate
+    unsigned int layerPhiOut = 2;  //the layer at which the candidate output phi is defined
+    unsigned int extrRefLayer = layerPhiOut == 0 ? 2 : 0;
+    //N.B. is seems that using layer 0 (MB1) as the layer where the phi is defined gives much worse results - worse phi and more ghosts
+
     int phiExtrp = 0;
-    if ((this->myOmtfConfig->usePhiBExtrapolationMB1() && aRefHitDef.iRefLayer == 0)) {
+    if ((this->myOmtfConfig->usePhiBExtrapolationMB1() && aRefHitDef.iRefLayer == extrRefLayer)) {
       //||(this->myOmtfConfig->getUsePhiBExtrapolationMB2() && aRefHitDef.iRefLayer == 2) ) {  //the extrapolation from the layer 2 to the layer 2 has no sense, so phiExtrp is 0
       LogTrace("l1tOmtfEventPrint") << "\n"
                                     << __FUNCTION__ << ":" << __LINE__
                                     << "extrapolating ref hit to get the phi of the candidate" << std::endl;
       if (useFloatingPointExtrapolation)
         phiExtrp = extrapolateDtPhiBFloatPoint(
-            aRefHitDef.iRefLayer, phiRef, refStub->phiBHw, 0, 2, 0, 6, 0, 0, this->myOmtfConfig);
+            aRefHitDef.iRefLayer, phiRef, refStub->phiBHw, 0, layerPhiOut, 0, 6, 0, 0, this->myOmtfConfig);
       else
         phiExtrp = extrapolateDtPhiBFixedPoint(
-            aRefHitDef.iRefLayer, phiRef, refStub->phiBHw, 0, 2, 0, 6, 0, 0, this->myOmtfConfig);
+            aRefHitDef.iRefLayer, phiRef, refStub->phiBHw, 0, layerPhiOut, 0, 6, 0, 0, this->myOmtfConfig);
     }
 
     for (auto& itGP : this->theGPs) {
       if (itGP->key().thePt == 0)  //empty pattern
         continue;
 
-      int phiRefSt2 = itGP->propagateRefPhi(phiRef + phiExtrp, etaRef, aRefHitDef.iRefLayer);
+      int phiRefSt2 = itGP->propagateRefPhi(phiRef + phiExtrp, etaRef, aRefHitDef.iRefLayer, layerPhiOut);
       itGP->getResults()[procIndx][iRefHit].set(aRefHitDef.iRefLayer, phiRefSt2, etaRef, phiRef);
     }
   }
@@ -794,12 +821,11 @@ void OMTFProcessor<GoldenPatternType>::processInput(unsigned int iProcessor,
 ///////////////////////////////////////////////////////
 
 template <class GoldenPatternType>
-std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::run(
-    unsigned int iProcessor,
-    l1t::tftype mtfType,
-    int bx,
-    OMTFinputMaker* inputMaker,
-    std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) {
+FinalMuons OMTFProcessor<GoldenPatternType>::run(unsigned int iProcessor,
+                                                 l1t::tftype mtfType,
+                                                 int bx,
+                                                 OMTFinputMaker* inputMaker,
+                                                 std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) {
   //uncomment if you want to check execution time of each method
   //boost::timer::auto_cpu_timer t("%ws wall, %us user in getProcessorCandidates\n");
 
@@ -835,10 +861,7 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::run(
   if (ptAssignment) {
     for (auto& myCand : algoCandidates) {
       if (myCand->isValid()) {
-        auto pts = ptAssignment->getPts(myCand, observers);
-        /*for (unsigned int i = 0; i < pts.size(); i++) {
-        trackAddr[10 + i] = this->myOmtfConfig->ptGevToHw(pts[i]);
-      }*/
+        ptAssignment->run(myCand, observers);
       }
     }
   }
@@ -849,20 +872,17 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::run(
   AlgoMuons gbCandidates = ghostBust(algoCandidates);
 
   //LogTrace("l1tOmtfEventPrint")<<"ghostBust"; t.report();
-  // fill RegionalMuonCand colleciton
-  std::vector<l1t::RegionalMuonCand> candMuons = getFinalcandidates(iProcessor, mtfType, gbCandidates);
 
-  //LogTrace("l1tOmtfEventPrint")<<"getFinalcandidates "; t.report();
-  //fill outgoing collection
-  for (auto& candMuon : candMuons) {
-    candMuon.setHwQual(candMuon.hwQual());
-  }
+  FinalMuons finalMuons = convertToOuputScales(mtfType, gbCandidates);
+
+  // fill RegionalMuonCand colleciton
+  //std::vector<l1t::RegionalMuonCand> candMuons = getFinalcandidates(iProcessor, mtfType, gbCandidates);
 
   for (auto& obs : observers) {
-    obs->observeProcesorEmulation(iProcessor, mtfType, input, algoCandidates, gbCandidates, candMuons);
+    obs->observeProcesorEmulation(iProcessor, mtfType, input, algoCandidates, gbCandidates, finalMuons);
   }
 
-  return candMuons;
+  return finalMuons;
 }
 
 template <class GoldenPatternType>

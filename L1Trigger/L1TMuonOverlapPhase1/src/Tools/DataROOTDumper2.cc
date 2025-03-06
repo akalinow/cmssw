@@ -98,7 +98,7 @@ void DataROOTDumper2::observeProcesorEmulation(unsigned int iProcessor,
                                                const std::shared_ptr<OMTFinput>&,
                                                const AlgoMuons& algoCandidates,
                                                const AlgoMuons& gbCandidates,
-                                               const std::vector<l1t::RegionalMuonCand>& candMuons) {}
+                                               const FinalMuons& finalMuons) {}
 
 void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
                                       std::unique_ptr<l1t::RegionalMuonCandBxCollection>& finalCandidates) {
@@ -137,9 +137,9 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
 
   //for some events there are more than one matchingResults,
   //Usually at least one them has  genPt 0, which means no simMuon was matched, so candidate is ghost (or fake)
-  //so better is to to drop such event, as it is not sue if the correct simMuon was matched to the candidate.
+  //so better is to to drop such event, as it is not sure if the correct simMuon was matched to the candidate.
   //So we assume here that when the propagation is not used it is a single mu sample and this filter has sense
-  //the propagation is used for multi-muon sample, so then this fitler cannot be used
+  //the propagation is used for multi-muon sample, so then this filter cannot be used
   //TODO add a flag to enable this filter? Disable it if not needed
   if (!usePropagation && matchingResults.size() > 1) {  //omtfConfig->cleanStubs() &&
     edm::LogVerbatim("l1tOmtfEventPrint")
@@ -148,9 +148,9 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
     for (auto& matchingResult : matchingResults) {
       edm::LogVerbatim("l1tOmtfEventPrint") << "matchingResult: genPt " << matchingResult.genPt;
       if (matchingResult.procMuon)
-        edm::LogVerbatim("l1tOmtfEventPrint") << " procMuon.PtConstr " << matchingResult.procMuon->getPtConstr()
-                                              << " processor " << matchingResult.muonCand->processor()
-                                              << " hwPhi " << matchingResult.muonCand->hwPhi();
+        edm::LogVerbatim("l1tOmtfEventPrint")
+            << " procMuon.PtConstr " << matchingResult.procMuon->getPtConstr() << " processor "
+            << matchingResult.muonCand->processor() << " hwPhi " << matchingResult.muonCand->hwPhi();
       else
         edm::LogVerbatim("l1tOmtfEventPrint") << " no procMuon" << std::endl;
     }
@@ -164,7 +164,10 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
     if (matchingResult.trackingParticle) {
       auto trackingParticle = matchingResult.trackingParticle;
 
-      omtfEvent.muonEvent = trackingParticle->eventId().event();
+      if (matchingResult.result == MatchingResult::ResultType::propagationFailed)
+        omtfEvent.muonEvent = -2;
+      else
+        omtfEvent.muonEvent = trackingParticle->eventId().event();
 
       omtfEvent.muonPt = trackingParticle->pt();
       omtfEvent.muonEta = trackingParticle->momentum().eta();
@@ -197,8 +200,10 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
       }
     } else if (matchingResult.simTrack) {
       auto simTrack = matchingResult.simTrack;
-
-      omtfEvent.muonEvent = simTrack->eventId().event();
+      if (matchingResult.result == MatchingResult::ResultType::propagationFailed)
+        omtfEvent.muonEvent = -2;
+      else
+        omtfEvent.muonEvent = simTrack->eventId().event();
 
       omtfEvent.muonPt = simTrack->momentum().pt();
       omtfEvent.muonEta = simTrack->momentum().eta();
@@ -249,7 +254,21 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
     }
 
     auto addOmtfCand = [&](AlgoMuonPtr& procMuon) {
-      omtfEvent.omtfPt = omtfConfig->hwPtToGev(procMuon->getPtConstr());
+      //the charge is only for the constrained measurement. The constrained measurement is always defined for a valid candidate
+      if (procMuon->getPdfSumConstr() > 0 && procMuon->getFiredLayerCntConstr() >= 3)
+        omtfEvent.omtfPt = omtfConfig->hwPtToGev(procMuon->getPtConstr());
+      else if (procMuon->getPtUnconstr() > 0)
+        //if myCand->getPdfSumConstr() == 0, the myCand->getPtConstr() might not be 0, see the end of GhostBusterPreferRefDt::select
+        //but hwPt=0 means empty candidate, hwPt=1 maens pt=0,
+        //but omtfPt = 0 means empty candidate
+        //therefore here we set omtfPt=0.5 GeV, as the PtUnconstr > 0
+        //N.B it is different than in the OMTFProcessor<GoldenPatternType>::convertToOuputScalesPhase1, where hwPt=1
+        omtfEvent.omtfPt = 0.5;
+      else
+        omtfEvent.omtfPt = omtfConfig->hwPtToGev(0);
+
+      //for candidate with no unconstrained measurement, hardware upt = 0
+      //so then omtfEvent.omtfUPt is -1
       omtfEvent.omtfUPt = omtfConfig->hwUPtToGev(procMuon->getPtUnconstr());
       omtfEvent.omtfEta = omtfConfig->hwEtaToEta(procMuon->getEtaHw());
       omtfEvent.omtfPhi = procMuon->getPhi();
@@ -291,8 +310,8 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
           hit.valid = stubResult.getValid();
 
           unsigned int refLayerLogicNum = omtfConfig->getRefToLogicNumber()[procMuon->getRefLayer()];
-          
-          if(true) { //choose what to dump in hit.phiDist: "hitPhi - phiRefHit" or stubResult.getDeltaPhi()
+
+          if (false) {  //choose what to dump in hit.phiDist: "hitPhi - phiRefHit" or stubResult.getDeltaPhi()
             int hitPhi = stubResult.getMuonStub()->phiHw;
             int phiRefHit = gpResult.getStubResults()[refLayerLogicNum].getMuonStub()->phiHw;
             hit.phiDist = hitPhi - phiRefHit;
@@ -300,24 +319,25 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
             if (omtfConfig->isBendingLayer(iLogicLayer)) {
               hit.phiDist = stubResult.getMuonStub()->phiBHw;
             }
-          }
-          else {
+          } else {
             //stubResult.getDeltaPhi() includes the extrapolated phi
             hit.phiDist = stubResult.getDeltaPhi();
           }
-          
-          if(refLayerLogicNum == iLogicLayer)
-            hit.deltaR = stubResult.getMuonStub()->r - 413; //r of the ref hit - r of RB1in
+
+          if (refLayerLogicNum == iLogicLayer)
+            hit.deltaR = stubResult.getMuonStub()->r - 413;  //r of the ref hit - r of RB1in
           else
             hit.deltaR = stubResult.getMuonStub()->r - gpResult.getStubResults()[refLayerLogicNum].getMuonStub()->r;
 
-
-          LogTrace("l1tOmtfEventPrint")<<" muonPt "<<omtfEvent.muonPt<<" omtfPt "<<omtfEvent.omtfPt<<" RefLayer "<<int(omtfEvent.omtfRefLayer)
-                <<" layer "<<int(hit.layer)<<" PdfBin "<<stubResult.getPdfBin()<<" hit.phiDist "<<hit.phiDist<<" valid "<<int(hit.valid)<<" " //<<" phiDist "<<phiDist
-                <<" hit.deltaR "<<hit.deltaR
-                //<<" getDistPhiBitShift "<<procMuon->getGoldenPatern()->getDistPhiBitShift(iLogicLayer, procMuon->getRefLayer())
-                //<<" meanDistPhiValue   "<<procMuon->getGoldenPatern()->meanDistPhiValue(iLogicLayer, procMuon->getRefLayer())//<<(phiDist != hit.phiDist? "!!!!!!!<<<<<" : "")
-                <<endl;
+          LogTrace("l1tOmtfEventPrint")
+              << " muonPt " << omtfEvent.muonPt << " omtfPt " << omtfEvent.omtfPt << " RefLayer "
+              << int(omtfEvent.omtfRefLayer) << " layer " << int(hit.layer) << " PdfBin " << stubResult.getPdfBin()
+              << " hit.phiDist " << hit.phiDist << " valid " << int(hit.valid) << " "  //<<" phiDist "<<phiDist
+              << " hit.deltaR "
+              << hit.deltaR
+              //<<" getDistPhiBitShift "<<procMuon->getGoldenPatern()->getDistPhiBitShift(iLogicLayer, procMuon->getRefLayer())
+              //<<" meanDistPhiValue   "<<procMuon->getGoldenPatern()->meanDistPhiValue(iLogicLayer, procMuon->getRefLayer())//<<(phiDist != hit.phiDist? "!!!!!!!<<<<<" : "")
+              << endl;
 
           if (hit.phiDist > 504 || hit.phiDist < -512) {
             LogTrace("l1tOmtfEventPrint")
@@ -402,4 +422,7 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
   evntCnt++;
 }
 
-void DataROOTDumper2::endJob() { edm::LogVerbatim("l1tOmtfEventPrint") << " evntCnt " << evntCnt << endl; }
+void DataROOTDumper2::endJob() {
+  edm::LogVerbatim("l1tOmtfEventPrint") << " evntCnt " << evntCnt << endl;
+  rootTree->Write();
+}
