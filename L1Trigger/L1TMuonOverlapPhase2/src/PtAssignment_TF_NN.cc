@@ -1,4 +1,5 @@
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/PtAssignment_TF_NN.h"
+#include "DataFormats/L1TMuonPhase2/interface/Constants.h"
 
 /////////////////////////////
 /////////////////////////////
@@ -47,14 +48,13 @@ outputs_name = model_def.outputs().begin()->second.name();
 }
 /////////////////////////////
 /////////////////////////////
-std::vector<float> PtAssignment_TF_NN::getPts(AlgoMuons::value_type& algoMuon,
-                                    std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers){
+void PtAssignment_TF_NN::run(AlgoMuons::value_type& algoMuon,
+  std::vector<std::unique_ptr<IOMTFEmulationObserver>>& observers) {
 
-  std::vector<float> pts{0};
   auto& stubResults = algoMuon->getStubResultsConstr();
   auto& gpResult = algoMuon->getGpResultConstr();
   int nInputs = 2*stubResults.size() +1;
-  if(!nInputs) return pts;
+  if(!nInputs) return;
 
   tensorflow::Tensor inputs(tensorflow::DT_FLOAT, tensorflow::TensorShape({1, nInputs}));  
   std::vector<tensorflow::Tensor> outputs; 
@@ -78,15 +78,20 @@ tensorflow::Status status = model.session->Run( {{inputs_name, inputs}},
 
 if (!status.ok()) {
     std::cerr << "Inference failed: " << status;
-    return pts;
+    return;
 }  
 
   double pt = outputs.at(0).matrix<float>()(0,0);
-  double calibratedHwPt = omtfConfig->ptGevToHw(1.15*pt);
-  double result = calibratedHwPt;
+  int ptHw =  round(pt / Phase2L1GMT::LSBpt);
+  int maxPtHw = (1 << 13) - 1;  //TODO take it from DataFormats/L1TMuonPhase2/interface/Constants.h once it is established there
+  if (ptHw >= maxPtHw) ptHw = maxPtHw;
 
-  algoMuon->setPtNNConstr(result);
+  algoMuon->setPtNNConstr(ptHw);
   algoMuon->setChargeNNConstr(algoMuon->getChargeNNConstr());  
-  return pts;
+  //algoMuon->setNnOutputs(nnResult);
+
+  int ptHwUnconstr = round(pt / Phase2L1GMT::LSBpt);
+  if (ptHwUnconstr >= maxPtHw) ptHwUnconstr = maxPtHw;
+  algoMuon->setPtNNUnconstr(ptHwUnconstr);
 }
 ////////////

@@ -20,8 +20,7 @@ public:
 
   PtAssignment_TF_NN(const edm::ParameterSet& edmCfg, const OMTFConfiguration* omtfConfig); 
 
-  virtual std::vector<float> getPts(AlgoMuons::value_type& algoMuon,
-                                    std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) override;
+  void run(AlgoMuons::value_type& algoMuon, std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) override;
 
 private:
 
