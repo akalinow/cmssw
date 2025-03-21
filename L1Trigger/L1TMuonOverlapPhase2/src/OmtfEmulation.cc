@@ -62,15 +62,13 @@ void OmtfEmulation::addObservers(const MuonGeometryTokens& muonGeometryTokens,
   auto omtfProcGoldenPat = dynamic_cast<OMTFProcessor<GoldenPattern>*>(omtfProc.get());
   if (omtfProcGoldenPat) {
     omtfProcGoldenPat->setPtAssignment(ptAssignment.get());
-    //omtfProcGoldenPat can be constructed from scratch each run, so ptAssignment is set herer every run
+    //omtfProcGoldenPat can be constructed from scratch each run, so ptAssignment is set here every run
   }
 
   //TODO un-comment when convertToOuputScalesPhase2 is implemented
-  /*
   omtfProc->setOutpuConversionFunction([&](l1t::tftype mtfType, const AlgoMuons& gbCandidates) {
     return this->convertToOuputScalesPhase2(mtfType, gbCandidates);
-  }); */
-
+  }); 
 }
 
 FinalMuons OmtfEmulation::convertToOuputScalesPhase2(l1t::tftype mtfType, const AlgoMuons& gbCandidates) {
@@ -78,14 +76,14 @@ FinalMuons OmtfEmulation::convertToOuputScalesPhase2(l1t::tftype mtfType, const 
   auto omtfProcGoldenPat = dynamic_cast<OMTFProcessor<GoldenPattern>*>(omtfProc.get());
   if (omtfProcGoldenPat) {
     finalMuons = omtfProcGoldenPat->convertToOuputScalesPhase1(mtfType, gbCandidates);  //temporary solution, TODO remove
-    if (ptAssignment) {
       for (auto& finalMuon : finalMuons) {
+        if (ptAssignment) {
         //TODO convert the pts to the GMT output scales
         finalMuon.setPt(finalMuon.getAlgoMuon()->getPtNNConstr());
         finalMuon.setPtUnconstr(finalMuon.getAlgoMuon()->getPtNNUnconstr());
         finalMuon.setSign(finalMuon.getAlgoMuon()->getChargeNNConstr() < 0 ? 1 : 0);
         finalMuon.setQuality(finalMuon.getAlgoMuon()->getQualityNN());
-      }
+        }
     }
     //TODO add conversion of eta anf phi from gbCandidates to the GMT output scales
   }
@@ -105,11 +103,7 @@ l1t::SAMuonCollection OmtfEmulation::getSAMuons(unsigned int iProcessor,
     //TODO remove the below conversions when the conversions in the convertToOuputScalesPhase2 are implemented.
     ///N.B. the below conversions are from phase-1 uGMT scales to the phase-2 GMT scales.
     //What is needed in the convertToOuputScalesPhase2 is conversion from OTMF internal scales to  the phase-2 GMT scales
-    unsigned int pt = 0;
-    if (!uncostrainedPt && finalMuon.getPt() > 0)
-      pt = round(finalMuon.getPt() * 0.5 / Phase2L1GMT::LSBpt);  // Phase-1 LSB 0.5GeV
-    if (uncostrainedPt && finalMuon.getPtUnconstr() > 0)
-      pt = round(finalMuon.getPtUnconstr() * 1.0 / Phase2L1GMT::LSBpt);  // Phase-1 LSB 1.0GeV!!
+    unsigned int pt = finalMuon.getPt();
 
     // BEWARE: THIS CONVERSION IS ONLY VALID FOR OMTF
     constexpr double p1phiLSB = 2 * M_PI / 576;
@@ -174,7 +168,6 @@ std::unique_ptr<l1t::SAMuonCollection> OmtfEmulation::run(
   for (int bx = bxMin; bx <= bxMax; bx++) {
     for (unsigned int iProcessor = 0; iProcessor < omtfConfig->nProcessors(); ++iProcessor) {
       FinalMuons finalMuons = omtfProc->run(iProcessor, l1t::tftype::omtf_pos, bx, inputMaker.get(), observers);
-
       l1t::SAMuonCollection procSAMuons = getSAMuons(iProcessor, l1t::tftype::omtf_pos, finalMuons, false);
 
       //fill outgoing collection

@@ -81,13 +81,15 @@ if (!status.ok()) {
     return;
 }  
 
+  int maxPtHw = (1 << 13) - 1;  //TODO take it from DataFormats/L1TMuonPhase2/interface/Constants.h once it is established there
+
   double pt = outputs.at(0).matrix<float>()(0,0);
   int ptHw =  round(pt / Phase2L1GMT::LSBpt);
-  int maxPtHw = (1 << 13) - 1;  //TODO take it from DataFormats/L1TMuonPhase2/interface/Constants.h once it is established there
   if (ptHw >= maxPtHw) ptHw = maxPtHw;
 
   algoMuon->setPtNNConstr(ptHw);
-  algoMuon->setChargeNNConstr(algoMuon->getChargeNNConstr());  
+  algoMuon->setChargeNNConstr(algoMuon->getChargeNNConstr()); 
+  algoMuon->setQualityNN(12);
   //algoMuon->setNnOutputs(nnResult);
 
   int ptHwUnconstr = round(pt / Phase2L1GMT::LSBpt);
