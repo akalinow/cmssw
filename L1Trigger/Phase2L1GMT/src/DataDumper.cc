@@ -98,66 +98,66 @@ void DataDumper::process(PreTrackMatchedMuon& preTrackMatchedMuon) {
   record.isGlobal =  preTrackMatchedMuon.isGlobalMuon();
   record.quality = preTrackMatchedMuon.quality();
 
-  edm::Ptr< TrackingParticle > tpMatchedToL1MuCand = mcTruthTTTrackHandle->findTrackingParticlePtr(ttTrackPtr);
+  // edm::Ptr< TrackingParticle > tpMatchedToL1MuCand = mcTruthTTTrackHandle->findTrackingParticlePtr(ttTrackPtr);
 
-  if(tpMatchedToL1MuCand.isNonnull() ) {
-    LogTrace("gmtDataDumper")<<" findTrackingParticlePtr() - found matching TrackingParticle";
+  // if(tpMatchedToL1MuCand.isNonnull() ) {
+  //   LogTrace("gmtDataDumper")<<" findTrackingParticlePtr() - found matching TrackingParticle";
 
-    //something not good here, crashing
-    if(mcTruthTTTrackHandle->isGenuine(ttTrackPtr))
-      record.matching = 3;
-    else if(mcTruthTTTrackHandle->isLooselyGenuine(ttTrackPtr))
-      record.matching = 2;
+  //   //something not good here, crashing
+  //   if(mcTruthTTTrackHandle->isGenuine(ttTrackPtr))
+  //     record.matching = 3;
+  //   else if(mcTruthTTTrackHandle->isLooselyGenuine(ttTrackPtr))
+  //     record.matching = 2;
 
-    //record.matching = 2;
-  }
-  else {
-    LogTrace("gmtDataDumper")<<" findTrackingParticlePtr() - nothing found";
-    if(!muonTrackingParticlesFilled) {
-      for (unsigned int iTP = 0; iTP < trackingParticleHandle->size(); ++iTP) {
-        edm::Ptr< TrackingParticle > tpPtr(trackingParticleHandle, iTP);
-        if(abs(tpPtr->pdgId()) == 13 || abs(tpPtr->pdgId()) == 1000015) {
-          muonTrackingParticles.push_back(tpPtr);
-        }
-      }
-      LogTrace("gmtDataDumper")<<"filling muonTrackingParticles: muonTrackingParticles.size() = "<<muonTrackingParticles.size();
-      muonTrackingParticlesFilled = true;
-    }
+  //   //record.matching = 2;
+  // }
+  // else {
+  //   LogTrace("gmtDataDumper")<<" findTrackingParticlePtr() - nothing found";
+  //   if(!muonTrackingParticlesFilled) {
+  //     for (unsigned int iTP = 0; iTP < trackingParticleHandle->size(); ++iTP) {
+  //       edm::Ptr< TrackingParticle > tpPtr(trackingParticleHandle, iTP);
+  //       if(abs(tpPtr->pdgId()) == 13 || abs(tpPtr->pdgId()) == 1000015) {
+  //         muonTrackingParticles.push_back(tpPtr);
+  //       }
+  //     }
+  //     LogTrace("gmtDataDumper")<<"filling muonTrackingParticles: muonTrackingParticles.size() = "<<muonTrackingParticles.size();
+  //     muonTrackingParticlesFilled = true;
+  //   }
 
-    bool isVeryLoose = false;
-    for(auto& muonTrackingPart : muonTrackingParticles) {
-      //here we have ttTracks tagged as muon by correlator that have no matching genuine/loose genuine tracking particle
-      //so we go over all muonTrackingParticles and check if muonTrackingParticle has given ttTrack matched,
-      //here, "match" means ttTracks that can be associated to a TrackingParticle with at least one hit of at least one of its clusters - so it is very loose match
-      std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > > matchedTracks = mcTruthTTTrackHandle->findTTTrackPtrs(muonTrackingPart);
-      for(auto& matchedTTTrack : matchedTracks) {
-        bool match = matchedTTTrack->getHitPatternWord() == ttTrackPtr->getHitPatternWord();//workaround for MVA bits missing in matches stored in EDM file
-        //match = matchedTTTrack==ttTrackPtr;
-        if(match) {
-          isVeryLoose = true;
-          tpMatchedToL1MuCand = muonTrackingPart;
-          LogTrace("l1tMuBayesEventPrint") <<" veryLoose matching muonTrackingPart found";
-          break;
-        }
-      }
-      if(isVeryLoose) {
-        record.matching = 1;
-        break;
-      }
-    }
-  }
+  //   bool isVeryLoose = false;
+  //   for(auto& muonTrackingPart : muonTrackingParticles) {
+  //     //here we have ttTracks tagged as muon by correlator that have no matching genuine/loose genuine tracking particle
+  //     //so we go over all muonTrackingParticles and check if muonTrackingParticle has given ttTrack matched,
+  //     //here, "match" means ttTracks that can be associated to a TrackingParticle with at least one hit of at least one of its clusters - so it is very loose match
+  //     std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > > matchedTracks = mcTruthTTTrackHandle->findTTTrackPtrs(muonTrackingPart);
+  //     for(auto& matchedTTTrack : matchedTracks) {
+  //       bool match = matchedTTTrack->getHitPatternWord() == ttTrackPtr->getHitPatternWord();//workaround for MVA bits missing in matches stored in EDM file
+  //       //match = matchedTTTrack==ttTrackPtr;
+  //       if(match) {
+  //         isVeryLoose = true;
+  //         tpMatchedToL1MuCand = muonTrackingPart;
+  //         LogTrace("l1tMuBayesEventPrint") <<" veryLoose matching muonTrackingPart found";
+  //         break;
+  //       }
+  //     }
+  //     if(isVeryLoose) {
+  //       record.matching = 1;
+  //       break;
+  //     }
+  //   }
+  // }
 
-  if(tpMatchedToL1MuCand.isNonnull() ) {
-    if(abs(tpMatchedToL1MuCand->pdgId()) == 13 || abs(tpMatchedToL1MuCand->pdgId()) == 1000015) {
-      record.type = tpMatchedToL1MuCand->pdgId();
-      record.tpPt = tpMatchedToL1MuCand->pt();
-      record.tpEta = tpMatchedToL1MuCand->momentum().eta();
-      record.tpPhi = tpMatchedToL1MuCand->momentum().phi();
+  // if(tpMatchedToL1MuCand.isNonnull() ) {
+  //   if(abs(tpMatchedToL1MuCand->pdgId()) == 13 || abs(tpMatchedToL1MuCand->pdgId()) == 1000015) {
+  //     record.type = tpMatchedToL1MuCand->pdgId();
+  //     record.tpPt = tpMatchedToL1MuCand->pt();
+  //     record.tpEta = tpMatchedToL1MuCand->momentum().eta();
+  //     record.tpPhi = tpMatchedToL1MuCand->momentum().phi();
 
-      LogTrace("gmtDataDumper")<<"ttTrack matched to the TrackingParticle";
-      LogTrace("gmtDataDumper")<<" TrackingParticle type "<<(int)record.type<<" tpPt "<<record.tpPt<<" tpEta "<<record.tpEta<<" tpPhi "<<record.tpPhi ;
-    }
-  }
+  //     LogTrace("gmtDataDumper")<<"ttTrack matched to the TrackingParticle";
+  //     LogTrace("gmtDataDumper")<<" TrackingParticle type "<<(int)record.type<<" tpPt "<<record.tpPt<<" tpEta "<<record.tpEta<<" tpPhi "<<record.tpPhi ;
+  //   }
+  // }
 
   record.propagatedStates = preTrackMatchedMuon.propagatedStates();
 

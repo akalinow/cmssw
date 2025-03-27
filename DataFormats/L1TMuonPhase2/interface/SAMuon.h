@@ -33,6 +33,10 @@ namespace l1t {
     void setBeta(uint beta) { hwBeta_ = beta; }
     void setTF(tftype tf) { tf_ = tf; }
     unsigned int trackID() const { return trackID_; }
+    int matchedStubCount() const { return matchedStubCount_; }
+    void setMatchedStubCount(int count) { matchedStubCount_ = count; }
+    int totalStubQuality() const { return totalStubQuality_; }
+    void setTotalStubQuality(int quality) { totalStubQuality_ = quality; }
 
     void setTrackID(unsigned int ID) { trackID_ = ID; }
 
@@ -85,6 +89,8 @@ namespace l1t {
     MuonStubRefVector stubs_;
     unsigned int trackID_;
     tftype tf_;
+    int matchedStubCount_;
+    int totalStubQuality_;
   };
 }  // namespace l1t
 
