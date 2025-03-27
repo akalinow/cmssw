@@ -51,6 +51,7 @@ if not verbose:
     process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False), 
                                          #SkipEvent = cms.untracked.vstring('ProductNotFound') 
                                      )
+
 process.load('Configuration.Geometry.GeometryExtendedRun4D49Reco_cff')
 process.load('Configuration.Geometry.GeometryExtendedRun4D49_cff')  
 
