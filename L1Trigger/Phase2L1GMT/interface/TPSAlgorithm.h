@@ -12,6 +12,7 @@
 #include "L1Trigger/Phase2L1GMT/interface/ConvertedTTTrack.h"
 #include "L1Trigger/Phase2L1GMT/interface/PreTrackMatchedMuon.h"
 #include "L1Trigger/Phase2L1GMT/interface/TPSLUTs.h"
+#include "L1Trigger/Phase2L1GMT/interface/Structs.h"
 #include <fstream>
 #include <iostream>
 
@@ -19,18 +20,6 @@ namespace Phase2L1GMT {
 
   const unsigned int PHIDIVIDER = 1 << (BITSPHI - BITSSTUBCOORD);
   const unsigned int ETADIVIDER = 1 << (BITSETA - BITSSTUBETA);
-
-
-
-  typedef struct {
-    ap_uint<BITSMATCHQUALITY - 2> quality;
-    ap_uint<BITSSTUBID> id;
-    ap_uint<2> valid;
-    bool isGlobal;
-    l1t::SAMuonRef muRef;
-    l1t::MuonStubRef stubRef;
-
-  } match_t;
 
   class TPSAlgorithm {
   public:
