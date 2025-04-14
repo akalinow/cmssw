@@ -17,9 +17,9 @@ l1tGMTFilteredMuons = cms.EDProducer('Phase2L1TGMTFilter',
 
 
 SAMuonsWithCommonStubInfo = cms.EDProducer('Phase2SATrackerMatch',
-    samuons = cms.InputTag('gmtSAMuons:prompt'),  # prompt or displaced
+    samuons = cms.InputTag('gmtSAMuons:displaced'),  # prompt or displaced
     trackerMuons = cms.InputTag('gmtTkMuons'),
-    verbose = cms.untracked.bool(False)
+    verbose = cms.untracked.bool(True)
 )
 
 

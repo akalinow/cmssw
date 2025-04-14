@@ -56,17 +56,17 @@ void Phase2SATrackerMatch::produce(edm::Event& iEvent, const edm::EventSetup& iS
   // Vector to store SAMuons with common stub information
   std::vector<l1t::SAMuon> samuonsWithCommonStubInfo;
 
-  std::cout << "SAMuons variables: "  << std::endl;
-  for (const auto& samuon : *samuons) {
-    std::cout<< "SAMuon " << std::endl;
-    std::cout << "SAMuon pt: " << samuon.pt() << std::endl;
-    std::cout << "SAMuon eta: " << samuon.eta() << std::endl;
-    std::cout << "SAMuon phi: " << samuon.phi() << std::endl;
-    std::cout << "SAMuon hwPt: " << samuon.hwPt() << std::endl;
-    std::cout << "SAMuon hwEta: " << samuon.hwEta() << std::endl;
-    std::cout << "SAMuon hwPhi: " << samuon.hwPhi() << std::endl;
+  // std::cout << "SAMuons variables: "  << std::endl;
+  // for (const auto& samuon : *samuons) {
+  //   std::cout<< "SAMuon " << std::endl;
+  //   std::cout << "SAMuon pt: " << samuon.pt() << std::endl;
+  //   std::cout << "SAMuon eta: " << samuon.eta() << std::endl;
+  //   std::cout << "SAMuon phi: " << samuon.phi() << std::endl;
+  //   std::cout << "SAMuon hwPt: " << samuon.hwPt() << std::endl;
+  //   std::cout << "SAMuon hwEta: " << samuon.hwEta() << std::endl;
+  //   std::cout << "SAMuon hwPhi: " << samuon.hwPhi() << std::endl;
 
-  }
+  // }
 
   // Process each SAMuon
   if (verbose_) {
@@ -74,21 +74,34 @@ void Phase2SATrackerMatch::produce(edm::Event& iEvent, const edm::EventSetup& iS
       if(verbose_) std::cout << "SAMuon pt before matching: " << samuon.pt() << std::endl;
       for (const auto& stub : samuon.stubs()) {
         if (verbose_) {
-          std::cout << " SA Stub layer: " << stub->tfLayer() << " bx: " << stub->bxNum() << std::endl;
+          std::cout << " SA Stub layer: " << stub->tfLayer() << " bx: " << stub->bxNum() <<" type: "<< stub->type()<< " quality: "<< stub->quality()<<std::endl;
           std::cout << " eta1: " << stub->eta1() << std::endl;
           std::cout << " eta2: " << stub->eta2() << std::endl;
           std::cout << " coord1: " << stub->coord1() << std::endl;
           std::cout << " coord2: " << stub->coord2() << std::endl;
+          // if(std::abs(stub->coord1()) > 300) {
+          //   std::cout << " Suspicious stub" << std::endl;
+          //   //print all available information
+          //   std::cout << " Stub eta1: " << stub->eta1() << std::endl;
+          //   std::cout << " Stub eta2: " << stub->eta2() << std::endl; 
+          //   std::cout << " Stub coord1: " << stub->coord1() << std::endl;
+          //   std::cout << " Stub coord2: " << stub->coord2() << std::endl;
+          //   std::cout << " Stub bx: " << stub->bxNum() << std::endl;
+          //   std::cout << " Stub quality: " << stub->quality() << std::endl;  
+          //   std::cout << " Stub etaquality: " << stub->etaQuality() << std::endl;
+          //   std::cout << " Stub type: " << stub->type() << std::endl;
+          //   std::cout << " End of suspicious stub" << std::endl;       
+          // }
         }
       }
     }
 
     // Process each TrackerMuon
     for (const auto& trackerMuon : *trackerMuons) {
-      if (verbose_) std::cout << "TrackerMuon: " << trackerMuon.pt() << std::endl;
+      if (verbose_) std::cout << "TrackerMuon before matching: " << trackerMuon.pt() << std::endl;
       for (const auto& stub : trackerMuon.stubs()) {
         if (verbose_) {
-          std::cout << " Tracker Stub layer: " << stub->tfLayer() << " bx: " << stub->bxNum() << std::endl;
+          std::cout << " Tracker Stub layer: " << stub->tfLayer() << " bx: " << stub->bxNum() << " type: "<< stub->type()<< " quality: "<< stub->quality()<<std::endl;
           std::cout << " eta1: " << stub->eta1() << std::endl;
           std::cout << " eta2: " << stub->eta2() << std::endl;
           std::cout << " coord1: " << stub->coord1() << std::endl;
@@ -102,19 +115,63 @@ void Phase2SATrackerMatch::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
     for (auto& samuon : *samuons) {
         int commonStubCount = 0;
+        int totalStubCount = 0;
+        totalStubCount += samuon.stubs().size();
         std::vector<int> commonQualityVector;
+        std::vector<int> totalQualityVector;
         for (auto& trackerMuon : *trackerMuons) {
             for ( auto& samuonStub : samuon.stubs()) {
                 for ( auto& trackerMuonStub : trackerMuon.stubs()) {
-                    bool sameEta1 = samuonStub->eta1() == trackerMuonStub->eta1();
-                    bool sameEta2 = samuonStub->eta2() == trackerMuonStub->eta2();
-                    bool sameCoord1 = samuonStub->coord1() == trackerMuonStub->coord1();
-                    bool sameCoord2 = samuonStub->coord2() == trackerMuonStub->coord2();
-                    int commonQuality = sameEta1 + sameEta2 + sameCoord1 + sameCoord2;
-                    if (commonQuality > 0 && samuonStub->tfLayer() == trackerMuonStub->tfLayer() && samuonStub->bxNum() == trackerMuonStub->bxNum()) {
+                    // bool sameEta1 = samuonStub->eta1() == trackerMuonStub->eta1();
+                    // bool sameEta2 = samuonStub->eta2() == trackerMuonStub->eta2();
+                    // bool sameCoord1 = samuonStub->coord1() == trackerMuonStub->coord1();
+                    // bool sameCoord2 = samuonStub->coord2() == trackerMuonStub->coord2();
+                    // int commonQuality = sameEta1 + sameEta2 + sameCoord1 + sameCoord2;
+
+                    int commonQuality = 0;
+                    int totalQuality = 0;
+                    if(samuonStub->type()==0 && samuonStub->etaQuality() == 1) {
+                       bool sameEta1 = (samuonStub->eta1() == trackerMuonStub->eta1());
+                       bool sameCoords1 = (samuonStub->coord1() == trackerMuonStub->coord1());
+                       commonQuality = sameEta1 + sameCoords1;
+                       totalQuality = 2;
+                    }
+                    else if (samuonStub->type() == 0 && samuonStub->etaQuality() == 2) {
+                        bool sameEta2 = (samuonStub->eta2() == trackerMuonStub->eta2());
+                        bool sameCoords2 = (samuonStub->coord2() == trackerMuonStub->coord2());
+                        commonQuality = sameEta2 + sameCoords2;
+                        totalQuality = 2;
+                    }
+                    else if (samuonStub->type() == 0 && samuonStub->etaQuality() == 3) {
+                        bool sameEta1 = (samuonStub->eta1() == trackerMuonStub->eta1());
+                        bool sameCoords1 = (samuonStub->coord1() == trackerMuonStub->coord1());
+                        bool sameEta2 = (samuonStub->eta2() == trackerMuonStub->eta2());
+                        bool sameCoords2 = (samuonStub->coord2() == trackerMuonStub->coord2());
+                        commonQuality = sameEta1 + sameCoords1 + sameEta2 + sameCoords2;
+                        totalQuality = 4;
+                    }
+                    else if (samuonStub->type() == 1 && (samuonStub->etaQuality() == 0 || samuonStub->etaQuality() == 1)) {
+                        bool sameEta1 = (samuonStub->eta1() == trackerMuonStub->eta1());
+                        bool sameCoords1 = (samuonStub->coord1() == trackerMuonStub->coord1());
+                        bool sameCoords2 = (samuonStub->coord2() == trackerMuonStub->coord2());
+                        commonQuality = sameEta1 + sameCoords1 + sameCoords2;
+                        totalQuality = 3;
+                     }
+                     else if (samuonStub->type() == 1 && samuonStub->etaQuality() == 3) 
+                      {
+                          bool sameEta1 = (samuonStub->eta1() == trackerMuonStub->eta1());
+                          bool sameCoords1 = (samuonStub->coord1() == trackerMuonStub->coord1());
+                          bool sameCoords2 = (samuonStub->coord2() == trackerMuonStub->coord2());
+                          bool sameEta2 = (samuonStub->eta2() == trackerMuonStub->eta2());
+                          commonQuality = sameEta1 + sameCoords1 + sameCoords2 + sameEta2;
+                          totalQuality = 4;
+                      }
+                    if (commonQuality > 0 && samuonStub->tfLayer() == trackerMuonStub->tfLayer() && samuonStub->bxNum() == trackerMuonStub->bxNum() && samuonStub->type() == trackerMuonStub->type()) {
                         commonStubCount++;
                         commonQualityVector.push_back(commonQuality);
+                        
                     }
+                    totalQualityVector.push_back(totalQuality);
                 }
             }
         }
@@ -127,19 +184,27 @@ void Phase2SATrackerMatch::produce(edm::Event& iEvent, const edm::EventSetup& iS
             }
         }
 
-        int totalQualitySum = 0;
+        int commonQualitySum = 0;
         for (const auto& quality : commonQualityVector) {
+            commonQualitySum += quality;
+        }
+        int totalQualitySum = 0;
+        for (const auto& quality : totalQualityVector) {
             totalQualitySum += quality;
         }
 
         l1t::SAMuon newSAmuon = {samuon};
-        newSAmuon.setMatchedStubCount(commonStubCount);
+        newSAmuon.setCommonStubCount(commonStubCount);
+        newSAmuon.setCommonStubQuality(commonQualitySum);
+        newSAmuon.setTotalStubCount(totalStubCount);
         newSAmuon.setTotalStubQuality(totalQualitySum);
         samuonsWithCommonStubInfo.push_back(newSAmuon);
 
         if (verbose_) {
-            std::cout << "Matched stub count: " << newSAmuon.matchedStubCount() << std::endl;
+            std::cout << "Matched stub count: " << newSAmuon.commonStubCount() << std::endl;
             std::cout << "Total stub quality: " << newSAmuon.totalStubQuality() << std::endl;
+            std::cout << "Total common stub quality: " << newSAmuon.commonStubQuality() << std::endl;
+            std::cout << "Total stub count:" << newSAmuon.totalStubCount() << std::endl;
         }
     }
 
