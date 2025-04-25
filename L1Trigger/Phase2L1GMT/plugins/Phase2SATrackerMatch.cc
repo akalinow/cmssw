@@ -79,19 +79,6 @@ void Phase2SATrackerMatch::produce(edm::Event& iEvent, const edm::EventSetup& iS
           std::cout << " eta2: " << stub->eta2() << std::endl;
           std::cout << " coord1: " << stub->coord1() << std::endl;
           std::cout << " coord2: " << stub->coord2() << std::endl;
-          // if(std::abs(stub->coord1()) > 300) {
-          //   std::cout << " Suspicious stub" << std::endl;
-          //   //print all available information
-          //   std::cout << " Stub eta1: " << stub->eta1() << std::endl;
-          //   std::cout << " Stub eta2: " << stub->eta2() << std::endl; 
-          //   std::cout << " Stub coord1: " << stub->coord1() << std::endl;
-          //   std::cout << " Stub coord2: " << stub->coord2() << std::endl;
-          //   std::cout << " Stub bx: " << stub->bxNum() << std::endl;
-          //   std::cout << " Stub quality: " << stub->quality() << std::endl;  
-          //   std::cout << " Stub etaquality: " << stub->etaQuality() << std::endl;
-          //   std::cout << " Stub type: " << stub->type() << std::endl;
-          //   std::cout << " End of suspicious stub" << std::endl;       
-          // }
         }
       }
     }
@@ -130,9 +117,10 @@ void Phase2SATrackerMatch::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
                     int commonQuality = 0;
                     int totalQuality = 0;
+                    int convertedCoord1 = samuonStub->coord1() / 256; //because in BMTF it is not converted into hybrid stub
                     if(samuonStub->type()==0 && samuonStub->etaQuality() == 1) {
                        bool sameEta1 = (samuonStub->eta1() == trackerMuonStub->eta1());
-                       bool sameCoords1 = (samuonStub->coord1() == trackerMuonStub->coord1());
+                       bool sameCoords1 = (samuonStub->coord1() == trackerMuonStub->coord1() );
                        commonQuality = sameEta1 + sameCoords1;
                        totalQuality = 2;
                     }
@@ -152,15 +140,15 @@ void Phase2SATrackerMatch::produce(edm::Event& iEvent, const edm::EventSetup& iS
                     }
                     else if (samuonStub->type() == 1 && (samuonStub->etaQuality() == 0 || samuonStub->etaQuality() == 1)) {
                         bool sameEta1 = (samuonStub->eta1() == trackerMuonStub->eta1());
-                        bool sameCoords1 = (samuonStub->coord1() == trackerMuonStub->coord1());
-                        bool sameCoords2 = (samuonStub->coord2() == trackerMuonStub->coord2());
-                        commonQuality = sameEta1 + sameCoords1 + sameCoords2;
-                        totalQuality = 3;
+                        bool sameCoords1 = (samuonStub->coord1() == trackerMuonStub->coord1() || convertedCoord1 == trackerMuonStub->coord1());
+                        // bool sameCoords2 = (samuonStub->coord2() == trackerMuonStub->coord2());
+                        commonQuality = sameEta1 + sameCoords1;
+                        totalQuality = 2;
                      }
                      else if (samuonStub->type() == 1 && samuonStub->etaQuality() == 3) 
                       {
                           bool sameEta1 = (samuonStub->eta1() == trackerMuonStub->eta1());
-                          bool sameCoords1 = (samuonStub->coord1() == trackerMuonStub->coord1());
+                          bool sameCoords1 = (samuonStub->coord1() == trackerMuonStub->coord1() || convertedCoord1 == trackerMuonStub->coord1());
                           bool sameCoords2 = (samuonStub->coord2() == trackerMuonStub->coord2());
                           bool sameEta2 = (samuonStub->eta2() == trackerMuonStub->eta2());
                           commonQuality = sameEta1 + sameCoords1 + sameCoords2 + sameEta2;
@@ -169,9 +157,9 @@ void Phase2SATrackerMatch::produce(edm::Event& iEvent, const edm::EventSetup& iS
                     if (commonQuality > 0 && samuonStub->tfLayer() == trackerMuonStub->tfLayer() && samuonStub->bxNum() == trackerMuonStub->bxNum() && samuonStub->type() == trackerMuonStub->type()) {
                         commonStubCount++;
                         commonQualityVector.push_back(commonQuality);
-                        
+                        totalQualityVector.push_back(totalQuality);
                     }
-                    totalQualityVector.push_back(totalQuality);
+                    
                 }
             }
         }
@@ -205,6 +193,14 @@ void Phase2SATrackerMatch::produce(edm::Event& iEvent, const edm::EventSetup& iS
             std::cout << "Total stub quality: " << newSAmuon.totalStubQuality() << std::endl;
             std::cout << "Total common stub quality: " << newSAmuon.commonStubQuality() << std::endl;
             std::cout << "Total stub count:" << newSAmuon.totalStubCount() << std::endl;
+            if(commonStubCount ==0){
+              std::cout<<"Suspicious SAMuon: " << std::endl;
+              std::cout << "SAMuon pt: " << newSAmuon.pt() << std::endl;
+              std::cout << "SAMuon eta: " << newSAmuon.eta() << std::endl;
+              std::cout << "SAMuon phi: " << newSAmuon.phi() << std::endl;
+              std::cout << "SAMuon hwPt: " << newSAmuon.hwPt() << std::endl;
+              std::cout << "SAMuon hwEta: " << newSAmuon.hwEta() << std::endl;
+            }
         }
     }
 
