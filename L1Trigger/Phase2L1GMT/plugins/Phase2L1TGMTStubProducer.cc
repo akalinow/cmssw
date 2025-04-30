@@ -119,7 +119,8 @@ void Phase2L1TGMTStubProducer::produce(edm::Event& iEvent, const edm::EventSetup
   for (auto& stub : stubsBarrel) {
     //convert to Hybrid
     stubs.push_back(convertToHybrid(stub));
-    stubsKMTF.push_back(stub);
+    stubsKMTF.push_back(stub); 
+    // stubsKMTF.push_back(convertToHybrid(stub)); //my correction but not ok
   }
 
   iEvent.put(std::make_unique<l1t::MuonStubCollection>(stubs), "tps");
