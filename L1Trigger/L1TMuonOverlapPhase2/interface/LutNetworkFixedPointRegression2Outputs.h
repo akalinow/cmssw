@@ -20,7 +20,6 @@
 #include <boost/property_tree/xml_parser.hpp>
 
 namespace lutNN {
-
   //_I - number of integer bits in the ap_ufixed, _F - number of fractional bits in the ap_ufixed
   //the network has two outputs, and since each output can have different range, the LUTs in the last layer have different I and F
   template <
@@ -60,7 +59,7 @@ namespace lutNN {
       lutLayer3_1.setName("lutLayer3_1");
     };
 
-    ~LutNetworkFixedPointRegression2Outputs() override {}
+    ~LutNetworkFixedPointRegression2Outputs() override {};
 
     typedef LutNeuronLayerFixedPoint<input_I,
                                      input_F,

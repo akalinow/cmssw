@@ -133,7 +133,7 @@ void PatternGenerator::updateStat() {
   }
 
   simMuEta->Fill(simMuon->momentum().eta());
-  candEta->Fill(omtfConfig->hwEtaToEta(regionalMuonCand.hwEta()));
+  candEta->Fill(omtfConfig->hwEtaToEta(finalMuon.getEta()));
 
   double ptSim = simMuon->momentum().pt();
   int chargeSim = (abs(simMuon->type()) == 13) ? simMuon->type() / -13 : 0;
@@ -159,7 +159,7 @@ void PatternGenerator::updateStat() {
 
         bool fired = false;
         if (gpResult.getStubResults()[iLayer].getMuonStub()) {
-            fired = true;
+          fired = true;
         }
 
         if (fired) {  //the result is not empty
