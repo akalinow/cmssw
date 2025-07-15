@@ -72,6 +72,8 @@ void DataROOTDumper2::initializeTTree() {
   rootTree->Branch("omtfPhi", &omtfEvent.omtfPhi);
   rootTree->Branch("omtfCharge", &omtfEvent.omtfCharge);
 
+  rootTree->Branch("omtfNNPt", &omtfEvent.omtfNNPt);
+
   rootTree->Branch("omtfHwEta", &omtfEvent.omtfHwEta);
 
   rootTree->Branch("omtfProcessor", &omtfEvent.omtfProcessor);
@@ -253,6 +255,8 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent,
       omtfEvent.omtfPhi = procMuon->getPhi();
       omtfEvent.omtfCharge = procMuon->getChargeConstr();
       omtfEvent.omtfScore = procMuon->getPdfSum();
+
+      omtfEvent.omtfNNPt = omtfConfig->hwPtToGev(matchingResult.procMuon->getPtNNConstr());
 
       omtfEvent.omtfHwEta = procMuon->getEtaHw();
 
