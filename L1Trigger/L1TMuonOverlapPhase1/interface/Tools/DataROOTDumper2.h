@@ -43,6 +43,7 @@ public:
   float vertexPhi = 0;
 
   float omtfPt = 0, omtfEta = 0, omtfPhi = 0, omtfUPt = 0;
+  float omtfNNPt = 0;
   char omtfCharge = 0;
   char omtfProcessor = 0;
   short omtfScore = 0;

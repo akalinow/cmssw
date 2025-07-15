@@ -64,6 +64,8 @@ void DataROOTDumper2::initializeTTree() {
   rootTree->Branch("omtfPhi", &omtfEvent.omtfPhi);
   rootTree->Branch("omtfCharge", &omtfEvent.omtfCharge);
 
+  rootTree->Branch("omtfNNPt", &omtfEvent.omtfNNPt);
+
   rootTree->Branch("omtfHwEta", &omtfEvent.omtfHwEta);
 
   rootTree->Branch("omtfProcessor", &omtfEvent.omtfProcessor);
@@ -286,6 +288,9 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent, FinalMuons& fina
       omtfEvent.omtfPhi = muonCand->getPhiRad();
       omtfEvent.omtfCharge = muonCand->getAlgoMuon()->getChargeConstr();
       omtfEvent.omtfScore = muonCand->getAlgoMuon()->getPdfSum();
+
+      //in the Phase-2 emulation PtNNConstr is in GeV
+      omtfEvent.omtfNNPt = muonCand->getAlgoMuon()->getPtNNConstr();
 
       omtfEvent.omtfHwEta = muonCand->getAlgoMuon()->getEtaHw();
 
