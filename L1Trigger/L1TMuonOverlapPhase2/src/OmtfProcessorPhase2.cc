@@ -6,6 +6,7 @@
  */
 
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/NNRegression.h"
+#include "L1Trigger/L1TMuonOverlapPhase2/interface/PtAssignment_TF_NN.h"
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/OmtfProcessorPhase2.h"
 
 OmtfProcessorPhase2::OmtfProcessorPhase2(const OMTFConfiguration* omtfConfig,
@@ -111,6 +112,11 @@ void OmtfProcessorPhase2::beginRun(const edm::ParameterSet& edmParameterSet, edm
     edm::LogImportant("OMTFReconstruction") << "constructing PtAssignmentNNRegression" << std::endl;
     std::string neuralNetworkFile = edmParameterSet.getParameter<edm::FileInPath>("neuralNetworkFile").fullPath();
     mlModel = std::make_unique<NNRegression>(edmParameterSet, omtfConfig, neuralNetworkFile);
+  }
+
+  if (edmParameterSet.exists("tf_neuralNetworkFile") && !mlModel) {
+    edm::LogImportant("OMTFReconstruction") << "constructing PtAssignment_TF_NN" << std::endl;
+    mlModel = std::make_unique<PtAssignment_TF_NN>(edmParameterSet, omtfConfig);
   }
 }
 

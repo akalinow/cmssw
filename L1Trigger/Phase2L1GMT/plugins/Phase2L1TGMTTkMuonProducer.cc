@@ -4,6 +4,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "L1Trigger/Phase2L1GMT/interface/DataDumper.h"
+#include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -33,6 +35,9 @@ private:
   int minTrackStubs_;
   int bxMin_;
   int bxMax_;
+  edm::EDGetTokenT< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > > ttTrackMCTruthToken_;
+  edm::EDGetTokenT< std::vector< TrackingParticle > > trackingParticleToken_;
+  DataDumper dataDumper;
 };
 
 Phase2L1TGMTTkMuonProducer::Phase2L1TGMTTkMuonProducer(const edm::ParameterSet& iConfig)
@@ -41,10 +46,14 @@ Phase2L1TGMTTkMuonProducer::Phase2L1TGMTTkMuonProducer(const edm::ParameterSet& 
       srcStubs_(consumes<std::vector<l1t::MuonStub> >(iConfig.getParameter<edm::InputTag>("srcStubs"))),
       minTrackStubs_(iConfig.getParameter<int>("minTrackStubs")),
       bxMin_(iConfig.getParameter<int>("muonBXMin")),
-      bxMax_(iConfig.getParameter<int>("muonBXMax"))
+      bxMax_(iConfig.getParameter<int>("muonBXMax")),
+      ttTrackMCTruthToken_(consumes< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >(iConfig.getParameter<edm::InputTag>("mcTruthTrackInputTag"))),
+      trackingParticleToken_(consumes< std::vector< TrackingParticle > >(iConfig.getParameter<edm::InputTag>("trackingParticleInputTag"))),
+      dataDumper(ttTrackMCTruthToken_, trackingParticleToken_, iConfig.getParameter<bool>("dumpToRoot") )
 
 {
   produces<std::vector<l1t::TrackerMuon> >();
+  tps_->setPreTrackMatchedMuonProcessor(&dataDumper);
 }
 
 Phase2L1TGMTTkMuonProducer::~Phase2L1TGMTTkMuonProducer() {

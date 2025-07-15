@@ -84,6 +84,7 @@ std::vector<l1t::TrackerMuon> TPS::processEvent(const std::vector<edm::Ptr<l1t::
       cleaned_mu.printWord("TPS", 8, true);
     }
   }
+    for(auto& preTrackMatchedMuon : mergedCleaned) preTrackMatchedMuonProcessor->process(preTrackMatchedMuon); //added by AK
 
   std::vector<l1t::TrackerMuon> trackMatchedMuonsNoIso = tps_->convert(mergedCleaned, 32);
 
