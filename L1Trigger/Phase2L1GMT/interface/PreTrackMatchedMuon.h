@@ -12,11 +12,14 @@
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/L1Trigger/interface/Vertex.h"
-
+#include "L1Trigger/Phase2L1GMT/interface/Structs.h"
 #include <vector>
 
-namespace Phase2L1GMT {
+#include "TObject.h"
 
+
+namespace Phase2L1GMT {
+  
   class PreTrackMatchedMuon {
   public:
     PreTrackMatchedMuon(const uint& charge,
@@ -102,6 +105,20 @@ namespace Phase2L1GMT {
 
     const l1t::MuonStubRefVector& stubs() const { return stubs_; }
 
+    void addPropagatedState(const propagation_t& prop, unsigned int tfLayer) { prop_.at(tfLayer) = prop; }
+    const propagation_t& propagatedState(unsigned int tfLayer) const { return prop_.at(tfLayer); }
+    const auto& propagatedStates() const { return prop_; }
+
+    void setDeltaCoords1(unsigned int tfLayer, int value) { deltaCoords1_.at(tfLayer) = value; } 
+    void setDeltaCoords2(unsigned int tfLayer, int value) { deltaCoords2_.at(tfLayer) = value; } 
+    void setDeltaEta1(unsigned int tfLayer, int value) { deltaEta1_.at(tfLayer) = value; } 
+    void setDeltaEta2(unsigned int tfLayer, int value) { deltaEta2_.at(tfLayer) = value; } 
+
+    auto getDeltaCoords1() const { return deltaCoords1_; } 
+    auto getDeltaCoords2() const { return deltaCoords2_; } 
+    auto getDeltaEta1() const { return deltaEta1_; } 
+    auto getDeltaEta2() const { return deltaEta2_; } 
+
     void setTrkPtr(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> >& trkPtr) { trkPtr_ = trkPtr; }
 
     const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > trkPtr() const { return trkPtr_; }
@@ -122,7 +139,7 @@ namespace Phase2L1GMT {
       bstart = wordconcat<wordtype>(w, bstart, phi_, BITSPHI);
       bstart = wordconcat<wordtype>(w, bstart, eta_, BITSETA);
       bstart = wordconcat<wordtype>(w, bstart, z0_, BITSZ0);
-      wordconcat<wordtype>(w, bstart, d0_, BITSD0);
+      bstart = wordconcat<wordtype>(w, bstart, d0_, BITSD0);
       return w.to_int();
     }
 
@@ -137,7 +154,7 @@ namespace Phase2L1GMT {
       bstart = wordconcat<wordtype>(w2, bstart, isGlobal_, 1);
       bstart = wordconcat<wordtype>(w2, bstart, beta_, BITSMUONBETA);
       bstart = wordconcat<wordtype>(w2, bstart, quality_, BITSMATCHQUALITY);
-      wordconcat<wordtype>(w2, bstart, valid_, 1);
+      bstart = wordconcat<wordtype>(w2, bstart, valid_, 1);
 
       return w2.to_int();
     }
@@ -173,6 +190,28 @@ namespace Phase2L1GMT {
     l1t::MuonStubRefVector stubs_;
     l1t::SAMuonRefVector muRef_;
     edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > trkPtr_;
+
+    std::vector<propagation_t> prop_ = {propagation_t(), propagation_t(), propagation_t(), propagation_t(), propagation_t()};
+
+    std::vector<int> propCoord1_ = {0,0,0,0,0};
+    std::vector<int> propCoord2_ = {0,0,0,0,0};
+    std::vector<int> propEta_ = {0,0,0,0,0};
+    std::vector<int> prop_sigma_coord1_ = {0,0,0,0,0};
+    std::vector<int> prop_sigma_coord2_ = {0,0,0,0,0};
+    std::vector<int> prop_sigma_eta1_ = {0,0,0,0,0};
+    std::vector<int> prop_sigma_eta2_ = {0,0,0,0,0};
+
+    std::vector<int> stubCoord1 = {0,0,0,0,0};
+    std::vector<int> stubCoord2 = {0,0,0,0,0};
+    std::vector<int> stubEta1 = {0,0,0,0,0};
+    std::vector<int> stubEta2 = {0,0,0,0,0};
+
+
+    std::vector<int> deltaCoords1_ = {0,0,0,0,0}; 
+    std::vector<int> deltaCoords2_ = {0,0,0,0,0}; 
+    std::vector<int> deltaEta1_ = {0,0,0,0,0};
+    std::vector<int> deltaEta2_ = {0,0,0,0,0}; 
+
   };
 }  // namespace Phase2L1GMT
 

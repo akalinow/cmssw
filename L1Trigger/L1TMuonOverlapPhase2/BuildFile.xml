@@ -13,6 +13,7 @@
 <use name="xerces-c"/>
 <use name="root"/>
 <use name="roofit"/>
+<use name="PhysicsTools/TensorFlow" />
 
 <!-- <use lib=boost_timer />  -->
 <lib name="boost_timer" />
