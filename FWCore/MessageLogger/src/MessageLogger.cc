@@ -53,7 +53,7 @@ namespace edm {
   }
 
   edm::LogDebug_::LogDebug_(std::string_view id, std::string_view file, int line) : Log<level::Debug, false>(id) {
-    *this << " " << stripLeadingDirectoryTree(file) << ":" << line << "\n";
+    //AK *this << " " << stripLeadingDirectoryTree(file) << ":" << line << "\n";
   }
 
   std::string_view edm::LogDebug_::stripLeadingDirectoryTree(const std::string_view file) const {

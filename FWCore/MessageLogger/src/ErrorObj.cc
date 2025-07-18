@@ -80,7 +80,7 @@ namespace edm {
   // Birth/death:
   // ----------------------------------------------------------------------
 
-  ErrorObj::ErrorObj(const messagelogger::ELseverityLevel& sev, std::string_view id, bool verbat) : verbatim(verbat) {
+  ErrorObj::ErrorObj(const messagelogger::ELseverityLevel& sev, std::string_view id, bool verbat) : verbatim(true) {
 #ifdef ErrorObjCONSTRUCTOR_TRACE
     std::cerr << "Constructor for ErrorObj\n";
 #endif
