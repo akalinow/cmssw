@@ -21,7 +21,7 @@ namespace edm {
     MessageSender() = default;
     MessageSender(messagelogger::ELseverityLevel const& sev,
                   std::string_view id,
-                  bool verbatim = false,
+                  bool verbatim = true, //Hack by AK
                   bool suppressed = false);
     MessageSender(MessageSender&&) = default;
     MessageSender(MessageSender const&) = default;

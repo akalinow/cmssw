@@ -129,16 +129,16 @@ namespace edm {
           os(&std::cerr, do_nothing_deleter()),
           charsOnLine(0),
           xid(),
-          wantTimestamp(true),
-          wantModule(true),
-          wantSubroutine(true),
+          wantTimestamp(false),
+          wantModule(false),
+          wantSubroutine(false),
           wantText(true),
-          wantSomeContext(true),
+          wantSomeContext(false),
           wantSerial(false),
           wantFullContext(false),
           wantTimeSeparate(false),
           wantEpilogueSeparate(false),
-          preambleMode(true)  // 006 9/2/10 mf
+          preambleMode(false)  // 006 9/2/10 mf
     {
 #ifdef ELoutputCONSTRUCTOR_TRACE
       std::cerr << "Constructor for ELoutput()\n";
@@ -155,16 +155,16 @@ namespace edm {
           os(&os_, do_nothing_deleter()),
           charsOnLine(0),
           xid(),
-          wantTimestamp(true),
-          wantModule(true),
-          wantSubroutine(true),
+          wantTimestamp(false),
+          wantModule(false),
+          wantSubroutine(false),
           wantText(true),
-          wantSomeContext(true),
+          wantSomeContext(false),
           wantSerial(false),
           wantFullContext(false),
           wantTimeSeparate(false),
           wantEpilogueSeparate(false),
-          preambleMode(true)  // 006 9/2/10 mf
+          preambleMode(false)  // 006 9/2/10 mf
     {
 #ifdef ELoutputCONSTRUCTOR_TRACE
       std::cerr << "Constructor for ELoutput( os )\n";
@@ -172,7 +172,7 @@ namespace edm {
 
       // Enh 001 2/13/01 mf
       if (emitAtStart) {
-        preambleMode = true;
+        preambleMode = false;
         emitToken("\n=================================================", true);
         emitToken("\nMessage Log File written by MessageLogger service \n");
         emitToken("\n=================================================\n", true);
@@ -185,22 +185,22 @@ namespace edm {
           os(new std::ofstream(fileName.c_str(), std::ios /*_base*/ ::app), close_and_delete()),
           charsOnLine(0),
           xid(),
-          wantTimestamp(true),
-          wantModule(true),
-          wantSubroutine(true),
+          wantTimestamp(false),
+          wantModule(false),
+          wantSubroutine(false),
           wantText(true),
-          wantSomeContext(true),
+          wantSomeContext(false),
           wantSerial(false),
           wantFullContext(false),
           wantTimeSeparate(false),
           wantEpilogueSeparate(false),
-          preambleMode(true)  // 006 9/2/10 mf
+          preambleMode(false)  // 006 9/2/10 mf
     {
 #ifdef ELoutputCONSTRUCTOR_TRACE
       std::cerr << "Constructor for ELoutput( " << fileName << " )\n";
 #endif
 
-      preambleMode = true;
+      preambleMode = false;
       if (os && *os) {
 #ifdef ELoutputCONSTRUCTOR_TRACE
         std::cerr << "          Testing if os is owned\n";
@@ -324,7 +324,7 @@ namespace edm {
 
       // Output the prologue:
       //
-      preambleMode = true;
+      preambleMode = false;
 
       if (!msg.is_verbatim()) {
         charsOnLine = 0;  // Change log 5
