@@ -173,7 +173,7 @@ void Phase2SATrackerMatch::produce(edm::Event& iEvent, const edm::EventSetup& iS
     l1t::SAMuon newSAmuon = {samuon};
     newSAmuon.setCommonStubCount(commonStubCount);
   //newSAmuon.setCommonStubQuality(commonQualitySum);
-  //newSAmuon.setTotalStubCount(totalStubCount);
+    newSAmuon.setTotalStubCount(samuon.stubs().size());
   //newSAmuon.setTotalStubQuality(totalQualitySum);
     samuonsWithCommonStubInfo.push_back(newSAmuon);
   }
