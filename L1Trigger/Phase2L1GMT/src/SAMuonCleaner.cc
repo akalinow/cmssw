@@ -1,5 +1,25 @@
 #include "L1Trigger/Phase2L1GMT/interface/SAMuonCleaner.h"
+#include <algorithm>
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+int SAMuonCleaner::countCommonStubs(const l1t::SAMuon& cand1, const l1t::SAMuon& cand2) const{
+
+  int nCommonStubs = 0;
+  for (const auto& s1 : cand1.stubs()) {
+    for (const auto& s2 : cand2.stubs()) {
+      if ((*s1) == (*s2))
+        nCommonStubs++;
+    }
+  }
+  LogDebug("SAMuon") << __FUNCTION__ 
+                     << " cand1 stubs: " << cand1.stubs().size() 
+                     << " cand2 stubs: " << cand2.stubs().size() 
+                     << " common stubs: " << nCommonStubs;
+  return nCommonStubs;
+}                                                             
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
 void SAMuonCleaner::overlapCleanTrack(l1t::SAMuon& source, const l1t::SAMuon& other, bool eq) {
   int rank1 = source.hwQual();
   int rank2 = other.hwQual();
@@ -19,7 +39,8 @@ void SAMuonCleaner::overlapCleanTrack(l1t::SAMuon& source, const l1t::SAMuon& ot
   }
   source.setStubs(stubs);
 }
-
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
 void SAMuonCleaner::overlapCleanTrackInter(l1t::SAMuon& source, const l1t::SAMuon& other) {
   bool keep = false;
   l1t::MuonStubRefVector stubs;
@@ -35,14 +56,14 @@ void SAMuonCleaner::overlapCleanTrackInter(l1t::SAMuon& source, const l1t::SAMuo
   }
   source.setStubs(stubs);
 }
-
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
 std::vector<l1t::SAMuon> SAMuonCleaner::cleanTF(const std::vector<l1t::SAMuon>& tfMuons) {
   std::vector<l1t::SAMuon> out;
   for (unsigned int i = 0; i < tfMuons.size(); ++i) {
     l1t::SAMuon source = tfMuons[i];
     for (unsigned int j = 0; j < tfMuons.size(); ++j) {
-      if (i == j)
-        continue;
+      if (i == j) continue;
       overlapCleanTrack(source, tfMuons[j], false);
     }
     if (source.stubs().size() > 1)
@@ -50,27 +71,29 @@ std::vector<l1t::SAMuon> SAMuonCleaner::cleanTF(const std::vector<l1t::SAMuon>& 
   }
   return out;
 }
-
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
 std::vector<l1t::SAMuon> SAMuonCleaner::interTFClean(const std::vector<l1t::SAMuon>& bmtf,
                                                      const std::vector<l1t::SAMuon>& omtf,
                                                      const std::vector<l1t::SAMuon>& emtf) {
-  std::vector<l1t::SAMuon> out = emtf;
-  for (unsigned int i = 0; i < omtf.size(); ++i) {
-    l1t::SAMuon source = omtf[i];
-    for (const auto& other : emtf) {
-      overlapCleanTrackInter(source, other);
-    }
-    if (source.stubs().size() > 1)
-      out.push_back(source);
-  }
-  for (unsigned int i = 0; i < bmtf.size(); ++i) {
-    l1t::SAMuon source = bmtf[i];
+
+  std::vector<l1t::SAMuon> out = omtf;
+  for (unsigned int i = 0; i < emtf.size(); ++i) {
+    l1t::SAMuon source = emtf[i];
     for (const auto& other : omtf) {
       overlapCleanTrackInter(source, other);
     }
-    if (source.stubs().size() > 1)
       out.push_back(source);
   }
+
+  for (unsigned int i = 0; i < bmtf.size(); ++i) {
+    l1t::SAMuon source = bmtf[i];
+    for (const auto& other : out) {
+      overlapCleanTrackInter(source, other);
+    }
+    if (source.stubs().size() > 1)
+      out.push_back(source);
+  }    
   return out;
 }
 
@@ -150,7 +173,10 @@ std::vector<l1t::SAMuon> SAMuonCleaner::cleanTFMuons(const std::vector<l1t::SAMu
   emtf_cleaned.insert(emtf_cleaned.end(), emtf_neg_cleaned.begin(), emtf_neg_cleaned.end());
   sort(emtf_cleaned);
 
-  std::vector<l1t::SAMuon> cleaned = interTFClean(bmtf, omtf_cleaned, emtf_cleaned);
+  std::vector<l1t::SAMuon> bmtf_cleaned = cleanTF(bmtf);
+  sort(bmtf_cleaned);
+
+  std::vector<l1t::SAMuon> cleaned = interTFClean(bmtf_cleaned, omtf_cleaned, emtf_cleaned);
   sort(cleaned);
   return cleaned;
 }

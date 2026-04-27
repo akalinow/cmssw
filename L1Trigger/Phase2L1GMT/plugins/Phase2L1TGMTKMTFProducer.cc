@@ -44,7 +44,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
-  edm::EDGetTokenT<l1t::MuonStubCollection> stubToken_;
+  edm::EDGetTokenT<l1t::MuonStubCollection> stubToken_, stubPhase2Token_;
   std::unique_ptr<KMTF> kmtf_;
   unsigned int Nprompt;
   unsigned int Ndisplaced;
@@ -63,6 +63,7 @@ private:
 //
 Phase2L1TGMTKMTFProducer::Phase2L1TGMTKMTFProducer(const edm::ParameterSet& iConfig)
     : stubToken_(consumes<l1t::MuonStubCollection>(iConfig.getParameter<edm::InputTag>("stubs"))),
+      stubPhase2Token_(consumes<l1t::MuonStubCollection>(iConfig.getParameter<edm::InputTag>("stubsPhase2"))),
       kmtf_(new KMTF(iConfig.getParameter<int>("verbose"), iConfig.getParameter<edm::ParameterSet>("algo"))),
       Nprompt(iConfig.getParameter<uint>("Nprompt")),
       Ndisplaced(iConfig.getParameter<uint>("Ndisplaced")) {
@@ -80,6 +81,9 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
   using namespace edm;
   edm::Handle<l1t::MuonStubCollection> stubHandle;
   iEvent.getByToken(stubToken_, stubHandle);
+
+  edm::Handle<l1t::MuonStubCollection> stubPhase2Handle;
+  iEvent.getByToken(stubPhase2Token_, stubPhase2Handle);
 
   l1t::MuonStubRefVector stubs;
   for (uint i = 0; i < stubHandle->size(); ++i) {
@@ -114,10 +118,19 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
     bstart = wordconcat<wordtype>(word, bstart, p.hwD0(), BITSSAD0);
     wordconcat<wordtype>(word, bstart, track.rankPrompt(), 8);
 
-    for (const auto& stub : track.stubs())
-      p.addStub(stub);
-    p.setWord(word);
-    prompt.push_back(p);
+    for(const auto& stub : track.stubs()){
+      for(const auto& stubPhase2 : *stubPhase2Handle){
+        if((*stub).coord1()/256 == stubPhase2.coord1() && (*stub).coord2()/256 == stubPhase2.coord2() && 
+           (*stub).etaRegion() == stubPhase2.etaRegion() && (*stub).phiRegion() == stubPhase2.phiRegion() && 
+           (*stub).depthRegion() == stubPhase2.depthRegion()){
+          MuonStubRef stubPhase2Ref(stubPhase2Handle, &stubPhase2 - &(*stubPhase2Handle)[0]);
+          p.addStub(stubPhase2Ref);
+          break;
+        }
+      }
+    }
+      p.setWord(word);
+      prompt.push_back(p);
   }
 
   for (const auto& track : kmtfOutput.second) {
@@ -143,7 +156,15 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
     wordconcat<wordtype>(word, bstart, track.rankDisp(), 8);
 
     for (const auto& stub : track.stubs()) {
-      p.addStub(stub);
+      for (const auto& stubPhase2 : *stubPhase2Handle) {
+        if ((*stub).coord1() / 256 == stubPhase2.coord1() && (*stub).coord2() / 256 == stubPhase2.coord2() &&
+            (*stub).etaRegion() == stubPhase2.etaRegion() && (*stub).phiRegion() == stubPhase2.phiRegion() &&
+            (*stub).depthRegion() == stubPhase2.depthRegion()) {
+          MuonStubRef stubPhase2Ref(stubPhase2Handle, &stubPhase2 - &(*stubPhase2Handle)[0]);
+          p.addStub(stubPhase2Ref);
+          break;
+        }
+      }
     }
     p.setWord(word);
     displaced.push_back(p);

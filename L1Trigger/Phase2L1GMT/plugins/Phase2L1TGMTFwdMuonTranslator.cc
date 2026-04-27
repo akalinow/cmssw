@@ -201,7 +201,6 @@ SAMuon Phase2L1TGMTFwdMuonTranslator::Convertl1tMuon(const l1t::RegionalMuonCand
   SAMuon samuon(p4, charge, pt.to_uint(), eta.to_int(), phi.to_int(), z0.to_int(), d0.to_int(), qual.to_uint());
   samuon.setTF(mu.trackFinderType());
   samuon.setWord(word);
-
   return samuon;
 }  // -----  end of function Phase2L1TGMTFwdMuonTranslator::Convertl1tMuon  -----
 
