@@ -12,7 +12,6 @@
 #include "L1Trigger/Phase2L1GMT/interface/ConvertedTTTrack.h"
 #include "L1Trigger/Phase2L1GMT/interface/PreTrackMatchedMuon.h"
 #include "L1Trigger/Phase2L1GMT/interface/TPSLUTs.h"
-#include "L1Trigger/Phase2L1GMT/interface/Structs.h"
 #include <iostream>
 
 namespace Phase2L1GMT {
@@ -37,7 +36,7 @@ namespace Phase2L1GMT {
   const ap_uint<BITSSIGMACOORD> SIGMAMAX = ~ap_uint<BITSSIGMACOORD>(0);
   const ap_uint<BITSSIGMACOORD> SIGMAMIN = 2;
 
-  /* commented by AK
+  /* Moved to PreTrackMatchedMuon.h for data dump
   struct propagation_t {
     ap_int<BITSSTUBCOORD> coord1;
     ap_uint<BITSSIGMACOORD> sigma_coord1;

@@ -76,6 +76,7 @@ std::vector<l1t::TrackerMuon> TPS::processEvent(const std::vector<edm::Ptr<l1t::
     mergedPrecleaned.insert(mergedPrecleaned.end(), v.begin(), v.end());
   }
   std::vector<PreTrackMatchedMuon> mergedCleaned = tps_->cleanAll(mergedPrecleaned);
+  for(auto& preTrackMatchedMuon : mergedCleaned) preTrackMatchedMuonProcessor->process(preTrackMatchedMuon); //added by AK
 
   if (verbose_ == 1) {
     edm::LogInfo("TPS") << "After cleaning premuons:";
@@ -84,7 +85,6 @@ std::vector<l1t::TrackerMuon> TPS::processEvent(const std::vector<edm::Ptr<l1t::
       cleaned_mu.printWord("TPS", 8, true);
     }
   }
-    for(auto& preTrackMatchedMuon : mergedCleaned) preTrackMatchedMuonProcessor->process(preTrackMatchedMuon); //added by AK
 
   std::vector<l1t::TrackerMuon> trackMatchedMuonsNoIso = tps_->convert(mergedCleaned, 32);
 

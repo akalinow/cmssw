@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 gmtKMTFMuons = cms.EDProducer('Phase2L1TGMTKMTFProducer',
                                  stubs      = cms.InputTag('gmtStubs','kmtf'),
+                                 stubsPhase2 = cms.InputTag('gmtStubs','tps'),
                                  verbose    = cms.int32(0),
                                  algo       = cms.PSet(
                                      verbose = cms.bool(False),

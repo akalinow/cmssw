@@ -12,14 +12,34 @@
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/L1Trigger/interface/Vertex.h"
-#include "L1Trigger/Phase2L1GMT/interface/Structs.h"
+
 #include <vector>
 
-#include "TObject.h"
-
-
 namespace Phase2L1GMT {
-  
+
+  // For data dump. Copied from TPSAlgorithm.h
+  struct propagation_t {
+    ap_int<BITSSTUBCOORD> coord1;
+    ap_uint<BITSSIGMACOORD> sigma_coord1;
+    ap_int<BITSSTUBCOORD> coord2;
+    ap_uint<BITSSIGMACOORD> sigma_coord2;
+    ap_int<BITSSTUBETA> eta;
+    ap_uint<BITSSIGMAETA> sigma_eta1;
+    ap_uint<BITSSIGMAETA> sigma_eta2;
+    ap_uint<1> valid;
+    ap_uint<1> is_barrel;
+  };
+
+  struct match_t {
+    ap_uint<BITSMATCHQUALITY - 2> quality;
+    ap_uint<BITSSTUBID> id;
+    ap_uint<2> valid;
+    bool isGlobal = false;
+    l1t::SAMuonRef muRef;
+    l1t::MuonStubRef stubRef;
+  };
+  ///
+
   class PreTrackMatchedMuon {
   public:
     PreTrackMatchedMuon(const uint& charge,

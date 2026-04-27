@@ -58,6 +58,7 @@ Phase2L1TGMTSAMuonGhostCleaner::Phase2L1TGMTSAMuonGhostCleaner(const edm::Parame
       fwdTokenDisp_(consumes<std::vector<l1t::SAMuon> >(iConfig.getParameter<edm::InputTag>("forwardDisp"))) {
   produces<std::vector<l1t::SAMuon> >("prompt");
   produces<std::vector<l1t::SAMuon> >("displaced");
+
 }
 
 // ===  FUNCTION  ============================================================
@@ -119,6 +120,7 @@ void Phase2L1TGMTSAMuonGhostCleaner::produce(edm::Event& iEvent, const edm::Even
   std::unique_ptr<std::vector<l1t::SAMuon> > disp_ptr = std::make_unique<std::vector<l1t::SAMuon> >(finalDisp);
   iEvent.put(std::move(prompt_ptr), "prompt");
   iEvent.put(std::move(disp_ptr), "displaced");
+
 }
 
 DEFINE_FWK_MODULE(Phase2L1TGMTSAMuonGhostCleaner);

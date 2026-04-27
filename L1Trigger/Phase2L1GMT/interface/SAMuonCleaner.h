@@ -11,6 +11,14 @@ public:
   std::vector<l1t::SAMuon> cleanTFMuons(const std::vector<l1t::SAMuon>& muons);
 
 private:
+  int countCommonStubs(const l1t::SAMuon& source, const l1t::SAMuon& other) const;
+
+  std::vector<const l1t::SAMuon*> removeGhosts(const std::vector<l1t::SAMuon>& system1,
+                                               const std::vector<l1t::SAMuon>& system2) const;
+
+  std::vector<const l1t::SAMuon*> removeGhosts(const std::vector<const l1t::SAMuon*> system1,
+                                               const std::vector<const l1t::SAMuon*> system2) const;
+
   std::vector<l1t::SAMuon> cleanTF(const std::vector<l1t::SAMuon>& tfMuons);
   void overlapCleanTrack(l1t::SAMuon& source, const l1t::SAMuon& other, bool eq);
   void overlapCleanTrackInter(l1t::SAMuon& source, const l1t::SAMuon& other);
