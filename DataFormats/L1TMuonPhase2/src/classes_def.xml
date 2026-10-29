@@ -18,7 +18,7 @@
      <class name="std::vector<edm::Ref<l1t::TrackerMuonCollection> >"/>
      
      <class name="l1t::io_v1::SAMuon" ClassVersion="4">
-       <version ClassVersion="4" checksum="0"/>
+       <version ClassVersion="4" checksum="3183231209"/>
        <version ClassVersion="3" checksum="2872078027"/>
      </class>
      <class name="std::vector<l1t::io_v1::SAMuon>"/>
