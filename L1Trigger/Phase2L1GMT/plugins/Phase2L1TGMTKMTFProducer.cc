@@ -163,6 +163,11 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
     bstart = wordconcat<wordtype>(word, bstart, p.hwD0(), BITSSAD0);
     wordconcat<wordtype>(word, bstart, track.rankDisp(), 8);
 
+    LogDebug("Phase2L1TGMTKMTFProducer") << "Phase2 stubs: " << std::endl;
+     for (const auto& stubPhase2 : *stubPhase2Handle) {
+        stubPhase2.print();
+     }
+
     for (const auto& stub : track.stubs()) {
       for (const auto& stubPhase2 : *stubPhase2Handle) {
         if ((*stub).coord1() / 256 == stubPhase2.coord1() && (*stub).coord2() / 256 == stubPhase2.coord2() &&

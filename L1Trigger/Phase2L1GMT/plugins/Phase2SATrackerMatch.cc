@@ -50,43 +50,46 @@ void Phase2SATrackerMatch::beginJob() {}
 int Phase2SATrackerMatch::findBestTrackerMuon(const l1t::SAMuon & samuon, 
                                               const std::vector<l1t::TrackerMuon>& trackerMuons) const {
 
-  
+  LogDebug("SAMuon") << "Phase2SATrackerMatch::findBestTrackerMuon called with SAMuon: " << std::endl;
   samuon.print();
   LogDebug("SAMuon") << "SAMuon stubs: " << std::endl;
   for (auto& samuonStub : samuon.stubs()) samuonStub->print();
   LogDebug("SAMuon") << "SAMuon stubs: END" << std::endl;
+  LogDebug("SAMuon") << "Number of TrackerMuons: " << trackerMuons.size() << std::endl;
   
-
-  int bestMatchCount = 0;
+  int bestMatchCount = -1;
   
   for (auto& trackerMuon : trackerMuons) {
 
     int commonStubCount = 0;
+    if(trackerMuon.hwQual()<4) continue; //skip non-zero bx and low quality TrackerMuons
     
-    trackerMuon.print();
-    LogDebug("SAMuon") << "TrackerMuon stubs: " << std::endl;
     for (auto& trackerMuonStub : trackerMuon.stubs()) trackerMuonStub->print();
-    LogDebug("SAMuon") << "TrackerMuon stubs: END" << std::endl;
     
-
     for (auto& samuonStub : samuon.stubs()){
+        bool stubMatched = false;
         for (auto& trackerMuonStub : trackerMuon.stubs()) {
 
             bool tfLayerMatch = (samuonStub->tfLayer() == trackerMuonStub->tfLayer());
             bool bxNumMatch = (samuonStub->bxNum() == trackerMuonStub->bxNum());
             bool typeMatch = (samuonStub->type() == trackerMuonStub->type());
+            bool addressMatch = (samuonStub->address()>>2) == (trackerMuonStub->address()>>2); //ignore last 2 bits of address - stub id within chamber
             bool qualityMatch = true; //hybrid stubs have quality fixed to 3 (samuonStub->quality() == trackerMuonStub->quality());
             bool etaQualityMatch = (samuonStub->etaQuality() == trackerMuonStub->etaQuality());
-/*
-            LogDebug("SAMuon") << "tfLayerMatch: " << tfLayerMatch
-                               << ", bxNumMatch: " << bxNumMatch
-                               << ", typeMatch: " << typeMatch
-                               << ", qualityMatch: " << qualityMatch
-                               << ", etaQualityMatch: " << etaQualityMatch
-                               << std::endl;
-*/
-            if (!(tfLayerMatch && bxNumMatch && typeMatch && qualityMatch && etaQualityMatch)) continue;
 
+            LogDebug("SAMuon") <<" SAM:" << (samuonStub->address()>>2)
+                                <<" TK: " << (trackerMuonStub->address()>>2) 
+                                << " bxNumMatch: " << bxNumMatch
+                                << " tfLayerMatch: " << tfLayerMatch 
+                                << " typeMatch: " << typeMatch
+                                << " addressMatch: " << addressMatch
+                                << " qualityMatch: " << qualityMatch
+                                << " etaQualityMatch: " << etaQualityMatch
+                                << std::endl;
+
+            //stubMatched=(tfLayerMatch && addressMatch); //full match in HW. In HW we have access to tfLayer and address.
+            stubMatched |= addressMatch; //Catch cases when SAM and TKMuons have stubs in different tfLayers.
+            
             ///etaQuality:
             /// 0 = no eta coordinate
             /// 1 = eta1 coordinate only
@@ -99,57 +102,21 @@ int Phase2SATrackerMatch::findBestTrackerMuon(const l1t::SAMuon & samuon,
 
             ///type==1 && etaQuality==0 - DT coarse eta coordinate
             ///type==1 && etaQuality==1 - DT with single eta coordinate
-            ///type==1 && etaQuality==3 - DT with two eta coordinates
-
-            bool eta1Valid = samuonStub->type() == 1 || (samuonStub->etaQuality() == 1 || samuonStub->etaQuality() == 3);
-            bool eta2Valid = (samuonStub->etaQuality() == 2 || samuonStub->etaQuality() == 3);
-
-            bool coord1Valid = samuonStub->type() == 1 || eta1Valid;
-            bool coord2Valid = samuonStub->type() == 1 || eta2Valid;
-  
-            bool coord1Match = (samuonStub->coord1() == trackerMuonStub->coord1());
-            bool coord2Match = (samuonStub->coord2() == trackerMuonStub->coord2());
-            
-            bool eta1Match = (samuonStub->eta1() == trackerMuonStub->eta1());
-            bool eta2Match = (samuonStub->eta2() == trackerMuonStub->eta2());
-
-            int matchCount = coord1Match*coord1Valid + 
-                             coord2Match*coord2Valid + 
-                             eta1Match*eta1Valid + 
-                             eta2Match*eta2Valid;
-            
-            commonStubCount += matchCount == (coord1Valid + coord2Valid + eta1Valid + eta2Valid);
-/*
-            LogDebug("SAMuon") << "eta1Valid: " << eta1Valid
-                               << ", eta2Valid: " << eta2Valid
-                               << ", coord1Valid: " << coord1Valid
-                               << ", coord2Valid: " << coord2Valid
-                               << ", coord1Match: " << coord1Match
-                               << ", coord2Match: " << coord2Match
-                               << ", eta1Match: " << eta1Match
-                               << ", eta2Match: " << eta2Match
-                               << ", matchCount: " << matchCount
-                               << ", commonStubCount: " << commonStubCount
-                               << " bestMatchCount: " << bestMatchCount
-                               <<std::endl;
-                               */
+            ///type==1 && etaQuality==3 - DT with two eta coordinates                              
         }
-
-            if(commonStubCount > bestMatchCount) {
-                bestMatchCount = commonStubCount;
-          }
-        }
-      }
-    if(bestMatchCount<2){
-      LogDebug("SAMuon")<<" LOW MATCH"<<std::endl;
+          commonStubCount += stubMatched;
+    
+      if(commonStubCount > bestMatchCount) bestMatchCount = commonStubCount;
     }
+  }
+    if(bestMatchCount<2){
+      LogDebug("SAMuon")<<" LOW MATCH bestMatchCount: "<<bestMatchCount<<std::endl;
+    }
+
     return bestMatchCount;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 // Called for each event to produce the output
 void Phase2SATrackerMatch::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Retrieve SAMuons from the event
@@ -168,9 +135,7 @@ void Phase2SATrackerMatch::produce(edm::Event& iEvent, const edm::EventSetup& iS
     commonStubCount = findBestTrackerMuon(samuon, *trackerMuons);
     l1t::SAMuon newSAmuon = {samuon};
     newSAmuon.setCommonStubCount(commonStubCount);
-  //newSAmuon.setCommonStubQuality(commonQualitySum);
     newSAmuon.setTotalStubCount(samuon.stubs().size());
-  //newSAmuon.setTotalStubQuality(totalQualitySum);
     samuonsWithCommonStubInfo.push_back(newSAmuon);
   }
 

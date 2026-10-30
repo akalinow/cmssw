@@ -530,7 +530,7 @@ std::pair<bool, uint> KMTFCore::match(const l1t::MuonStubRef& seed, const l1t::M
 }
 
 int KMTFCore::correctedPhiB(const l1t::MuonStubRef& stub) {
-  return ap_fixed<BITSPHIB, BITSPHIB, AP_TRN_ZERO, AP_SAT>(ap_ufixed<PHIBSCALE, PHIBSCALE_INT>(28.5205658) *
+  return ap_fixed<BITSPHIB, BITSPHIB, AP_TRN_ZERO, AP_SAT>(ap_ufixed<PHIBSCALE, PHIBSCALE_INT>(20.0) *
                                                            stub->coord2());
 }
 
@@ -1518,7 +1518,7 @@ uint KMTFCore::matchAbs(std::map<uint, uint>& info, uint i, uint j) {
 }
 
 int KMTFCore::ptLUT(int K) {
-  float lsb = 1.25 / float(1 << (BITSCURV - 1));
+  float lsb = 0.94 / float(1 << (BITSCURV - 1));
   float FK = fabs(K);
   int pt = 0;
   if (FK > 8191)

@@ -113,6 +113,7 @@ void Phase2L1TGMTFwdMuonTranslator::produce(edm::Event& iEvent, const edm::Event
     displaced.push_back(samuon);
   }
 
+
   // Convert EMTF++ Tracks to SAMuons
   for (unsigned int track_id = 0; track_id < emtf_tracks->size(); ++track_id) {
     const auto& track = emtf_tracks->at(track_id);
@@ -198,6 +199,7 @@ SAMuon Phase2L1TGMTFwdMuonTranslator::Convertl1tMuon(const l1t::RegionalMuonCand
   // Calculate Lorentz Vector
   math::PtEtaPhiMLorentzVector p4(pt * LSBpt, eta * LSBeta, phi * LSBphi, 0.0);
   SAMuon samuon(p4, charge, pt.to_uint(), eta.to_int(), phi.to_int(), z0.to_int(), d0.to_int(), qual.to_uint());
+
   samuon.setTF(mu.trackFinderType());
   samuon.setWord(word);
   return samuon;
