@@ -77,13 +77,29 @@ std::vector<l1t::SAMuon> SAMuonCleaner::interTFClean(const std::vector<l1t::SAMu
                                                      const std::vector<l1t::SAMuon>& omtf,
                                                      const std::vector<l1t::SAMuon>& emtf) {
 
-  std::vector<l1t::SAMuon> out = omtf;
+  //OMTF has priority over EMTF, except for OMTF candidates the OMTF itself marks as unreliable:
+  //quality 0 (|eta| >= 1.3, outside the OMTF acceptance) and 1 (|eta| >= 1.25 with CSC-like layers only),
+  //see OmtfProcessorPhase2::assignQualityPhase2. Those lose the shared stubs to EMTF candidates.
+  constexpr int maxOmtfQualityUnreliable = 1;
+  auto isReliableOmtf = [](const l1t::SAMuon& mu) { return mu.hwQual() > maxOmtfQualityUnreliable; };
+
+  std::vector<l1t::SAMuon> out;
+  for (const auto& mu : omtf) {
+    l1t::SAMuon source = mu;
+    if (!isReliableOmtf(source)) {
+      for (const auto& other : emtf) {
+        overlapCleanTrackInter(source, other);
+      }
+    }
+    out.push_back(source);
+  }
   for (unsigned int i = 0; i < emtf.size(); ++i) {
     l1t::SAMuon source = emtf[i];
     for (const auto& other : omtf) {
-      overlapCleanTrackInter(source, other);
+      if (isReliableOmtf(other))
+        overlapCleanTrackInter(source, other);
     }
-      out.push_back(source);
+    out.push_back(source);
   }
 
   for (unsigned int i = 0; i < bmtf.size(); ++i) {
