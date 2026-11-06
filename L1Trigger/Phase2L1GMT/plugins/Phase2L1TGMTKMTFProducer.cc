@@ -112,7 +112,7 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
                   track.phiAtMuon() / (1 << 5),
                   z0,
                   0,
-                  track.stubs().size() - 1);
+                  track.rankPrompt());  //8-bit rank, reduced to the 4-bit SAMuon quality in the ghost cleaner
     p.setTF(l1t::tftype::bmtf);
     int bstart = 0;
     wordtype word(0);
@@ -151,7 +151,7 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
                   track.phiAtMuon() / (1 << 5),
                   z0,
                   dxy,
-                  track.approxDispChi2());
+                  track.rankDisp());  //8-bit rank, reduced to the 4-bit SAMuon quality in the ghost cleaner
     p.setTF(l1t::tftype::bmtf);
     int bstart = 0;
     wordtype word(0);

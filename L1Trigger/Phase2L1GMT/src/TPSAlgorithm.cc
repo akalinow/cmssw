@@ -1,4 +1,5 @@
 #include "L1Trigger/Phase2L1GMT/interface/TPSAlgorithm.h"
+#include <cmath>
 
 using namespace Phase2L1GMT;
 
@@ -451,6 +452,18 @@ ap_uint<BITSSIGMACOORD + 1> TPSAlgorithm::deltaCoord(const ap_int<BITSSTUBCOORD>
   return ap_uint<BITSSIGMACOORD + 1>(dPhi);
 }
 
+//Since CMSSW_20 barrel stubs carry z and k=dz/dR of the DT segment in the eta1 and eta2 fields
+//(L1TPhase2GMTBarrelStubProcessor::buildStubwithZandkSlope). Convert z back to the stub eta
+//(units of ETADIVIDER*LSBeta) pointing from the origin to the segment, as the pre-CMSSW_20 eta LUTs did.
+//In firmware this is a LUT addressed by (station, z).
+ap_int<BITSSTUBETA> TPSAlgorithm::barrelStubEta(int z, uint tfLayer) const {
+  static constexpr float RadiusStationPhys[] = {445., 526., 635., 730.};
+  static constexpr float zLSB = 1500. / (1 << 16);
+  static const float stubEtaLSB = ETADIVIDER * 2 * M_PI / (1 << BITSETA);
+  float eta = std::asinh(z * zLSB / RadiusStationPhys[tfLayer]);
+  return ap_int<BITSSTUBETA>(std::lround(eta / stubEtaLSB));
+}
+
 match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& stub, uint trackID) const {
   if (verbose_ == 1) {
     edm::LogInfo("TPSAlgo") << "Matching to coord1=" << stub->coord1() << " coord2=" << stub->coord2()
@@ -494,7 +507,12 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
   else
     prop_sigma_eta1 = prop.sigma_eta1;
 
-  ap_uint<BITSSIGMAETA + 1> deltaEta1 = deltaEta(prop.eta, stub->eta1());
+  //barrel stubs: eta1 holds z, eta2 the k slope; both eta measurements are taken from z
+  const ap_int<BITSSTUBETA> stubEta1 =
+      stub->isBarrel() ? barrelStubEta(stub->eta1(), stub->tfLayer()) : ap_int<BITSSTUBETA>(stub->eta1());
+  const ap_int<BITSSTUBETA> stubEta2 = stub->isBarrel() ? stubEta1 : ap_int<BITSSTUBETA>(stub->eta2());
+
+  ap_uint<BITSSIGMAETA + 1> deltaEta1 = deltaEta(prop.eta, stubEta1);
   if (deltaEta1 <= prop_sigma_eta1 && (stub->etaQuality() == 0 || (stub->etaQuality() & 0x1)))
     eta1Matched = 1;
   else
@@ -508,7 +526,7 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
 
   ap_uint<1> eta2Matched;
 
-  ap_uint<BITSSIGMAETA + 1> deltaEta2 = deltaEta(prop.eta, stub->eta2());
+  ap_uint<BITSSIGMAETA + 1> deltaEta2 = deltaEta(prop.eta, stubEta2);
   if (deltaEta2 <= prop.sigma_eta2 && (stub->etaQuality() & 0x2))
     eta2Matched = 1;
   else
