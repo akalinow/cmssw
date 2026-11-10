@@ -12,6 +12,7 @@
 #include "L1Trigger/Phase2L1GMT/interface/ConvertedTTTrack.h"
 #include "L1Trigger/Phase2L1GMT/interface/PreTrackMatchedMuon.h"
 #include "L1Trigger/Phase2L1GMT/interface/TPSLUTs.h"
+#include "L1Trigger/Phase2L1GMT/interface/BarrelStubEta.h"
 #include <iostream>
 
 namespace Phase2L1GMT {
@@ -82,7 +83,6 @@ namespace Phase2L1GMT {
     int verbose_;
     propagation_t propagate(const ConvertedTTTrack& track, uint layer) const;
     ap_uint<BITSSIGMAETA + 1> deltaEta(const ap_int<BITSSTUBETA>& eta1, const ap_int<BITSSTUBETA>& eta2) const;
-    ap_int<BITSSTUBETA> barrelStubEta(int z, uint tfLayer) const;
     ap_uint<BITSSIGMACOORD + 1> deltaCoord(const ap_int<BITSSTUBCOORD>& phi1, const ap_int<BITSSTUBCOORD>& phi2) const;
     match_t match(const propagation_t prop, const l1t::MuonStubRef& stub, uint trackID) const;
     match_t propagateAndMatch(const ConvertedTTTrack& track, const l1t::MuonStubRef& stub, uint trackID) const;

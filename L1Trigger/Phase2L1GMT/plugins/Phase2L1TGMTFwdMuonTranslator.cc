@@ -18,6 +18,7 @@
 #include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
 #include "DataFormats/L1TMuonPhase2/interface/EMTFTrack.h"
 #include "L1Trigger/L1TMuonEndCapPhase2/interface/Utils/TPUtils.h"
+#include "L1Trigger/Phase2L1GMT/interface/BarrelStubEta.h"
 
 //
 // class declaration
@@ -217,24 +218,38 @@ l1t::MuonStubRefVector Phase2L1TGMTFwdMuonTranslator::selectLayerBX(const l1t::M
 }
 
 void Phase2L1TGMTFwdMuonTranslator::associateStubs(l1t::SAMuon& mu, const l1t::MuonStubRefVector& stubs) {
+  //Matching in the hardware units of the hybrid stubs, as in TPSAlgorithm: coord = phi >> (BITSPHI - BITSSTUBCOORD),
+  //eta = eta / 2^(BITSETA - BITSSTUBETA). The offline quantities of the stubs must not be used in the emulator.
+  //Windows correspond to 0.3 rad in phi and 0.3 in eta.
+  static constexpr int phiShift = BITSPHI - BITSSTUBCOORD;
+  static constexpr int etaDivider = 1 << (BITSETA - BITSSTUBETA);
+  static const int maxDeltaCoord = std::lround(0.3 / (LSBphi * (1 << phiShift)));
+  static const int maxDeltaEta = std::lround(0.3 / (LSBeta * etaDivider));
+
+  const ap_int<BITSSTUBCOORD> muCoord = ap_int<BITSSTUBCOORD>(mu.hwPhi() >> phiShift);
+  const ap_int<BITSSTUBETA> muEta = ap_int<BITSSTUBETA>(mu.hwEta() / etaDivider);
+
   for (unsigned int layer = 0; layer <= 4; ++layer) {
     l1t::MuonStubRefVector selectedStubs = selectLayerBX(stubs, 0, layer);
     int bestStubINT = -1;
-    float dPhi = 1000.0;
+    int dCoord = maxDeltaCoord;
     for (uint i = 0; i < selectedStubs.size(); ++i) {
       const l1t::MuonStubRef& stub = selectedStubs[i];
-      float deltaPhi =
-          (stub->quality() & 0x1) ? stub->offline_coord1() - mu.p4().phi() : stub->offline_coord2() - mu.p4().phi();
-      if (deltaPhi > M_PI)
-        deltaPhi = deltaPhi - 2 * M_PI;
-      if (deltaPhi < -M_PI)
-        deltaPhi = deltaPhi + 2 * M_PI;
-      deltaPhi = fabs(deltaPhi);
-      float deltaEta = (stub->etaQuality() == 0 || (stub->etaQuality() & 0x1))
-                           ? fabs(stub->offline_eta1() - mu.p4().eta())
-                           : fabs(stub->offline_eta2() - mu.p4().eta());
-      if (deltaPhi < 0.3 && deltaEta < 0.3 && deltaPhi < dPhi) {
-        dPhi = deltaPhi;
+      const ap_int<BITSSTUBCOORD> stubCoord = (stub->quality() & 0x1) ? stub->coord1() : stub->coord2();
+      //the difference rolls over at the BITSSTUBCOORD range, i.e. at +-pi
+      const ap_int<BITSSTUBCOORD> deltaCoordRoll = muCoord - stubCoord;
+      const int deltaCoord = std::abs(deltaCoordRoll.to_int());
+
+      //barrel stubs: eta1 holds z of the DT segment
+      ap_int<BITSSTUBETA> stubEta;
+      if (stub->isBarrel())
+        stubEta = barrelStubEta(stub->eta1(), stub->tfLayer());
+      else
+        stubEta = (stub->etaQuality() == 0 || (stub->etaQuality() & 0x1)) ? stub->eta1() : stub->eta2();
+      const int deltaEta = std::abs(muEta.to_int() - stubEta.to_int());
+
+      if (deltaCoord < dCoord && deltaEta < maxDeltaEta) {
+        dCoord = deltaCoord;
         bestStubINT = i;
       }
     }

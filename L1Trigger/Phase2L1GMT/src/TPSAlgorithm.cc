@@ -452,18 +452,6 @@ ap_uint<BITSSIGMACOORD + 1> TPSAlgorithm::deltaCoord(const ap_int<BITSSTUBCOORD>
   return ap_uint<BITSSIGMACOORD + 1>(dPhi);
 }
 
-//Since CMSSW_20 barrel stubs carry z and k=dz/dR of the DT segment in the eta1 and eta2 fields
-//(L1TPhase2GMTBarrelStubProcessor::buildStubwithZandkSlope). Convert z back to the stub eta
-//(units of ETADIVIDER*LSBeta) pointing from the origin to the segment, as the pre-CMSSW_20 eta LUTs did.
-//In firmware this is a LUT addressed by (station, z).
-ap_int<BITSSTUBETA> TPSAlgorithm::barrelStubEta(int z, uint tfLayer) const {
-  static constexpr float RadiusStationPhys[] = {445., 526., 635., 730.};
-  static constexpr float zLSB = 1500. / (1 << 16);
-  static const float stubEtaLSB = ETADIVIDER * 2 * M_PI / (1 << BITSETA);
-  float eta = std::asinh(z * zLSB / RadiusStationPhys[tfLayer]);
-  return ap_int<BITSSTUBETA>(std::lround(eta / stubEtaLSB));
-}
-
 match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& stub, uint trackID) const {
   if (verbose_ == 1) {
     edm::LogInfo("TPSAlgo") << "Matching to coord1=" << stub->coord1() << " coord2=" << stub->coord2()
