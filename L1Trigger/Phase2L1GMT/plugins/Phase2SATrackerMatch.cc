@@ -50,42 +50,18 @@ void Phase2SATrackerMatch::beginJob() {}
 int Phase2SATrackerMatch::findBestTrackerMuon(const l1t::SAMuon & samuon, 
                                               const std::vector<l1t::TrackerMuon>& trackerMuons) const {
 
-  LogDebug("SAMuon") << "Phase2SATrackerMatch::findBestTrackerMuon called with SAMuon: " << std::endl;
-  samuon.print();
-  LogDebug("SAMuon") << "SAMuon stubs: " << std::endl;
-  for (auto& samuonStub : samuon.stubs()) samuonStub->print();
-  LogDebug("SAMuon") << "SAMuon stubs: END" << std::endl;
-  LogDebug("SAMuon") << "Number of TrackerMuons: " << trackerMuons.size() << std::endl;
-  
   int bestMatchCount = -1;
-  
+
   for (auto& trackerMuon : trackerMuons) {
 
     int commonStubCount = 0;
     if(trackerMuon.hwQual()<4) continue; //skip non-zero bx and low quality TrackerMuons
-    
-    for (auto& trackerMuonStub : trackerMuon.stubs()) trackerMuonStub->print();
-    
+
     for (auto& samuonStub : samuon.stubs()){
         bool stubMatched = false;
         for (auto& trackerMuonStub : trackerMuon.stubs()) {
 
-            bool tfLayerMatch = (samuonStub->tfLayer() == trackerMuonStub->tfLayer());
-            bool bxNumMatch = (samuonStub->bxNum() == trackerMuonStub->bxNum());
-            bool typeMatch = (samuonStub->type() == trackerMuonStub->type());
             bool addressMatch = (samuonStub->address()>>2) == (trackerMuonStub->address()>>2); //ignore last 2 bits of address - stub id within chamber
-            bool qualityMatch = true; //hybrid stubs have quality fixed to 3 (samuonStub->quality() == trackerMuonStub->quality());
-            bool etaQualityMatch = (samuonStub->etaQuality() == trackerMuonStub->etaQuality());
-
-            LogDebug("SAMuon") <<" SAM:" << (samuonStub->address()>>2)
-                                <<" TK: " << (trackerMuonStub->address()>>2) 
-                                << " bxNumMatch: " << bxNumMatch
-                                << " tfLayerMatch: " << tfLayerMatch 
-                                << " typeMatch: " << typeMatch
-                                << " addressMatch: " << addressMatch
-                                << " qualityMatch: " << qualityMatch
-                                << " etaQualityMatch: " << etaQualityMatch
-                                << std::endl;
 
             //stubMatched=(tfLayerMatch && addressMatch); //full match in HW. In HW we have access to tfLayer and address.
             stubMatched |= addressMatch; //Catch cases when SAM and TKMuons have stubs in different tfLayers.
@@ -109,10 +85,6 @@ int Phase2SATrackerMatch::findBestTrackerMuon(const l1t::SAMuon & samuon,
       if(commonStubCount > bestMatchCount) bestMatchCount = commonStubCount;
     }
   }
-    if(bestMatchCount<2){
-      LogDebug("SAMuon")<<" LOW MATCH bestMatchCount: "<<bestMatchCount<<std::endl;
-    }
-
     return bestMatchCount;
 }
 //////////////////////////////////////////////////////////////////////////////////////////

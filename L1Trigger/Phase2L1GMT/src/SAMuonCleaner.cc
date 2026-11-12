@@ -12,10 +12,6 @@ int SAMuonCleaner::countCommonStubs(const l1t::SAMuon& cand1, const l1t::SAMuon&
         nCommonStubs++;
     }
   }
-  LogDebug("SAMuon") << __FUNCTION__ 
-                     << " cand1 stubs: " << cand1.stubs().size() 
-                     << " cand2 stubs: " << cand2.stubs().size() 
-                     << " common stubs: " << nCommonStubs;
   return nCommonStubs;
 }                                                             
 ///////////////////////////////////////////////////////////////////////////////////////////////
