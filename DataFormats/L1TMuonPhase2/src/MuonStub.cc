@@ -83,7 +83,8 @@ bool MuonStub::operator==(const MuonStub& id) const {
 
 void MuonStub::print() const {
   LogDebug("MuonStub") << " MuonStub : BX=" << bxNum_ << " etaRegion=" << etaRegion_ << " phiRegion=" << phiRegion_
-                       << " depth=" << depthRegion_ << " ID=" << id_ << " coord1=" << coord1_ << " coord2=" << coord2_
+                       << " depth=" << depthRegion_ << " ID=" << id_ << " address = " << address() 
+                       << " coord1=" << coord1_ << " coord2=" << coord2_
                        << " quality=" << quality_ << " eta1=" << eta1_ << " eta2=" << eta2_
                        << " etaQuality=" << etaQuality_ << " type=" << type_;
 }
@@ -108,7 +109,7 @@ const Phase2L1GMT::wordtype MuonStub::hybridStubWord() const {
   return w;
 }
 
-void MuonStub::printHybridStub(std::string module = "MuonStub", uint spaces = 0, bool label = true) const {
+void MuonStub::printHybridStub(std::string module, uint spaces, bool label) const {
   std::string lab = "";
   lab.append(spaces, ' ');
   if (label)
@@ -133,7 +134,7 @@ void MuonStub::printHybridStub(std::string module = "MuonStub", uint spaces = 0,
                        << "tfLayer = " << tfLayer_ << std::flush;
 }
 
-void MuonStub::printHybridStubWord(std::string module = "MuonStub", uint spaces = 0, bool label = true) const {
+void MuonStub::printHybridStubWord(std::string module, uint spaces, bool label) const {
   std::string lab = "";
   lab.append(spaces, ' ');
   if (label)
